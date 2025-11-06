@@ -1,0 +1,28 @@
+{
+  "appTitle": "국제공조수사플랫폼",
+  "login_id": "아이디",
+  "login_password": "비밀번호",
+  "login_auto": "자동 로그인",
+  "login_rememberId": "아이디 저장",
+  "login_button": "로그인",
+  "login_findId": "아이디 찾기",
+  "login_findPassword": "비밀번호 찾기",
+  "form_required": "필수 입력 항목입니다",
+  "auth_invalid": "아이디 또는 비밀번호가 올바르지 않습니다",
+
+  "nav_home": "홈",
+  "nav_chat": "대화",
+  "nav_send": "전송",
+  "nav_alerts": "알림",
+  "nav_profile": "내정보",
+
+  "dashboard_header": "국제공조수사플랫폼",
+  "dashboard_caseStatus": "내사건 현황",
+  "dashboard_ongoing": "진행 중인 사건",
+  "dashboard_unresolved": "미해결 사건",
+  "dashboard_closed": "종료된 사건",
+  "dashboard_recent": "최근 수사한 사건",
+  "unit_cases": "건",
+  "label_type": "유형",
+  "status_inprogress": "진행중"
+}

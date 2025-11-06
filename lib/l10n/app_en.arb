@@ -1,0 +1,28 @@
+{
+  "appTitle": "International Joint Investigation Platform",
+  "login_id": "ID",
+  "login_password": "Password",
+  "login_auto": "Auto login",
+  "login_rememberId": "Remember ID",
+  "login_button": "Log in",
+  "login_findId": "Find ID",
+  "login_findPassword": "Find password",
+  "form_required": "This field is required",
+  "auth_invalid": "Invalid username or password",
+
+  "nav_home": "Home",
+  "nav_chat": "Chat",
+  "nav_send": "Send",
+  "nav_alerts": "Alerts",
+  "nav_profile": "My profile",
+
+  "dashboard_header": "International Joint Investigation Platform",
+  "dashboard_caseStatus": "My case status",
+  "dashboard_ongoing": "Ongoing cases",
+  "dashboard_unresolved": "Unresolved cases",
+  "dashboard_closed": "Closed cases",
+  "dashboard_recent": "Recent cases",
+  "unit_cases": "cases",
+  "label_type": "Type",
+  "status_inprogress": "In progress"
+}
