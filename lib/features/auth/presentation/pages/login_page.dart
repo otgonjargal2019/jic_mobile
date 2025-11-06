@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:jic_mob/core/localization/app_localizations.dart';
+import 'package:jic_mob/core/network/api_client.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// A simple login page that mirrors the provided design.
 /// Uses AppLocalizations for en/ko strings.
@@ -19,6 +21,27 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _autoLogin = false;
   bool _rememberId = false;
+  bool _loading = false;
+
+  Future<ApiClient>? _apiFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _apiFuture = ApiClient.create();
+    _loadRememberedId();
+  }
+
+  Future<void> _loadRememberedId() async {
+    final prefs = await SharedPreferences.getInstance();
+    final savedId = prefs.getString('remembered_id');
+    if (savedId != null && mounted) {
+      setState(() {
+        _idController.text = savedId;
+        _rememberId = true;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -137,8 +160,19 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                         ),
-                        onPressed: _onLoginPressed,
-                        child: Text(loc.loginButton),
+                        onPressed: _loading ? null : _onLoginPressed,
+                        child: _loading
+                            ? const SizedBox(
+                                height: 22,
+                                width: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.4,
+                                  valueColor: AlwaysStoppedAnimation(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : Text(loc.loginButton),
                       ),
                     ),
 
@@ -168,24 +202,38 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _onLoginPressed() {
+  Future<void> _onLoginPressed() async {
     if (_formKey.currentState?.validate() != true) return;
 
     final id = _idController.text.trim();
     final pw = _passwordController.text;
+    final loc = AppLocalizations.of(context)!;
 
-    if (id == 'admin' && pw == 'admin') {
-      // Success: go to dashboard
+    setState(() => _loading = true);
+    try {
+      final api = await _apiFuture!;
+      await api.login(loginId: id, password: pw, stayLoggedIn: _autoLogin);
+
+      final prefs = await SharedPreferences.getInstance();
+      if (_rememberId) {
+        await prefs.setString('remembered_id', id);
+      } else {
+        await prefs.remove('remembered_id');
+      }
+
+      if (!mounted) return;
       Navigator.of(context).pushReplacementNamed('/home');
-    } else {
-      // Failure: show error and stay
-      final loc = AppLocalizations.of(context)!;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(loc.loginError),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+    } catch (e) {
+      final msg = e.toString().contains('ADMIN_CONFIRMATION_NEEDED')
+          ? 'ADMIN_CONFIRMATION_NEEDED'
+          : (e is ApiException ? e.message : loc.loginError);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
     }
   }
 }

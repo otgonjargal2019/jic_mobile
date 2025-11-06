@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jic_mob/features/cases/domain/models/case_item.dart';
 import 'package:jic_mob/features/cases/presentation/widgets/case_card.dart';
 import 'package:jic_mob/core/widgets/app_bottom_nav.dart';
+import 'package:jic_mob/core/network/api_client.dart';
 
 class HomePage extends StatefulWidget {
   static const route = '/home';
@@ -91,36 +92,60 @@ class _ProfileCard extends StatelessWidget {
           ),
         ],
       ),
-      child: Row(
+      child: Stack(
         children: [
-          const CircleAvatar(
-            radius: 26,
-            backgroundColor: Color(0xFFBDBDBD),
-            child: Icon(Icons.person, color: Colors.white),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  '고광현',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 16,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: const [
-                    _Chip(text: '경찰 대응 본부'),
-                    _Chip(text: '온라인 보호부'),
+          Row(
+            children: [
+              const CircleAvatar(
+                radius: 26,
+                backgroundColor: Color(0xFFBDBDBD),
+                child: Icon(Icons.person, color: Colors.white),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      '고광현',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: const [
+                        _Chip(text: '경찰 대응 본부'),
+                        _Chip(text: '온라인 보호부'),
+                      ],
+                    ),
                   ],
                 ),
-              ],
+              ),
+            ],
+          ),
+          Positioned(
+            right: -8,
+            top: -8,
+            child: IconButton(
+              icon: const Icon(Icons.logout, color: Colors.white70),
+              tooltip: 'Logout',
+              onPressed: () async {
+                try {
+                  final api = await ApiClient.create();
+                  await api.logout();
+                } catch (_) {}
+
+                if (context.mounted) {
+                  Navigator.of(
+                    context,
+                  ).pushNamedAndRemoveUntil('/login', (route) => false);
+                }
+              },
             ),
           ),
         ],
