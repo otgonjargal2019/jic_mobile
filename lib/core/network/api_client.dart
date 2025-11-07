@@ -28,7 +28,7 @@ class ApiClient {
             baseUrl ??
             const String.fromEnvironment(
               'API_BASE_URL',
-              defaultValue: 'http://localhost:8080',
+              defaultValue: 'http://192.168.0.160:8080',
             ),
         headers: const {'Content-Type': 'application/json'},
         connectTimeout: const Duration(seconds: 10),
