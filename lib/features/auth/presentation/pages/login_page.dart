@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:jic_mob/core/localization/app_localizations.dart';
 import 'package:jic_mob/core/network/api_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+import 'package:jic_mob/core/state/user_provider.dart';
 
 /// A simple login page that mirrors the provided design.
 /// Uses AppLocalizations for en/ko strings.
@@ -221,8 +223,24 @@ class _LoginPageState extends State<LoginPage> {
         await prefs.remove('remembered_id');
       }
 
-      if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed('/home');
+      // Fetch user profile after successful authentication and store globally
+      if (mounted) {
+        final messenger = ScaffoldMessenger.of(context);
+        final navigator = Navigator.of(context);
+        final userProv = context.read<UserProvider>();
+        try {
+          await userProv.fetchMe();
+        } catch (e) {
+          // Non-fatal: proceed to home but inform the user
+          messenger.showSnackBar(
+            SnackBar(
+              content: Text('${loc.appTitle}: Failed to load profile'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+        navigator.pushReplacementNamed('/home');
+      }
     } catch (e) {
       final msg = e.toString().contains('ADMIN_CONFIRMATION_NEEDED')
           ? 'ADMIN_CONFIRMATION_NEEDED'

@@ -3,6 +3,8 @@ import 'package:jic_mob/features/cases/domain/models/case_item.dart';
 import 'package:jic_mob/features/cases/presentation/widgets/case_card.dart';
 import 'package:jic_mob/core/widgets/app_bottom_nav.dart';
 import 'package:jic_mob/core/network/api_client.dart';
+import 'package:provider/provider.dart';
+import 'package:jic_mob/core/state/user_provider.dart';
 
 class HomePage extends StatefulWidget {
   static const route = '/home';
@@ -78,6 +80,13 @@ class _ProfileCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.watch<UserProvider>().profile;
+    final name = user?.name ?? 'Guest';
+    final email = user?.email ?? '—';
+    final shortId = (user?.id ?? '').isNotEmpty
+        ? '#${(user!.id.length >= 8 ? user.id.substring(0, 8) : user.id)}'
+        : 'Not signed in';
+    final avatarUrl = user?.avatarUrl;
     const cardColor = Color(0xFF2C2D3A);
     return Container(
       padding: const EdgeInsets.all(16),
@@ -96,19 +105,24 @@ class _ProfileCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const CircleAvatar(
+              CircleAvatar(
                 radius: 26,
-                backgroundColor: Color(0xFFBDBDBD),
-                child: Icon(Icons.person, color: Colors.white),
+                backgroundColor: const Color(0xFFBDBDBD),
+                backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
+                    ? NetworkImage(avatarUrl)
+                    : null,
+                child: (avatarUrl == null || avatarUrl.isEmpty)
+                    ? const Icon(Icons.person, color: Colors.white)
+                    : null,
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      '고광현',
-                      style: TextStyle(
+                    Text(
+                      name,
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w700,
                         fontSize: 16,
@@ -118,9 +132,9 @@ class _ProfileCard extends StatelessWidget {
                     Wrap(
                       spacing: 8,
                       runSpacing: 8,
-                      children: const [
-                        _Chip(text: '경찰 대응 본부'),
-                        _Chip(text: '온라인 보호부'),
+                      children: [
+                        _Chip(text: email),
+                        _Chip(text: shortId),
                       ],
                     ),
                   ],
@@ -141,6 +155,8 @@ class _ProfileCard extends StatelessWidget {
                 } catch (_) {}
 
                 if (context.mounted) {
+                  // Clear user provider state on logout
+                  context.read<UserProvider>().clear();
                   Navigator.of(
                     context,
                   ).pushNamedAndRemoveUntil('/login', (route) => false);

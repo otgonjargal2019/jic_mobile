@@ -89,8 +89,9 @@ class ApiClient {
     }
   }
 
-  // Example of an authenticated request; cookie will be attached automatically (non-web via CookieManager; web via browser).
-  Future<Response<dynamic>> getMe() => _dio.get('/me');
+  // Authenticated request: returns current user's profile and related lists.
+  // Backend endpoint per server: /api/user/me
+  Future<Response<dynamic>> getMe() => _dio.get('/api/user/me');
 
   /// Logs out the current session.
   ///
