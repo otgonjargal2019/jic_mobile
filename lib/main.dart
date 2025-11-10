@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jic_mob/core/provider/case_provider.dart';
+import 'package:jic_mob/core/repository/case_repository.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/cases/presentation/widgets/status_tag.dart';
 import 'features/home/presentation/pages/home_page.dart';
@@ -24,6 +26,9 @@ void main() async {
         // Provide PostsProvider so PostsPage can read/watch it
         ChangeNotifierProvider(
           create: (_) => PostsProvider(PostsRepository(apiClient)),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CaseProvider(CaseRepository(apiClient)),
         ),
       ],
       child: const MyApp(),
