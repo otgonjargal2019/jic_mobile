@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:jic_mob/core/navigation/app_router.dart' as app_router;
+import 'package:jic_mob/core/provider/posts_provider.dart';
 import 'package:jic_mob/core/widgets/app_bottom_nav.dart';
 import 'package:jic_mob/core/widgets/segmented_tabs.dart';
+import 'package:provider/provider.dart';
 
 class PostsPage extends StatefulWidget {
   const PostsPage({super.key});
@@ -14,10 +16,20 @@ class _PostsPageState extends State<PostsPage> {
   int _tab = 0; // 0: 공지사항, 1: 조사정보
 
   @override
+  void initState() {
+    super.initState();
+    // Load posts when the page is first created
+    Future.microtask(() => context.read<PostsProvider>().loadPosts());
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final notices = _sampleNotices;
-    final investigations = _sampleInvestigations;
+    final postsProvider = context.watch<PostsProvider>();
+    final notices = postsProvider.notices;
+    final investigations = postsProvider.investigations;
     final list = _tab == 0 ? notices : investigations;
+    final error = postsProvider.error;
+    final loading = postsProvider.loading;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -44,107 +56,81 @@ class _PostsPageState extends State<PostsPage> {
               backgroundColor: Colors.transparent,
             ),
           ),
-          Expanded(
-            child: ListView.separated(
-              padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-              itemCount: list.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
-              itemBuilder: (context, index) {
-                final item = list[index];
-                return _PostTile(
-                  title: item.title,
-                  dateTimeLabel: item.dateTimeLabel,
-                  onTap: () {
-                    Navigator.of(context).pushNamed(
-                      app_router.AppRoute.postDetail,
-                      arguments: app_router.PostDetailArgs(item.id),
-                    );
+          if (error != null)
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(
+                    error,
+                    style: const TextStyle(color: Colors.red),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => context.read<PostsProvider>().loadPosts(),
+                    child: const Text('다시 시도'),
+                  ),
+                ],
+              ),
+            )
+          else if (loading && list.isEmpty)
+            const Center(child: CircularProgressIndicator())
+          else
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () => context.read<PostsProvider>().loadPosts(),
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (notification) {
+                    if (notification.metrics.pixels >=
+                        notification.metrics.maxScrollExtent - 200) {
+                      final provider = context.read<PostsProvider>();
+                      if (_tab == 0) {
+                        provider.loadMoreNotices();
+                      } else {
+                        provider.loadMoreInvestigations();
+                      }
+                    }
+                    return false;
                   },
-                );
-              },
+                  child: ListView.separated(
+                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                    itemCount: list.length + (loading ? 1 : 0),
+                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      if (index == list.length) {
+                        return const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Center(child: CircularProgressIndicator()),
+                        );
+                      }
+
+                      final post = list[index];
+                      return _PostTile(
+                        title: post.title,
+                        dateTimeLabel: post.createdAt.toString(),
+                        onTap: () {
+                          Navigator.of(context).pushNamed(
+                            app_router.AppRoute.postDetail,
+                            arguments: app_router.PostDetailArgs(
+                              post.postId,
+                              boardType: post.boardType.name,
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
             ),
-          ),
         ],
       ),
     );
   }
-
-  List<_PostItem> get _sampleNotices => const [
-    _PostItem(
-      id: 'p1',
-      title: '인터폴 협력 사례 공유 세미나 참가 신청 안내',
-      dateTimeLabel: '2024-02-09 18:32:44',
-    ),
-    _PostItem(
-      id: 'p2',
-      title: '2025 상반기 국제공조수사 워크샵 개최 안내',
-      dateTimeLabel: '2024-02-09 18:32:44',
-    ),
-    _PostItem(
-      id: 'p3',
-      title: '국제 수사정보 공유 시스템 사용자 교육 일정 공지',
-      dateTimeLabel: '2024-02-09 18:32:44',
-    ),
-    _PostItem(
-      id: 'p4',
-      title: '국제사이버범죄 공동대응 훈련 참가자 모집',
-      dateTimeLabel: '2024-02-09 18:32:44',
-    ),
-    _PostItem(
-      id: 'p5',
-      title: '국가별 수사협력 연락망 업데이트 안내',
-      dateTimeLabel: '2024-02-09 18:32:44',
-    ),
-    _PostItem(
-      id: 'p6',
-      title: '공조수사 성공사례 리포트 발간 알림',
-      dateTimeLabel: '2024-02-09 18:32:44',
-    ),
-    _PostItem(
-      id: 'p7',
-      title: '범죄정보 실시간 공유 기능 점검 일정 안내',
-      dateTimeLabel: '2024-02-09 18:32:44',
-    ),
-    _PostItem(
-      id: 'p8',
-      title: '국제수배자 데이터베이스 정기 점검 공지',
-      dateTimeLabel: '2024-02-09 18:32:44',
-    ),
-    _PostItem(
-      id: 'p9',
-      title: '신규 가입 수사관 대상 플랫폼 오리엔테이션 안내',
-      dateTimeLabel: '2024-02-09 18:32:44',
-    ),
-  ];
-
-  List<_PostItem> get _sampleInvestigations => const [
-    _PostItem(
-      id: 'i1',
-      title: '랜섬웨어 조직 X 관련 수사 동향',
-      dateTimeLabel: '2024-02-09 18:32:44',
-    ),
-    _PostItem(
-      id: 'i2',
-      title: '불법 도박 플랫폼 자금 흐름 분석 공유',
-      dateTimeLabel: '2024-02-09 18:32:44',
-    ),
-    _PostItem(
-      id: 'i3',
-      title: '해외 호스팅 업체 협조 가이드 업데이트',
-      dateTimeLabel: '2024-02-09 18:32:44',
-    ),
-  ];
-}
-
-class _PostItem {
-  final String id;
-  final String title;
-  final String dateTimeLabel;
-  const _PostItem({
-    required this.id,
-    required this.title,
-    required this.dateTimeLabel,
-  });
 }
 
 class _PostTile extends StatelessWidget {

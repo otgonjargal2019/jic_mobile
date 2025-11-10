@@ -7,11 +7,25 @@ import 'core/localization/app_localizations.dart';
 import 'core/navigation/app_router.dart' as app_router;
 import 'package:provider/provider.dart';
 import 'core/state/user_provider.dart';
+import 'core/network/api_client.dart';
+import 'core/repository/posts_repository.dart';
+import 'core/provider/posts_provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Create API client (handles cookies etc.)
+  final apiClient = await ApiClient.create();
+
   runApp(
     MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => UserProvider())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        // Provide PostsProvider so PostsPage can read/watch it
+        ChangeNotifierProvider(
+          create: (_) => PostsProvider(PostsRepository(apiClient)),
+        ),
+      ],
       child: const MyApp(),
     ),
   );

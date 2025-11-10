@@ -1,121 +1,217 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:jic_mob/core/navigation/app_router.dart' as app_router;
+import 'package:jic_mob/core/models/post.dart';
+import 'package:jic_mob/core/models/post_detail.dart';
+import 'package:jic_mob/core/provider/posts_provider.dart';
 
-class PostDetailPage extends StatelessWidget {
+class PostDetailPage extends StatefulWidget {
   final String id;
-  const PostDetailPage({super.key, required this.id});
+  final String? boardType;
+  const PostDetailPage({super.key, required this.id, this.boardType});
+
+  @override
+  State<PostDetailPage> createState() => _PostDetailPageState();
+}
+
+class _PostDetailPageState extends State<PostDetailPage> {
+  bool _loading = true;
+  String? _error;
+  PostDetailResponse? _detail;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  BoardType _parseBoardType(String? s) {
+    if (s == null) return BoardType.notice;
+    try {
+      return BoardType.values.firstWhere(
+        (e) => e.name.toLowerCase() == s.toLowerCase(),
+      );
+    } catch (_) {
+      return BoardType.notice;
+    }
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+
+    final provider = context.read<PostsProvider>();
+    final boardType = _parseBoardType(widget.boardType);
+
+    try {
+      final res = await provider.fetchPostDetail(
+        boardType: boardType,
+        id: widget.id,
+      );
+      setState(() {
+        _detail = res;
+      });
+    } catch (e) {
+      setState(() {
+        _error = e.toString();
+      });
+    } finally {
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final post = _samplePost(id);
-
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
-        title: const Text('공지사항'),
+        title: const Text('게시글'),
         centerTitle: true,
         elevation: 0,
         scrolledUnderElevation: 0,
         backgroundColor: Colors.white,
       ),
-      body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-        children: [
-          InkWell(
-            onTap: () {},
-            child: Text(
-              post.title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF2563EB),
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 12,
-            runSpacing: 4,
-            crossAxisAlignment: WrapCrossAlignment.center,
+      body: _buildBody(),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_loading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              _meta('작성일', post.dateLabel),
-              _meta('작성자', '관리자'),
-              _meta('조회수', post.views.toString()),
+              Text(
+                _error ?? 'Unknown error',
+                style: const TextStyle(color: Colors.red),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(onPressed: _load, child: const Text('다시 시도')),
             ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            post.body,
+        ),
+      );
+    }
+
+    final detail = _detail!;
+    final post = detail.current;
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      children: [
+        InkWell(
+          onTap: () {},
+          child: Text(
+            post.title,
             style: const TextStyle(
-              fontSize: 13,
-              height: 1.5,
-              color: Color(0xFF6B7280),
+              fontSize: 16,
+              fontWeight: FontWeight.w800,
+              color: Color(0xFF2563EB),
+              decoration: TextDecoration.underline,
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: const [
-              Icon(Icons.attach_file, size: 18, color: Color(0xFF6B7280)),
-              SizedBox(width: 6),
-              Text('첨부파일', style: TextStyle(color: Color(0xFF6B7280))),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 12,
+          runSpacing: 4,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            _meta('작성일', post.createdAt.toString()),
+            _meta('작성자', post.createdBy ?? ''),
+            _meta('조회수', '—'),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Text(
+          post.content ?? '',
+          style: const TextStyle(
+            fontSize: 13,
+            height: 1.5,
+            color: Color(0xFF6B7280),
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: const [
+            Icon(Icons.attach_file, size: 18, color: Color(0xFF6B7280)),
+            SizedBox(width: 6),
+            Text('첨부파일', style: TextStyle(color: Color(0xFF6B7280))),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: const Color(0xFFEFF4FB),
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xFFDCE7F9)),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  // No attachment info in model; show placeholder
+                  '첨부파일 없음',
+                  style: const TextStyle(
+                    color: Color(0xFF2563EB),
+                    decoration: TextDecoration.underline,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const Icon(
+                Icons.file_download_outlined,
+                color: Color(0xFF2563EB),
+              ),
             ],
           ),
-          const SizedBox(height: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: const Color(0xFFEFF4FB),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFFDCE7F9)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    post.attachment,
-                    style: const TextStyle(
-                      color: Color(0xFF2563EB),
-                      decoration: TextDecoration.underline,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                const Icon(
-                  Icons.file_download_outlined,
-                  color: Color(0xFF2563EB),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          const Divider(height: 1),
+        ),
+        const SizedBox(height: 16),
+        const Divider(height: 1),
+        if (detail.prev != null)
           _PrevNextItem(
             label: '이전글',
-            title: '인터폴 협력 사례 공유 세미나 참가 신청 안내',
-            dateTime: '2024-02-09 18:32:44',
+            title: detail.prev!.title,
+            dateTime: '',
             onTap: () {
               Navigator.of(context).pushReplacementNamed(
                 app_router.AppRoute.postDetail,
-                arguments: const app_router.PostDetailArgs('prev'),
+                arguments: app_router.PostDetailArgs(
+                  detail.prev!.postId,
+                  boardType: widget.boardType,
+                ),
               );
             },
           ),
-          const Divider(height: 1),
+        const Divider(height: 1),
+        if (detail.next != null)
           _PrevNextItem(
             label: '다음글',
-            title: '인터폴 협력 사례 공유 세미나 참가 신청 안내',
-            dateTime: '2024-02-09 18:32:44',
+            title: detail.next!.title,
+            dateTime: '',
             onTap: () {
               Navigator.of(context).pushReplacementNamed(
                 app_router.AppRoute.postDetail,
-                arguments: const app_router.PostDetailArgs('next'),
+                arguments: app_router.PostDetailArgs(
+                  detail.next!.postId,
+                  boardType: widget.boardType,
+                ),
               );
             },
           ),
-          const Divider(height: 1),
-        ],
-      ),
+        const Divider(height: 1),
+      ],
     );
   }
 
@@ -199,29 +295,4 @@ class _PrevNextItem extends StatelessWidget {
       ),
     );
   }
-}
-
-class _PostDetailData {
-  final String title;
-  final String dateLabel;
-  final int views;
-  final String body;
-  final String attachment;
-  const _PostDetailData({
-    required this.title,
-    required this.dateLabel,
-    required this.views,
-    required this.body,
-    required this.attachment,
-  });
-}
-
-_PostDetailData _samplePost(String id) {
-  return const _PostDetailData(
-    title: '인터폴 협력 사례 공유 세미나 참가 신청 안내',
-    dateLabel: '2025.05.19',
-    views: 125,
-    body: '2025년 상반기 국제공조수사 워크샵 개최안내의 자세한 내용은 첨부파일로 확인하시기 바랍니다.',
-    attachment: '2025 국제 공조수사 워크샵 개최안내.docx',
-  );
 }
