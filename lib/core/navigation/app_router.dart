@@ -36,7 +36,8 @@ class ChatArgs {
 
 class PostDetailArgs {
   final String id;
-  const PostDetailArgs(this.id);
+  final String? boardType; // optional, will be used to call API if provided
+  const PostDetailArgs(this.id, {this.boardType});
 }
 
 Route<dynamic>? onGenerateRoute(RouteSettings settings) {
@@ -65,7 +66,8 @@ Route<dynamic>? onGenerateRoute(RouteSettings settings) {
     case AppRoute.postDetail:
       final args = settings.arguments as PostDetailArgs?;
       return MaterialPageRoute(
-        builder: (_) => PostDetailPage(id: args?.id ?? ''),
+        builder: (_) =>
+            PostDetailPage(id: args?.id ?? '', boardType: args?.boardType),
       );
     case AppRoute.notifications:
       return MaterialPageRoute(builder: (_) => const NotificationsPage());

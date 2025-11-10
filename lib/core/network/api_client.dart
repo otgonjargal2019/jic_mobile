@@ -28,7 +28,7 @@ class ApiClient {
             baseUrl ??
             const String.fromEnvironment(
               'API_BASE_URL',
-              defaultValue: 'http://localhost:8080',
+              defaultValue: 'http://192.168.0.21:8080',
             ),
         headers: const {'Content-Type': 'application/json'},
         connectTimeout: const Duration(seconds: 10),
@@ -105,5 +105,21 @@ class ApiClient {
         await _jar.deleteAll();
       } catch (_) {}
     }
+  }
+
+  Future<Response> get(
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    Duration? receiveTimeout,
+  }) async {
+    final options = receiveTimeout != null
+        ? Options(receiveTimeout: receiveTimeout)
+        : null;
+
+    return await _dio.get(
+      path,
+      queryParameters: queryParameters,
+      options: options,
+    );
   }
 }
