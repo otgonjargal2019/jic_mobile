@@ -6,6 +6,7 @@ class Post {
   final String? createdBy;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final int viewCount;
 
   const Post({
     required this.postId,
@@ -15,6 +16,7 @@ class Post {
     this.createdBy,
     required this.createdAt,
     required this.updatedAt,
+    this.viewCount = 0,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -27,9 +29,10 @@ class Post {
       ),
       title: json['title'] as String,
       content: json['content'] as String?,
-      createdBy: json['creator']?['name'] ?? json['creator']?['id'],
+      createdBy: json['creator']?['nameKr'] ?? json['creator']?['nameEn'],
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
+      viewCount: json['viewCount'] as int? ?? 0,
     );
   }
 
@@ -42,6 +45,7 @@ class Post {
       'creator': createdBy,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
+      'viewCount': viewCount,
     };
   }
 }

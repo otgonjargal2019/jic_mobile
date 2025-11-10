@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import 'package:jic_mob/core/navigation/app_router.dart' as app_router;
 import 'package:jic_mob/core/models/post.dart';
 import 'package:jic_mob/core/models/post_detail.dart';
 import 'package:jic_mob/core/provider/posts_provider.dart';
+import 'package:flutter_html/flutter_html.dart';
 
 class PostDetailPage extends StatefulWidget {
   final String id;
@@ -66,10 +68,13 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final boardType = _parseBoardType(widget.boardType);
+    final title = boardType == BoardType.notice ? '공지사항' : '조사정보';
+
     return Scaffold(
       backgroundColor: const Color(0xFFF9FAFB),
       appBar: AppBar(
-        title: const Text('게시글'),
+        title: Text(title),
         centerTitle: true,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -129,18 +134,16 @@ class _PostDetailPageState extends State<PostDetailPage> {
           children: [
             _meta('작성일', post.createdAt.toString()),
             _meta('작성자', post.createdBy ?? ''),
-            _meta('조회수', '—'),
+            _meta('조회수', post.viewCount.toString()),
           ],
         ),
         const SizedBox(height: 16),
-        Text(
-          post.content ?? '',
-          style: const TextStyle(
-            fontSize: 13,
-            height: 1.5,
-            color: Color(0xFF6B7280),
-          ),
-        ),
+        // Render HTML content like a browser. Use flutter_html to convert
+        // HTML strings into Flutter widgets (links, images, lists, etc.).
+        if ((post.content ?? '').isNotEmpty)
+          Html(data: post.content ?? '')
+        else
+          const SizedBox.shrink(),
         const SizedBox(height: 16),
         Row(
           children: const [
@@ -183,7 +186,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
           _PrevNextItem(
             label: '이전글',
             title: detail.prev!.title,
-            dateTime: '',
+            //dateTime: detail.prev!.createdAt,
+            dateTime: DateFormat(
+              'yyyy.MM.dd HH:mm:ss',
+            ).format(detail.prev!.createdAt),
             onTap: () {
               Navigator.of(context).pushReplacementNamed(
                 app_router.AppRoute.postDetail,
@@ -199,7 +205,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
           _PrevNextItem(
             label: '다음글',
             title: detail.next!.title,
-            dateTime: '',
+            dateTime: DateFormat(
+              'yyyy.MM.dd HH:mm:ss',
+            ).format(detail.next!.createdAt),
             onTap: () {
               Navigator.of(context).pushReplacementNamed(
                 app_router.AppRoute.postDetail,
@@ -216,6 +224,10 @@ class _PostDetailPageState extends State<PostDetailPage> {
   }
 
   Widget _meta(String label, String value) {
+    final formattedValue = label == '작성일'
+        ? DateFormat('yyyy.MM.dd').format(DateTime.parse(value))
+        : value;
+
     return RichText(
       text: TextSpan(
         children: [
@@ -228,7 +240,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
             ),
           ),
           TextSpan(
-            text: value,
+            text: formattedValue,
             style: const TextStyle(fontSize: 12, color: Color(0xFF9AA0A6)),
           ),
         ],
