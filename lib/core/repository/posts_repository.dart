@@ -1,7 +1,7 @@
-import 'package:jic_mob/core/models/post.dart';
+import 'package:jic_mob/core/models/post/post.dart';
 import 'package:jic_mob/core/network/api_client.dart';
 import 'package:jic_mob/core/models/pagination.dart';
-import 'package:jic_mob/core/models/post_detail.dart';
+import 'package:jic_mob/core/models/post/post_detail.dart';
 
 class PostsRepository {
   final ApiClient _apiClient;

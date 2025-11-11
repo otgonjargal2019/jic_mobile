@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
-import 'package:jic_mob/core/models/post.dart';
+import 'package:jic_mob/core/models/post/post.dart';
 import 'package:jic_mob/core/repository/posts_repository.dart';
-import 'package:jic_mob/core/models/post_detail.dart';
+import 'package:jic_mob/core/models/post/post_detail.dart';
 
 class PostsProvider extends ChangeNotifier {
   final PostsRepository _repository;

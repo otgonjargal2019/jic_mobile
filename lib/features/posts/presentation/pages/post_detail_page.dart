@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:jic_mob/core/navigation/app_router.dart' as app_router;
-import 'package:jic_mob/core/models/post.dart';
-import 'package:jic_mob/core/models/post_detail.dart';
+import 'package:jic_mob/core/models/post/post.dart';
+import 'package:jic_mob/core/models/post/post_detail.dart';
 import 'package:jic_mob/core/provider/posts_provider.dart';
 import 'package:flutter_html/flutter_html.dart';
 
@@ -153,33 +153,67 @@ class _PostDetailPageState extends State<PostDetailPage> {
           ],
         ),
         const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          decoration: BoxDecoration(
-            color: const Color(0xFFEFF4FB),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: const Color(0xFFDCE7F9)),
-          ),
-          child: Row(
+        if (post.attachments.isNotEmpty)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Text(
-                  // No attachment info in model; show placeholder
-                  '첨부파일 없음',
-                  style: const TextStyle(
-                    color: Color(0xFF2563EB),
-                    decoration: TextDecoration.underline,
+              for (final attachment in post.attachments)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEFF4FB),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: const Color(0xFFDCE7F9)),
                   ),
-                  overflow: TextOverflow.ellipsis,
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          attachment.fileName,
+                          style: const TextStyle(
+                            color: Color(0xFF2563EB),
+                            decoration: TextDecoration.underline,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const Icon(
+                        Icons.file_download_outlined,
+                        color: Color(0xFF2563EB),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const Icon(
-                Icons.file_download_outlined,
-                color: Color(0xFF2563EB),
-              ),
             ],
+          )
+        else
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEFF4FB),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: const Color(0xFFDCE7F9)),
+            ),
+            child: Row(
+              children: [
+                const Expanded(
+                  child: Text(
+                    '첨부파일 없음',
+                    style: TextStyle(
+                      color: Color(0xFF2563EB),
+                      decoration: TextDecoration.underline,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                const Icon(
+                  Icons.file_download_outlined,
+                  color: Color(0xFF2563EB),
+                ),
+              ],
+            ),
           ),
-        ),
         const SizedBox(height: 16),
         const Divider(height: 1),
         if (detail.prev != null)

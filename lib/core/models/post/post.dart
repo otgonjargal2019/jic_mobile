@@ -1,3 +1,13 @@
+class Attachment {
+  final String fileName;
+
+  Attachment({required this.fileName});
+
+  factory Attachment.fromJson(Map<String, dynamic> json) {
+    return Attachment(fileName: json['fileName']?.toString() ?? '');
+  }
+}
+
 class Post {
   final String postId;
   final BoardType boardType;
@@ -7,6 +17,7 @@ class Post {
   final DateTime createdAt;
   final DateTime updatedAt;
   final int viewCount;
+  final List<Attachment> attachments;
 
   const Post({
     required this.postId,
@@ -17,9 +28,15 @@ class Post {
     required this.createdAt,
     required this.updatedAt,
     this.viewCount = 0,
+    this.attachments = const [],
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
+    final attachmentsJson = json['attachments'] as List<dynamic>? ?? [];
+    final attachments = attachmentsJson
+        .map((e) => Attachment.fromJson(e as Map<String, dynamic>))
+        .toList();
+
     return Post(
       postId: json['postId'] as String,
       boardType: BoardType.values.firstWhere(
@@ -33,6 +50,7 @@ class Post {
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
       viewCount: json['viewCount'] as int? ?? 0,
+      attachments: attachments,
     );
   }
 

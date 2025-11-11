@@ -1,4 +1,4 @@
-import 'package:jic_mob/core/models/post.dart';
+import 'package:jic_mob/core/models/post/post.dart';
 
 class PostNeighbor {
   final String postId;
