@@ -7,6 +7,7 @@ import 'core/localization/app_localizations.dart';
 import 'core/navigation/app_router.dart' as app_router;
 import 'package:provider/provider.dart';
 import 'core/state/user_provider.dart';
+import 'core/state/chat_provider.dart';
 import 'core/network/api_client.dart';
 import 'core/repository/posts_repository.dart';
 import 'core/provider/posts_provider.dart';
@@ -25,6 +26,7 @@ void main() async {
         ChangeNotifierProvider(
           create: (_) => PostsProvider(PostsRepository(apiClient)),
         ),
+        ChangeNotifierProvider(create: (_) => ChatProvider()),
       ],
       child: const MyApp(),
     ),

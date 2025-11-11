@@ -16,7 +16,7 @@ class NotificationsPage extends StatelessWidget {
         scrolledUnderElevation: 0,
         toolbarHeight: 0, // hide default toolbar; custom header below
       ),
-      bottomNavigationBar: const AppBottomNav(currentIndex: 4),
+      bottomNavigationBar: AppBottomNav(currentIndex: 4),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
