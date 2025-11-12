@@ -42,6 +42,7 @@ class ChatProvider extends ChangeNotifier {
   final Map<String, List<ChatMessage>> _messages = {};
   String? _myId;
   String? _currentPeerId;
+  String? _authToken;
   bool _loadingPeers = false;
   bool _loadingHistory = false;
 
@@ -75,10 +76,20 @@ class ChatProvider extends ChangeNotifier {
   Future<void> connect({
     required String baseUrl,
     required String userId,
+    required String token,
   }) async {
-    if (connected && _myId == userId) return;
+    if (token.isEmpty) return;
+
+    if (connected) {
+      if (_myId == userId && _authToken == token) {
+        return;
+      }
+      _socket.disconnect();
+    }
+
     _myId = userId;
-    await _socket.connect(baseUrl: baseUrl, userId: userId);
+    _authToken = token;
+    await _socket.connect(baseUrl: baseUrl, token: token, userId: userId);
 
     // Register socket event listeners only once
     if (!_listenersRegistered) {

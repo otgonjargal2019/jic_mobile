@@ -7,14 +7,21 @@ class UserProvider extends ChangeNotifier {
   UserProfile? _profile;
   bool _loading = false;
   String? _error;
+  String? _accessToken;
 
   UserProfile? get profile => _profile;
   bool get isLoggedIn => _profile != null;
   bool get isLoading => _loading;
   String? get error => _error;
+  String? get accessToken => _accessToken;
 
   void setProfile(UserProfile? profile) {
     _profile = profile;
+    notifyListeners();
+  }
+
+  void setAccessToken(String? token) {
+    _accessToken = token;
     notifyListeners();
   }
 
@@ -31,6 +38,7 @@ class UserProvider extends ChangeNotifier {
   void clear() {
     _profile = null;
     _error = null;
+    _accessToken = null;
     notifyListeners();
   }
 

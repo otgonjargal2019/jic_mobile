@@ -22,12 +22,16 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      final profile = context.read<UserProvider>().profile;
-      final userId = profile?.id;
-      if (userId == null || userId.isEmpty) return;
+      final userProvider = context.read<UserProvider>();
+      final userId = userProvider.profile?.id;
+      final token = userProvider.accessToken;
+      if (userId == null || userId.isEmpty || token == null || token.isEmpty) {
+        return;
+      }
       context.read<ChatProvider>().connect(
         baseUrl: AppConfig.socketBaseUrl,
         userId: userId,
+        token: token,
       );
     });
   }

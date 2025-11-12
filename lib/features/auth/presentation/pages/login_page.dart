@@ -214,7 +214,12 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _loading = true);
     try {
       final api = await _apiFuture!;
-      await api.login(loginId: id, password: pw, stayLoggedIn: _autoLogin);
+      final loginResponse = await api.login(
+        loginId: id,
+        password: pw,
+        stayLoggedIn: _autoLogin,
+      );
+      final accessToken = loginResponse.accessToken;
 
       final prefs = await SharedPreferences.getInstance();
       if (_rememberId) {
@@ -229,6 +234,9 @@ class _LoginPageState extends State<LoginPage> {
         final navigator = Navigator.of(context);
         final userProv = context.read<UserProvider>();
         try {
+          if (accessToken != null && accessToken.isNotEmpty) {
+            userProv.setAccessToken(accessToken);
+          }
           await userProv.fetchMe();
         } catch (e) {
           // Non-fatal: proceed to home but inform the user

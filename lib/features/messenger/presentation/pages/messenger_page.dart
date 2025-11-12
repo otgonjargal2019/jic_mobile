@@ -41,10 +41,17 @@ class _MessengerPageState extends State<MessengerPage> {
     if (!mounted) return;
     final profile = context.read<UserProvider>().profile;
     final userId = profile?.id;
-    if (userId == null || userId.isEmpty) return;
+    final token = context.read<UserProvider>().accessToken;
+    if (userId == null || userId.isEmpty || token == null || token.isEmpty) {
+      return;
+    }
 
     final chat = context.read<ChatProvider>();
-    await chat.connect(baseUrl: AppConfig.socketBaseUrl, userId: userId);
+    await chat.connect(
+      baseUrl: AppConfig.socketBaseUrl,
+      userId: userId,
+      token: token,
+    );
     if (chat.peers.isEmpty) {
       await chat.loadPeers();
     }
@@ -81,8 +88,15 @@ class _MessengerPageState extends State<MessengerPage> {
       // Ensure connection exists before searching
       final profile = context.read<UserProvider>().profile;
       final userId = profile?.id;
-      if (userId == null || userId.isEmpty) return;
-      await chat.connect(baseUrl: AppConfig.socketBaseUrl, userId: userId);
+      final token = context.read<UserProvider>().accessToken;
+      if (userId == null || userId.isEmpty || token == null || token.isEmpty) {
+        return;
+      }
+      await chat.connect(
+        baseUrl: AppConfig.socketBaseUrl,
+        userId: userId,
+        token: token,
+      );
     }
 
     setState(() {
