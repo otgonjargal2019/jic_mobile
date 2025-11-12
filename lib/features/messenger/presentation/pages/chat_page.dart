@@ -139,7 +139,7 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7F9),
+      backgroundColor: const Color(0xFFF7F7F5),
       appBar: AppBar(
         title: Consumer<ChatProvider>(
           builder: (context, chat, _) {
@@ -150,7 +150,15 @@ class _ChatPageState extends State<ChatPage> {
         centerTitle: true,
         elevation: 0,
         scrolledUnderElevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFFF7F7F5),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(2),
+          child: SizedBox(
+            width: double.infinity,
+            height: 2,
+            child: ColoredBox(color: Color(0xFFDCDCDC)),
+          ),
+        ),
       ),
       body: Column(
         children: [
@@ -212,7 +220,7 @@ class _ChatPageState extends State<ChatPage> {
                     final isMe = (m.senderId == myId);
                     final time = TimeOfDay.fromDateTime(m.createdAt);
                     final timeLabel =
-                        '${time.hourOfPeriod}:${time.minute.toString().padLeft(2, '0')}';
+                        '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
                     items.add(
                       _MessageBubble(
                         isMe: isMe,
@@ -220,6 +228,7 @@ class _ChatPageState extends State<ChatPage> {
                         timeLabel: timeLabel,
                         avatarUrl: isMe ? null : peerAvatarUrl,
                         initials: isMe ? null : peerInitials,
+                        displayName: isMe ? null : peer.displayName,
                       ),
                     );
                   }
@@ -236,7 +245,7 @@ class _ChatPageState extends State<ChatPage> {
 
                 return ListView.builder(
                   controller: _scrollController,
-                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 12),
                   itemCount: items.length,
                   itemBuilder: (context, index) => items[index],
                 );
@@ -246,60 +255,57 @@ class _ChatPageState extends State<ChatPage> {
           SafeArea(
             top: false,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-              color: const Color(0xFFF6F7F9),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      minLines: 1,
-                      maxLines: 4,
-                      decoration: InputDecoration(
-                        hintText: '메시지 입력',
-                        isDense: true,
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 12,
+              padding: const EdgeInsets.fromLTRB(18, 12, 18, 12),
+              color: Colors.white,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF1F1F1),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _controller,
+                        minLines: 1,
+                        maxLines: 4,
+                        decoration: const InputDecoration(
+                          hintText: '메시지 입력',
+                          isDense: true,
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.zero,
                         ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFE5E7EB),
-                          ),
+                        textInputAction: TextInputAction.newline,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    InkWell(
+                      onTap: _send,
+                      borderRadius: BorderRadius.circular(4),
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(8, 6, 6, 8),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF3EB491),
+                          borderRadius: BorderRadius.circular(4),
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFE5E7EB),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: const BorderSide(
-                            color: Color(0xFFCBD5E1),
+                        child: Center(
+                          child: Transform.rotate(
+                            angle: -0.6,
+                            child: const Icon(
+                              Icons.send_outlined,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                           ),
                         ),
                       ),
-                      textInputAction: TextInputAction.newline,
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  GestureDetector(
-                    onTap: _send,
-                    child: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF22C55E),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.send, color: Colors.white),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -340,20 +346,22 @@ class _MessageBubble extends StatelessWidget {
   final String timeLabel;
   final String? avatarUrl;
   final String? initials;
+  final String? displayName;
   const _MessageBubble({
     required this.isMe,
     required this.text,
     required this.timeLabel,
     this.avatarUrl,
     this.initials,
+    this.displayName,
   });
 
   @override
   Widget build(BuildContext context) {
     final bubbleColor = isMe
-        ? const Color(0xFF3B3757)
-        : const Color(0xFFF0F2F5);
-    final textColor = isMe ? Colors.white : const Color(0xFF111827);
+        ? const Color(0xFF363249)
+        : const Color(0xFFEFEFEF);
+    final textColor = isMe ? Colors.white : const Color(0xFF000000);
     final align = isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start;
 
     return Padding(
@@ -365,21 +373,24 @@ class _MessageBubble extends StatelessWidget {
             : MainAxisAlignment.start,
         children: [
           if (!isMe) ...[
-            CircleAvatar(
-              radius: 16,
-              backgroundColor: const Color(0xFFE5E7EB),
-              backgroundImage: (avatarUrl != null && avatarUrl!.isNotEmpty)
-                  ? NetworkImage(avatarUrl!)
-                  : null,
-              child: (avatarUrl == null || avatarUrl!.isEmpty)
-                  ? Text(
-                      initials ?? '?',
-                      style: const TextStyle(
-                        color: Color(0xFF4B5563),
-                        fontWeight: FontWeight.w600,
-                      ),
-                    )
-                  : null,
+            Padding(
+              padding: const EdgeInsets.only(top: 22),
+              child: CircleAvatar(
+                radius: 16,
+                backgroundColor: const Color(0xFFE5E7EB),
+                backgroundImage: (avatarUrl != null && avatarUrl!.isNotEmpty)
+                    ? NetworkImage(avatarUrl!)
+                    : null,
+                child: (avatarUrl == null || avatarUrl!.isEmpty)
+                    ? Text(
+                        initials ?? '?',
+                        style: const TextStyle(
+                          color: Color(0xFF4B5563),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      )
+                    : null,
+              ),
             ),
             const SizedBox(width: 8),
           ],
@@ -390,22 +401,38 @@ class _MessageBubble extends StatelessWidget {
                 if (!isMe)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 4),
-                    child: Text(
-                      timeLabel,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF9AA0A6),
-                      ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if ((displayName ?? '').isNotEmpty)
+                          Text(
+                            displayName!,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Color(0xFF000000),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        if ((displayName ?? '').isNotEmpty)
+                          const SizedBox(width: 8),
+                        Text(
+                          timeLabel,
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Color(0xFF909090),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 Container(
                   decoration: BoxDecoration(
                     color: bubbleColor,
                     borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(12),
-                      topRight: const Radius.circular(12),
-                      bottomLeft: Radius.circular(isMe ? 12 : 2),
-                      bottomRight: Radius.circular(isMe ? 2 : 12),
+                      topLeft: const Radius.circular(4),
+                      topRight: const Radius.circular(4),
+                      bottomLeft: Radius.circular(4),
+                      bottomRight: Radius.circular(4),
                     ),
                   ),
                   padding: const EdgeInsets.symmetric(
@@ -424,7 +451,7 @@ class _MessageBubble extends StatelessWidget {
                       timeLabel,
                       style: const TextStyle(
                         fontSize: 11,
-                        color: Color(0xFF9AA0A6),
+                        color: Color(0xFF909090),
                       ),
                     ),
                   ),
@@ -445,20 +472,20 @@ class _DateSeparator extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 16),
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            color: const Color(0xFFE8F3FF),
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Text(
-            date,
-            style: const TextStyle(
-              fontSize: 13,
-              color: Color(0xFF4B5563),
-              fontWeight: FontWeight.w500,
-            ),
+      child: Container(
+        width: double.infinity,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0x174985FB),
+          borderRadius: BorderRadius.circular(2),
+        ),
+        child: Text(
+          date,
+          style: const TextStyle(
+            fontSize: 13,
+            color: Color(0xFF000000),
+            fontWeight: FontWeight.w500,
           ),
         ),
       ),

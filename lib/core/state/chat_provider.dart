@@ -117,7 +117,7 @@ class ChatProvider extends ChangeNotifier {
             recipientId: recipientId,
             content: data['content'] as String,
             isRead: isRead,
-            createdAt: DateTime.parse(data['createdAt'] as String),
+            createdAt: _parseTimestamp(data['createdAt'] as String),
           ),
         );
 
@@ -180,7 +180,7 @@ class ChatProvider extends ChangeNotifier {
                 displayName: (u['displayName'] as String?) ?? 'Unknown',
                 lastMessage: u['lastMessage'] as String?,
                 lastTime: u['lastMessageTime'] != null
-                    ? DateTime.parse(u['lastMessageTime'])
+                    ? _parseTimestamp(u['lastMessageTime'])
                     : null,
                 unreadCount: (u['unreadCount'] as int?) ?? 0,
                 profileImageUrl: u['profileImageUrl'] as String?,
@@ -293,7 +293,7 @@ class ChatProvider extends ChangeNotifier {
                   recipientId: m['recipientId'] as String,
                   content: m['content'] as String,
                   isRead: (m['isRead'] as bool?) ?? false,
-                  createdAt: DateTime.parse(m['createdAt'] as String),
+                  createdAt: _parseTimestamp(m['createdAt'] as String),
                 ),
               )
               .toList()
@@ -334,7 +334,7 @@ class ChatProvider extends ChangeNotifier {
                   recipientId: m['recipientId'] as String,
                   content: m['content'] as String,
                   isRead: (m['isRead'] as bool?) ?? false,
-                  createdAt: DateTime.parse(m['createdAt'] as String),
+                  createdAt: _parseTimestamp(m['createdAt'] as String),
                 ),
               )
               .toList()
@@ -367,6 +367,19 @@ class ChatProvider extends ChangeNotifier {
       'recipientId': peerId,
       'content': text,
     }, (_) {});
+  }
+
+  DateTime _parseTimestamp(String raw) {
+    var value = raw.trim();
+    if (!value.contains('T')) {
+      value = value.replaceFirst(' ', 'T');
+    }
+    value = value.replaceAllMapped(
+      RegExp(r'([+-]\d{2})(\d{2})$'),
+      (m) => '${m[1]}:${m[2]}',
+    );
+    final parsed = DateTime.parse(value);
+    return parsed.isUtc ? parsed.toLocal() : parsed;
   }
 
   Future<List<ChatUser>> searchUsers(String text) async {

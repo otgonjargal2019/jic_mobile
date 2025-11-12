@@ -122,13 +122,21 @@ class _MessengerPageState extends State<MessengerPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7F9),
+      backgroundColor: const Color(0xFFF7F7F5),
       appBar: AppBar(
         title: const Text('채팅'),
         centerTitle: false,
         elevation: 0,
         scrolledUnderElevation: 0,
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xFFF7F7F5),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(2),
+          child: SizedBox(
+            width: double.infinity,
+            height: 2,
+            child: ColoredBox(color: Color(0xFFDCDCDC)),
+          ),
+        ),
       ),
       bottomNavigationBar: AppBottomNav(currentIndex: 2),
       body: Column(
@@ -141,24 +149,28 @@ class _MessengerPageState extends State<MessengerPage> {
               onChanged: _onQueryChanged,
               decoration: InputDecoration(
                 hintText: '대화방, 참여자 검색',
-                prefixIcon: const Icon(Icons.search, color: Color(0xFF9AA0A6)),
+                prefixIcon: const Icon(
+                  Icons.search,
+                  color: Color(0xFF9AA0A6),
+                  size: 28,
+                ),
                 isDense: true,
                 filled: true,
-                fillColor: Colors.white,
+                fillColor: Color(0xFFE7E7E7),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 12,
                 ),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(4),
                   borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(4),
                   borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(4),
                   borderSide: const BorderSide(color: Color(0xFFCBD5E1)),
                 ),
               ),
