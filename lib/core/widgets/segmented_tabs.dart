@@ -15,13 +15,13 @@ class SegmentedTabs extends StatelessWidget {
     required this.onChanged,
     this.backgroundColor = const Color(0xFFF0F2F5),
     this.selectedColor = const Color(0xFF39BE8C),
-    this.textColor = const Color(0xFF464A50),
+    this.textColor = const Color(0xB3363249),
   });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(6),
+      padding: EdgeInsets.zero,
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(999),
@@ -34,6 +34,7 @@ class SegmentedTabs extends StatelessWidget {
               selected: index == i,
               label: labels[i],
               onTap: () => onChanged(i),
+              textColor: textColor,
             ),
             if (i != labels.length - 1) const SizedBox(width: 8),
           ],
@@ -46,30 +47,40 @@ class SegmentedTabs extends StatelessWidget {
     required bool selected,
     required String label,
     required VoidCallback onTap,
+    required Color textColor,
   }) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(999),
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
           color: selected ? selectedColor : Colors.white,
           borderRadius: BorderRadius.circular(999),
-          boxShadow: selected
-              ? [
-                  BoxShadow(
-                    color: selectedColor.withOpacity(0.25),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
+          border: selected ? null : Border(
+            top: BorderSide(
+              color: textColor,
+              width: 1,
+            ),
+            left: BorderSide(
+              color: textColor,
+              width: 1,
+            ),
+            right: BorderSide(
+              color: textColor,
+              width: 1,
+            ),
+            bottom: BorderSide(
+              color: textColor,
+              width: 1,
+            ),
+          ),
         ),
         child: Text(
           label,
           style: TextStyle(
-            fontWeight: FontWeight.w700,
-            fontSize: 12,
+            fontWeight: FontWeight.normal,
+            fontSize: 14,
             color: selected ? Colors.white : textColor,
           ),
         ),
