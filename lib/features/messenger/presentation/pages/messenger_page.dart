@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -18,6 +20,9 @@ class MessengerPage extends StatefulWidget {
 class _MessengerPageState extends State<MessengerPage> {
   final TextEditingController _searchController = TextEditingController();
   String _query = '';
+  Timer? _searchDebounce;
+  List<ChatUser> _searchResults = const [];
+  bool _searching = false;
 
   @override
   void initState() {
@@ -28,6 +33,7 @@ class _MessengerPageState extends State<MessengerPage> {
   @override
   void dispose() {
     _searchController.dispose();
+    _searchDebounce?.cancel();
     super.dispose();
   }
 
@@ -45,9 +51,58 @@ class _MessengerPageState extends State<MessengerPage> {
   }
 
   void _onQueryChanged(String value) {
-    setState(() {
-      _query = value.trim();
+    final trimmed = value.trim();
+    if (_query != trimmed) {
+      setState(() {
+        _query = trimmed;
+      });
+    }
+
+    _searchDebounce?.cancel();
+
+    if (trimmed.isEmpty) {
+      if (_searchResults.isNotEmpty || _searching) {
+        setState(() {
+          _searchResults = const [];
+          _searching = false;
+        });
+      }
+      return;
+    }
+
+    _searchDebounce = Timer(const Duration(milliseconds: 350), () {
+      _performSearch(trimmed);
     });
+  }
+
+  Future<void> _performSearch(String query) async {
+    final chat = context.read<ChatProvider>();
+    if (!chat.connected) {
+      // Ensure connection exists before searching
+      final profile = context.read<UserProvider>().profile;
+      final userId = profile?.id;
+      if (userId == null || userId.isEmpty) return;
+      await chat.connect(baseUrl: AppConfig.socketBaseUrl, userId: userId);
+    }
+
+    setState(() {
+      _searching = true;
+    });
+
+    try {
+      final results = await chat.searchUsers(query);
+      if (!mounted) return;
+      setState(() {
+        _searchResults = results;
+        _searching = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _searchResults = const [];
+        _searching = false;
+      });
+    }
   }
 
   @override
@@ -64,15 +119,7 @@ class _MessengerPageState extends State<MessengerPage> {
       bottomNavigationBar: AppBottomNav(currentIndex: 2),
       body: Column(
         children: [
-          Container(
-            height: 120,
-            margin: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: const Color(0xFFE5E7EB)),
-            ),
-          ),
+          const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: TextField(
@@ -108,25 +155,48 @@ class _MessengerPageState extends State<MessengerPage> {
             child: Consumer<ChatProvider>(
               builder: (context, chat, _) {
                 final peers = chat.peers;
+                final lowercaseQuery = _query.toLowerCase();
                 final filtered = _query.isEmpty
                     ? peers
                     : peers
                           .where(
                             (p) => p.displayName.toLowerCase().contains(
-                              _query.toLowerCase(),
+                              lowercaseQuery,
                             ),
                           )
                           .toList();
 
-                if (chat.loadingPeers && filtered.isEmpty) {
+                final hasQuery = _query.isNotEmpty;
+                List<ChatUser> displayList;
+                if (hasQuery) {
+                  final Map<String, ChatUser> merged = {
+                    for (final peer in filtered) peer.userId: peer,
+                  };
+                  for (final result in _searchResults) {
+                    merged.putIfAbsent(result.userId, () => result);
+                  }
+                  displayList = merged.values.toList();
+                } else {
+                  displayList = filtered;
+                }
+
+                if (!hasQuery && chat.loadingPeers && displayList.isEmpty) {
+                  return const Center(
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  );
+                }
+
+                if (hasQuery && _searching && displayList.isEmpty) {
                   return const Center(
                     child: CircularProgressIndicator(strokeWidth: 2),
                   );
                 }
 
                 return RefreshIndicator(
-                  onRefresh: chat.loadPeers,
-                  child: filtered.isEmpty
+                  onRefresh: () => _query.isEmpty
+                      ? chat.loadPeers()
+                      : _performSearch(_query),
+                  child: displayList.isEmpty
                       ? ListView(
                           physics: const AlwaysScrollableScrollPhysics(),
                           children: const [
@@ -140,10 +210,10 @@ class _MessengerPageState extends State<MessengerPage> {
                           ],
                         )
                       : ListView.separated(
-                          itemCount: filtered.length,
+                          itemCount: displayList.length,
                           separatorBuilder: (_, __) => const Divider(height: 1),
                           itemBuilder: (context, index) {
-                            final peer = filtered[index];
+                            final peer = displayList[index];
                             return _ChatListTile(
                               peer: peer,
                               onTap: () {
