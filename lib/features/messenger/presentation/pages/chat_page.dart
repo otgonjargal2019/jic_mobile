@@ -161,15 +161,6 @@ class _ChatPageState extends State<ChatPage> {
       ),
       body: Column(
         children: [
-          Container(
-            height: 100,
-            margin: const EdgeInsets.fromLTRB(12, 8, 12, 8),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: const Color(0xFFBFE1FF), width: 2),
-            ),
-          ),
           Expanded(
             child: Consumer<ChatProvider>(
               builder: (context, chat, _) {
