@@ -24,7 +24,7 @@ class _CasesPageState extends State<CasesPage> {
 
   @override
   Widget build(BuildContext context) {
-    const background = Color(0xFFF5F6FA);
+    const background = Color(0xFFF7F7F5);
     final caseProvider = context.watch<CaseProvider>();
     final isLoading = caseProvider.loading;
     final error = caseProvider.error;
@@ -41,6 +41,17 @@ class _CasesPageState extends State<CasesPage> {
     })();
     return Scaffold(
       backgroundColor: background,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: background,
+        shape: const Border(
+          bottom: BorderSide(
+            color: Color(0xFFDCDCDC),
+            width: 1, // 1px solid line
+          ),
+        ),
+        toolbarHeight: 99,
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -49,13 +60,17 @@ class _CasesPageState extends State<CasesPage> {
             children: [
               const Text(
                 '전체사건 현황',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24),
               ),
               const SizedBox(height: 12),
-              SegmentedTabs(
-                index: _tabIndex,
-                labels: const ['전체', '진행중인 사건', '종료 사건'],
-                onChanged: (i) => setState(() => _tabIndex = i),
+              Padding(
+                padding: EdgeInsets.zero, // no outer padding
+                child: SegmentedTabs(
+                  index: _tabIndex,
+                  labels: const ['전체', '진행중인 사건', '종료 사건'],
+                  onChanged: (i) => setState(() => _tabIndex = i),
+                  backgroundColor: Colors.transparent,
+                ),
               ),
               const SizedBox(height: 12),
               if (error != null)
