@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jic_mob/features/cases/domain/models/case_item.dart';
+import 'package:jic_mob/core/models/case/case.dart';
 import 'package:jic_mob/features/cases/presentation/widgets/case_card.dart';
 import 'package:jic_mob/core/widgets/app_bottom_nav.dart';
 import 'package:jic_mob/core/state/chat_provider.dart';
@@ -352,21 +352,21 @@ class _RecentCasesSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final items = [
-      const CaseItem(
+      const Case(
         title: '해외 공유 플랫폼 사이트에 업로드 사건',
         chips: const ['유튜브동영상', '디지털 포렌식 수집됨'],
         status: '진행중',
         date: '2024.01.21',
         id: '156-8156',
       ),
-      const CaseItem(
+      const Case(
         title: '해외 공유 플랫폼 사이트에 업로드 사건',
         chips: const ['트위터게시물', '디지털 증거물 수집중'],
         status: '진행중',
         date: '2024.01.21',
         id: '156-8157',
       ),
-      const CaseItem(
+      const Case(
         title: '해외 공유 플랫폼 사이트에 업로드 사건',
         chips: const ['트위터게시물', '디지털 증거물 수집중'],
         status: '진행중',

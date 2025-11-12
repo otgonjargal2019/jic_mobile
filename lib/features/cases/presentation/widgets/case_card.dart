@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:jic_mob/features/cases/domain/models/case_item.dart';
+import 'package:jic_mob/core/models/case/case.dart';
 import 'package:jic_mob/core/widgets/app_badge.dart';
 import 'package:jic_mob/core/widgets/app_tag.dart';
 
 class CaseCard extends StatelessWidget {
-  final CaseItem item;
+  final Case item;
   final VoidCallback? onTap;
   const CaseCard({super.key, required this.item, this.onTap});
 

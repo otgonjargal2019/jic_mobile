@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:jic_mob/core/provider/case_provider.dart';
 import 'package:jic_mob/core/widgets/app_bottom_nav.dart';
-import 'package:jic_mob/features/cases/domain/models/case_item.dart';
 import 'package:jic_mob/features/cases/presentation/widgets/case_card.dart';
 import 'package:jic_mob/core/navigation/app_router.dart' as app_router;
 import 'package:jic_mob/core/widgets/segmented_tabs.dart';
+import 'package:provider/provider.dart';
 
 class CasesPage extends StatefulWidget {
   const CasesPage({super.key});
@@ -14,24 +15,43 @@ class CasesPage extends StatefulWidget {
 
 class _CasesPageState extends State<CasesPage> {
   int _tabIndex = 0; // 0: 전체, 1: 진행중, 2: 종료
-
-  List<CaseItem> get _all => _sampleItems();
-  List<CaseItem> get _filtered {
-    switch (_tabIndex) {
-      case 1:
-        return _all.where((e) => e.status == '진행중').toList();
-      case 2:
-        return _all.where((e) => e.status == '종료').toList();
-      default:
-        return _all;
-    }
+  @override
+  void initState() {
+    super.initState();
+    // Load cases when the page is first created via the global provider
+    Future.microtask(() => context.read<CaseProvider>().loadCases());
   }
 
   @override
   Widget build(BuildContext context) {
-    const background = Color(0xFFF5F6FA);
+    const background = Color(0xFFF7F7F5);
+    final caseProvider = context.watch<CaseProvider>();
+    final isLoading = caseProvider.loading;
+    final error = caseProvider.error;
+    final cases = caseProvider.cases;
+    final filtered = (() {
+      switch (_tabIndex) {
+        case 1:
+          return cases.where((e) => e.status == '진행중').toList();
+        case 2:
+          return cases.where((e) => e.status == '종료').toList();
+        default:
+          return cases;
+      }
+    })();
     return Scaffold(
       backgroundColor: background,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: background,
+        shape: const Border(
+          bottom: BorderSide(
+            color: Color(0xFFDCDCDC),
+            width: 1, // 1px solid line
+          ),
+        ),
+        toolbarHeight: 99,
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -40,16 +60,82 @@ class _CasesPageState extends State<CasesPage> {
             children: [
               const Text(
                 '전체사건 현황',
-                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+                style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24),
               ),
               const SizedBox(height: 12),
-              SegmentedTabs(
-                index: _tabIndex,
-                labels: const ['전체', '진행중인 사건', '종료 사건'],
-                onChanged: (i) => setState(() => _tabIndex = i),
+              Padding(
+                padding: EdgeInsets.zero, // no outer padding
+                child: SegmentedTabs(
+                  index: _tabIndex,
+                  labels: const ['전체', '진행중인 사건', '종료 사건'],
+                  onChanged: (i) => setState(() => _tabIndex = i),
+                  backgroundColor: Colors.transparent,
+                ),
               ),
               const SizedBox(height: 12),
-              Expanded(child: _CasesList(_filtered)),
+              if (error != null)
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                      const SizedBox(height: 16),
+                      Text(
+                        error,
+                        style: const TextStyle(color: Colors.red),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () => context.read<CaseProvider>().loadCases(),
+                        child: const Text('다시 시도'),
+                      ),
+                    ],
+                  ),
+                )
+              else if (isLoading && cases.isEmpty)
+                const Expanded(child: Center(child: CircularProgressIndicator()))
+              else
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () => context.read<CaseProvider>().loadCases(),
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: (notification) {
+                        if (notification.metrics.pixels >=
+                            notification.metrics.maxScrollExtent - 200) {
+                          final provider = context.read<CaseProvider>();
+                          provider.loadMoreCases();
+                        }
+                        return false;
+                      },
+                      child: ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                        itemCount: filtered.length + (isLoading ? 1 : 0),
+                        separatorBuilder: (_, __) => const SizedBox(height: 8),
+                        itemBuilder: (context, index) {
+                          if (index == filtered.length) {
+                            return const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+
+                          final item = filtered[index];
+                          return CaseCard(
+                            item: item,
+                            onTap: () {
+                              Navigator.of(context).pushNamed(
+                                app_router.AppRoute.caseDetail,
+                                arguments: app_router.CaseDetailArgs(item.id),
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -57,54 +143,6 @@ class _CasesPageState extends State<CasesPage> {
       bottomNavigationBar: const AppBottomNav(currentIndex: 1),
     );
   }
-}
-
-class _CasesList extends StatelessWidget {
-  final List<CaseItem> items;
-  const _CasesList(this.items);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      padding: const EdgeInsets.all(12),
-      itemCount: items.length,
-      itemBuilder: (context, index) => CaseCard(
-        item: items[index],
-        onTap: () {
-          Navigator.of(context).pushNamed(
-            app_router.AppRoute.caseDetail,
-            arguments: app_router.CaseDetailArgs(items[index].id),
-          );
-        },
-      ),
-    );
-  }
-}
-
-List<CaseItem> _sampleItems() {
-  return const [
-    CaseItem(
-      title: '해외 공유 플랫폼 사이트에 업로드 사건',
-      chips: ['유튜브동영상', '디지털 포렌식 수집됨'],
-      status: '진행중',
-      date: '2024.01.21',
-      id: '156-8156',
-    ),
-    CaseItem(
-      title: '해외 공유 플랫폼 사이트에 업로드 사건',
-      chips: ['트위터게시물', '디지털 증거물 수집중'],
-      status: '진행중',
-      date: '2024.01.21',
-      id: '156-8157',
-    ),
-    CaseItem(
-      title: '해외 공유 플랫폼 사이트에 업로드 사건',
-      chips: ['트위터게시물', '디지털 증거물 수집중'],
-      status: '종료',
-      date: '2024.01.21',
-      id: '156-8158',
-    ),
-  ];
 }
 
 // removed local segmented tabs in favor of shared SegmentedTabs widget
