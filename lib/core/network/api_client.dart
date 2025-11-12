@@ -14,6 +14,13 @@ class ApiException implements Exception {
   String toString() => status != null ? '$status: $message' : message;
 }
 
+class LoginResult {
+  final bool success;
+  final String? message;
+  final String? accessToken;
+  LoginResult({required this.success, this.message, this.accessToken});
+}
+
 class ApiClient {
   final Dio _dio;
   // ignore: unused_field
@@ -28,9 +35,12 @@ class ApiClient {
             baseUrl ??
             const String.fromEnvironment(
               'API_BASE_URL',
-              defaultValue: 'http://192.168.0.21:8080',
+              defaultValue: 'http://localhost:8080',
             ),
-        headers: const {'Content-Type': 'application/json'},
+        headers: const {
+          'Content-Type': 'application/json',
+          'X-Client': 'flutter',
+        },
         connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 20),
       ),
@@ -56,7 +66,7 @@ class ApiClient {
     return ApiClient._(dio, jar);
   }
 
-  Future<void> login({
+  Future<LoginResult> login({
     required String loginId,
     required String password,
     required bool stayLoggedIn,
@@ -73,7 +83,11 @@ class ApiClient {
 
       final data = res.data;
       if (data is Map && data['success'] == true) {
-        return;
+        return LoginResult(
+          success: true,
+          message: data['message']?.toString(),
+          accessToken: data['accessToken']?.toString(),
+        );
       }
 
       final msg =

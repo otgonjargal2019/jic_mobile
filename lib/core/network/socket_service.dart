@@ -13,9 +13,18 @@ class SocketService {
 
   Future<void> connect({
     required String baseUrl,
-    required String userId,
+    String? token,
+    String? userId,
   }) async {
     if (isConnected) return;
+
+    final auth = <String, dynamic>{};
+    if (token != null && token.isNotEmpty) {
+      auth['token'] = token;
+    }
+    if (userId != null && userId.isNotEmpty) {
+      auth['userId'] = userId;
+    }
 
     _connectionCompleter = Completer<void>();
 
@@ -24,7 +33,7 @@ class SocketService {
       io.OptionBuilder()
           .setTransports(['websocket'])
           .enableAutoConnect()
-          .setAuth({'userId': userId})
+          .setAuth(auth)
           .build(),
     );
 
