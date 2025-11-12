@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:jic_mob/core/models/case/case.dart';
 import 'package:jic_mob/features/cases/presentation/widgets/case_card.dart';
 import 'package:jic_mob/core/widgets/app_bottom_nav.dart';
+import 'package:jic_mob/core/state/chat_provider.dart';
+import 'package:jic_mob/core/config/app_config.dart';
 import 'package:jic_mob/core/network/api_client.dart';
 import 'package:provider/provider.dart';
 import 'package:jic_mob/core/state/user_provider.dart';
@@ -15,6 +17,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final profile = context.read<UserProvider>().profile;
+      final userId = profile?.id;
+      if (userId == null || userId.isEmpty) return;
+      context.read<ChatProvider>().connect(
+        baseUrl: AppConfig.socketBaseUrl,
+        userId: userId,
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     const background = Color(0xFFF5F6FA);
@@ -35,7 +52,7 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      bottomNavigationBar: const AppBottomNav(currentIndex: 0),
+      bottomNavigationBar: AppBottomNav(currentIndex: 0),
     );
   }
 }

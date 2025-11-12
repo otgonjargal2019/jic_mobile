@@ -1,15 +1,21 @@
-import 'package:jic_mob/core/models/post.dart';
+import 'package:jic_mob/core/models/post/post.dart';
 
 class PostNeighbor {
   final String postId;
   final String title;
+  final DateTime createdAt;
 
-  PostNeighbor({required this.postId, required this.title});
+  PostNeighbor({
+    required this.postId,
+    required this.title,
+    required this.createdAt,
+  });
 
   factory PostNeighbor.fromJson(Map<String, dynamic> json) {
     return PostNeighbor(
       postId: json['postId']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
+      createdAt: DateTime.parse(json['createdAt'] as String),
     );
   }
 }
