@@ -68,16 +68,18 @@ class CaseCard extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-                child: Text(
-                  '|',
-                  style: const TextStyle(
-                    color: Color(0xFFD4D4D4),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
+              item.progressStatus.trim().isNotEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                      child: Text(
+                        '|',
+                        style: const TextStyle(
+                          color: Color(0xFFD4D4D4),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(),
               Text(
                 _loc.translate('case_details.progressStatus.${item.progressStatus}'),
                 style: const TextStyle(
