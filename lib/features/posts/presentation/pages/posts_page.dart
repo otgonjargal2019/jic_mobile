@@ -147,13 +147,8 @@ class _PostTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        decoration: BoxDecoration(
-          color: const Color(0xFFF6F7F9),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: const Color(0xFFE5E7EB)),
-        ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -161,15 +156,19 @@ class _PostTile extends StatelessWidget {
               title,
               style: const TextStyle(
                 fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF1F2937),
+                fontWeight: FontWeight.w700,
+                color: Color(0xB3363249),
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 6),
             Text(
               dateTimeLabel,
               style: const TextStyle(fontSize: 12, color: Color(0xFF9AA0A6)),
             ),
+            const SizedBox(height: 10),
+            const Divider(height: 1, thickness: 1),
           ],
         ),
       ),

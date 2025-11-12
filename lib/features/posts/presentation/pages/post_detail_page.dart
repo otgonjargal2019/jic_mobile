@@ -121,8 +121,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF2563EB),
-              decoration: TextDecoration.underline,
+              color: Color(0xFF111827), // black title per design
             ),
           ),
         ),
@@ -138,82 +137,90 @@ class _PostDetailPageState extends State<PostDetailPage> {
           ],
         ),
         const SizedBox(height: 16),
-        // Render HTML content like a browser. Use flutter_html to convert
-        // HTML strings into Flutter widgets (links, images, lists, etc.).
+        // HTML content
         if ((post.content ?? '').isNotEmpty)
-          Html(data: post.content ?? '')
-        else
-          const SizedBox.shrink(),
-        const SizedBox(height: 16),
-        Row(
-          children: const [
-            Icon(Icons.attach_file, size: 18, color: Color(0xFF6B7280)),
-            SizedBox(width: 6),
-            Text('첨부파일', style: TextStyle(color: Color(0xFF6B7280))),
-          ],
-        ),
+          Html(
+            data: post.content ?? '',
+            // Apply a default text style for rendered HTML so it matches app design.
+            // This will color normal paragraph/text elements with the requested gray.
+            style: {
+              'body': Style(
+                color: const Color(0xFF757575),
+                fontSize: FontSize(13),
+                lineHeight: LineHeight(1.5),
+              ),
+              // Optional: ensure common tags follow same color
+              'p': Style(color: const Color(0xFF9AA0A6)),
+              'li': Style(color: const Color(0xFF9AA0A6)),
+              'a': Style(color: const Color(0xFF2563EB)), // keep links blue
+            },
+          ),
         const SizedBox(height: 8),
-        if (post.attachments.isNotEmpty)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              for (final attachment in post.attachments)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFEFF4FB),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFFDCE7F9)),
-                  ),
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          attachment.fileName,
-                          style: const TextStyle(
-                            color: Color(0xFF2563EB),
-                            decoration: TextDecoration.underline,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      const Icon(
-                        Icons.file_download_outlined,
-                        color: Color(0xFF2563EB),
-                      ),
-                    ],
+        if (post.attachments.isNotEmpty) ...[
+          for (final attachment in post.attachments)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF3F4F6),
+                  border: const Border(
+                    bottom: BorderSide(color: Color(0xFFE5E7EB)),
                   ),
                 ),
-            ],
-          )
-        else
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.attach_file,
+                      size: 16,
+                      color: Color(0xFF111827),
+                    ),
+                    Text('첨부파일', style: TextStyle(color: Color(0xFF111827))),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        attachment.fileName,
+                        style: const TextStyle(color: Color(0xFF5D5996)),
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ] else ...[
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFFEFF4FB),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFFDCE7F9)),
+              color: const Color(0xFFF3F4F6),
+              border: const Border(
+                bottom: BorderSide(color: Color(0xFFE5E7EB)),
+              ),
             ),
             child: Row(
               children: [
-                const Expanded(
+                const Icon(
+                  Icons.attach_file,
+                  size: 16,
+                  color: Color(0xFF111827),
+                ),
+                Text('첨부파일', style: TextStyle(color: Color(0xFF111827))),
+                const SizedBox(width: 8),
+                Expanded(
                   child: Text(
-                    '첨부파일 없음',
-                    style: TextStyle(
-                      color: Color(0xFF2563EB),
-                      decoration: TextDecoration.underline,
-                    ),
+                    '없음',
+                    style: TextStyle(color: Color(0xFF6B7280)),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const Icon(
-                  Icons.file_download_outlined,
-                  color: Color(0xFF2563EB),
-                ),
+                // Icon(Icons.file_download_outlined, color: Color(0xFF6B7280)),
               ],
             ),
           ),
+        ],
         const SizedBox(height: 16),
         const Divider(height: 1),
         if (detail.prev != null)
@@ -252,7 +259,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
               );
             },
           ),
-        const Divider(height: 1),
+        if (detail.next != null) const Divider(height: 1),
       ],
     );
   }
@@ -269,13 +276,13 @@ class _PostDetailPageState extends State<PostDetailPage> {
             text: '$label  ',
             style: const TextStyle(
               fontSize: 12,
-              color: Color(0xFF9AA0A6),
+              color: Color(0xFF111827),
               fontWeight: FontWeight.w700,
             ),
           ),
           TextSpan(
             text: formattedValue,
-            style: const TextStyle(fontSize: 12, color: Color(0xFF9AA0A6)),
+            style: const TextStyle(fontSize: 12, color: Color(0xFF9A9A9A)),
           ),
         ],
       ),
@@ -311,13 +318,13 @@ class _PrevNextItem extends StatelessWidget {
                       ? Icons.keyboard_arrow_up
                       : Icons.keyboard_arrow_down,
                   size: 18,
-                  color: const Color(0xFF9AA0A6),
+                  color: const Color(0xFF111827),
                 ),
                 const SizedBox(width: 2),
                 Text(
                   label,
                   style: const TextStyle(
-                    color: Color(0xFF9AA0A6),
+                    color: Color(0xFF111827),
                     fontSize: 12,
                   ),
                 ),
@@ -328,13 +335,13 @@ class _PrevNextItem extends StatelessWidget {
               title,
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF111827),
+                color: Color(0xB3363249),
               ),
             ),
             const SizedBox(height: 6),
             Text(
               dateTime,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF9AA0A6)),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF656161)),
             ),
           ],
         ),
