@@ -57,21 +57,21 @@ class SegmentedTabs extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected ? selectedColor : Colors.white,
           borderRadius: BorderRadius.circular(999),
-          border: selected ? null : Border(
+          border: Border(
             top: BorderSide(
-              color: textColor,
+              color: selected ? selectedColor :  textColor,
               width: 1,
             ),
             left: BorderSide(
-              color: textColor,
+              color: selected ? selectedColor :  textColor,
               width: 1,
             ),
             right: BorderSide(
-              color: textColor,
+              color: selected ? selectedColor :  textColor,
               width: 1,
             ),
             bottom: BorderSide(
-              color: textColor,
+              color: selected ? selectedColor : textColor,
               width: 1,
             ),
           ),

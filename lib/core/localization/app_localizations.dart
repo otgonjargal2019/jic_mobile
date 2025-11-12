@@ -28,6 +28,24 @@ class AppLocalizations {
       'findPassword': 'Find password',
       'recentCases': 'Recent cases',
       'myCases': 'My cases',
+      'case_details.case_infringement_type.PLATFORMS_SITES': 'Platforms/Sites',
+      'case_details.case_infringement_type.LINK_SITES': 'Link Sites',
+      'case_details.case_infringement_type.WEBHARD_P2P': 'Webhard/P2P',
+      'case_details.case_infringement_type.TORRENTS': 'Torrents',
+      'case_details.case_infringement_type.SNS': 'SNS',
+      'case_details.case_infringement_type.COMMUNITIES': 'Communities',
+      'case_details.case_infringement_type.OTHER': 'Other (ISD, etc.)',
+      'case_details.status.OPEN': 'Open',
+      'case_details.status.ON_HOLD': 'On Hold',
+      'case_details.status.CLOSED': 'Closed',
+      'case_details.progressStatus.PRE_INVESTIGATION': 'pre investigation',
+      'case_details.progressStatus.INVESTIGATION': 'investigation',
+      'case_details.progressStatus.TRANSFER': 'transfer',
+      'case_details.progressStatus.ANALYZING': 'analysing',
+      'case_details.progressStatus.REPORT_INVESTIGATION': 'report investigation',
+      'case_details.progressStatus.DISPOSE': 'dispose',
+      'case_details.progressStatus.ON_HOLD': 'on hold',
+      'case_details.progressStatus.CLOSED': 'closed',
     },
     'ko': {
       'appTitle': '국제공조수사플랫폼',
@@ -43,6 +61,24 @@ class AppLocalizations {
       'findPassword': '비밀번호 찾기',
       'recentCases': '최근 수사한 사건',
       'myCases': '내사건 현황',
+      'case_details.case_infringement_type.PLATFORMS_SITES': '플랫폼/사이트',
+      'case_details.case_infringement_type.LINK_SITES': '링크 사이트',
+      'case_details.case_infringement_type.WEBHARD_P2P': '웹하드/P2P',
+      'case_details.case_infringement_type.TORRENTS': '토렌트',
+      'case_details.case_infringement_type.SNS': 'SNS',
+      'case_details.case_infringement_type.COMMUNITIES': '커뮤니티',
+      'case_details.case_infringement_type.OTHER': '기타(ISD 등)',
+      'case_details.status.OPEN': '진행중',
+      'case_details.status.ON_HOLD': '미해결',
+      'case_details.status.CLOSED': '수사종료',
+      'case_details.progressStatus.PRE_INVESTIGATION': '사전조사',
+      'case_details.progressStatus.INVESTIGATION': '디지털 증거물 수집중',
+      'case_details.progressStatus.TRANSFER': '디지털 증거 이송',
+      'case_details.progressStatus.ANALYZING': '디지털 증거 분석 중',
+      'case_details.progressStatus.REPORT_INVESTIGATION': '디지털 증거 보고 조사',
+      'case_details.progressStatus.DISPOSE': '디지털 증거물 파기',
+      'case_details.progressStatus.ON_HOLD': '미해결',
+      'case_details.progressStatus.CLOSED': '수사종료',
     },
   };
 
@@ -62,8 +98,11 @@ class AppLocalizations {
 
   String _t(String key) {
     final code = locale.languageCode;
-    return _localizedValues[code]?[key] ?? _localizedValues['en']![key] ?? key;
+    // debugPrint('Looking up localization for key="$key" in locale="$code"');
+    return _localizedValues['ko']?[key] ?? _localizedValues['ko']![key] ?? '';
   }
+
+  String translate(String key) => _t(key);
 }
 
 class _AppLocalizationsDelegate
