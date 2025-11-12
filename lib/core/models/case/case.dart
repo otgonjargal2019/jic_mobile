@@ -37,12 +37,17 @@ class Case {
       name = '-';
     }
 
+    final assignees = json['assignees'] as List?;
+    final count = assignees?.length ?? 0;
+
+    final manager = name + (count > 0 ? ' 외 ${count}명' : '');
+
     final dateTime = DateTime.parse(json['investigationDate']?.toString() ?? '');
     return Case(
       id: json['id']?.toString() ?? '',
       number: json['number']?.toString() ?? '',
       title: json['caseName']?.toString() ?? '',
-      manager: name,
+      manager: manager,
       infringementType: json['infringementType']?.toString() ?? '',
       relatedCountries: json['relatedCountries']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
