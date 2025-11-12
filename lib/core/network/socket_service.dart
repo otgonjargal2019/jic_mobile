@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
 /// Lightweight wrapper around a Socket.IO client connection.
-/// The server currently accepts an `auth.userId` payload for development.
+/// The server authenticates connections via an `auth.token` JWT payload.
 class SocketService {
   io.Socket? _socket;
   Completer<void>? _connectionCompleter;
@@ -11,19 +11,12 @@ class SocketService {
   bool get isConnected => _socket?.connected == true;
   io.Socket? get raw => _socket;
 
-  Future<void> connect({
-    required String baseUrl,
-    String? token,
-    String? userId,
-  }) async {
+  Future<void> connect({required String baseUrl, String? token}) async {
     if (isConnected) return;
 
     final auth = <String, dynamic>{};
     if (token != null && token.isNotEmpty) {
       auth['token'] = token;
-    }
-    if (userId != null && userId.isNotEmpty) {
-      auth['userId'] = userId;
     }
 
     _connectionCompleter = Completer<void>();

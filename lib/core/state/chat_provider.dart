@@ -89,7 +89,7 @@ class ChatProvider extends ChangeNotifier {
 
     _myId = userId;
     _authToken = token;
-    await _socket.connect(baseUrl: baseUrl, token: token, userId: userId);
+    await _socket.connect(baseUrl: baseUrl, token: token);
 
     // Register socket event listeners only once
     if (!_listenersRegistered) {

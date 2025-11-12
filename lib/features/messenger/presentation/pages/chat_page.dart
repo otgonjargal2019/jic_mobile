@@ -143,14 +143,7 @@ class _ChatPageState extends State<ChatPage> {
       appBar: AppBar(
         title: Consumer<ChatProvider>(
           builder: (context, chat, _) {
-            final peer = chat.peers.firstWhere(
-              (p) => p.userId == widget.chatId,
-              orElse: () => ChatUser(
-                userId: widget.chatId,
-                displayName: '채팅',
-                unreadCount: 0,
-              ),
-            );
+            final peer = _resolvePeer(chat);
             return Text(peer.displayName);
           },
         ),
@@ -166,6 +159,9 @@ class _ChatPageState extends State<ChatPage> {
               builder: (context, chat, _) {
                 final msgs = chat.messagesFor(widget.chatId);
                 final myId = chat.myId;
+                final peer = _resolvePeer(chat);
+                final peerAvatarUrl = peer.profileImageUrl;
+                final peerInitials = _initials(peer.displayName);
 
                 if (msgs.length > _previousMessageCount) {
                   _previousMessageCount = msgs.length;
@@ -222,6 +218,8 @@ class _ChatPageState extends State<ChatPage> {
                         isMe: isMe,
                         text: m.content,
                         timeLabel: timeLabel,
+                        avatarUrl: isMe ? null : peerAvatarUrl,
+                        initials: isMe ? null : peerInitials,
                       ),
                     );
                   }
@@ -316,16 +314,38 @@ class _ChatPageState extends State<ChatPage> {
     final day = date.day.toString().padLeft(2, '0');
     return '$year-$month-$day';
   }
+
+  ChatUser _resolvePeer(ChatProvider chat) {
+    return chat.peers.firstWhere(
+      (p) => p.userId == widget.chatId,
+      orElse: () =>
+          ChatUser(userId: widget.chatId, displayName: '채팅', unreadCount: 0),
+    );
+  }
+
+  String _initials(String name) {
+    final trimmed = name.trim();
+    if (trimmed.isEmpty) return '?';
+    final parts = trimmed.split(RegExp(r"\s+"));
+    final first = parts.first.substring(0, 1).toUpperCase();
+    if (parts.length == 1) return first;
+    final last = parts.last.substring(0, 1).toUpperCase();
+    return '$first$last';
+  }
 }
 
 class _MessageBubble extends StatelessWidget {
   final bool isMe;
   final String text;
   final String timeLabel;
+  final String? avatarUrl;
+  final String? initials;
   const _MessageBubble({
     required this.isMe,
     required this.text,
     required this.timeLabel,
+    this.avatarUrl,
+    this.initials,
   });
 
   @override
@@ -345,7 +365,22 @@ class _MessageBubble extends StatelessWidget {
             : MainAxisAlignment.start,
         children: [
           if (!isMe) ...[
-            const CircleAvatar(radius: 16, backgroundColor: Color(0xFFE5E7EB)),
+            CircleAvatar(
+              radius: 16,
+              backgroundColor: const Color(0xFFE5E7EB),
+              backgroundImage: (avatarUrl != null && avatarUrl!.isNotEmpty)
+                  ? NetworkImage(avatarUrl!)
+                  : null,
+              child: (avatarUrl == null || avatarUrl!.isEmpty)
+                  ? Text(
+                      initials ?? '?',
+                      style: const TextStyle(
+                        color: Color(0xFF4B5563),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    )
+                  : null,
+            ),
             const SizedBox(width: 8),
           ],
           Flexible(
