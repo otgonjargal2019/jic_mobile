@@ -354,7 +354,7 @@ class _RecentCasesSection extends StatelessWidget {
         manager: '홍길동',
         status: 'OPEN',
         progressStatus: 'PRE_INVESTIGATION',
-        date: '2024.01.21',
+        investigationDate: '2024.01.21',
         id: '156-8156',
       ),
       const Case(
@@ -366,7 +366,7 @@ class _RecentCasesSection extends StatelessWidget {
         manager: '홍길동',
         status: 'OPEN',
         progressStatus: 'PRE_INVESTIGATION',
-        date: '2024.01.21',
+        investigationDate: '2024.01.21',
         id: '156-8157',
       ),
       const Case(
@@ -378,7 +378,7 @@ class _RecentCasesSection extends StatelessWidget {
         manager: '홍길동',
         status: 'OPEN',
         progressStatus: 'PRE_INVESTIGATION',
-        date: '2024.01.21',
+        investigationDate: '2024.01.21',
         id: '156-8158',
       ),
     ];

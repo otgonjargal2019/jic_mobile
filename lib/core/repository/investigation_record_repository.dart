@@ -1,6 +1,6 @@
 import 'package:jic_mob/core/network/api_client.dart';
 import 'package:jic_mob/core/models/pagination.dart';
-import 'package:jic_mob/core/models/case/case.dart';
+import 'package:jic_mob/core/models/investigation_record/investigation_record.dart';
 
 int _toInt(dynamic v) {
   if (v == null) return 0;
@@ -14,17 +14,20 @@ int _toInt(dynamic v) {
   }
 }
 
-class CaseRepository {
+class InvestigationRecordRepository {
   final ApiClient _apiClient;
 
-  CaseRepository(this._apiClient);
+  InvestigationRecordRepository(this._apiClient);
 
-  Future<PagedResponse<Case>> getCases({
-    String sortBy = 'number',
+  /// Fetch paged investigation records. The backend returns an object with
+  /// `total` and `rows` keys (or variants). This method normalizes the
+  /// response into the project's `PagedResponse<T>` format.
+  Future<PagedResponse<InvestigationRecord>> getInvestigationRecords({
+    String sortBy = 'createdAt',
     String sortDirection = 'desc',
     int page = 0,
     int size = 10,
-    String? status,
+    String? caseId,
   }) async {
     final queryParams = <String, dynamic>{
       'sortBy': sortBy,
@@ -32,19 +35,16 @@ class CaseRepository {
       'page': page,
       'size': size,
     };
-    if (status != null) {
-      queryParams['status'] = status;
-    }
+    if (caseId != null) queryParams['caseId'] = caseId;
 
     final response = await _apiClient.get(
-      '/api/cases',
+      '/investigation-records/list',
       queryParameters: queryParams,
       receiveTimeout: const Duration(seconds: 60),
     );
+
     final data = response.data;
-    if (data == null) {
-      throw ApiException('Empty response from server');
-    }
+    if (data == null) throw ApiException('Empty response from server');
 
     if (data is Map || data is Map<String, dynamic>) {
       final map = data is Map<String, dynamic>
@@ -54,7 +54,6 @@ class CaseRepository {
       if (map.containsKey('rows')) {
         final rows = map['rows'] as List? ?? [];
 
-        // Determine total elements from possible fields
         int totalElements = 0;
         if (map.containsKey('total')) {
           totalElements = _toInt(map['total']);
@@ -82,35 +81,13 @@ class CaseRepository {
           'last': last,
         };
 
-        return PagedResponse<Case>.fromJson(
+        return PagedResponse<InvestigationRecord>.fromJson(
           normalized,
-          (item) => Case.fromJson(item),
+          (item) => InvestigationRecord.fromJson(item),
         );
       }
-
     }
 
-    throw ApiException('Unexpected response format for posts');
+    throw ApiException('Unexpected response format for investigation records');
   }
-
-  Future<Case> getCaseByUUID(String uuid) async {
-    final response = await _apiClient.get(
-      '/api/cases/$uuid',
-      receiveTimeout: const Duration(seconds: 60),
-    );
-    final data = response.data;
-    if (data == null) {
-      throw ApiException('Empty response from server');
-    }
-
-    if (data is Map || data is Map<String, dynamic>) {
-      final map = data is Map<String, dynamic>
-          ? data
-          : Map<String, dynamic>.from(data as Map);
-      return Case.fromJson(map);
-    }
-
-    throw ApiException('Unexpected response format for case detail');
-  }
-
 }

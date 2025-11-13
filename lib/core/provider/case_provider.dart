@@ -19,6 +19,8 @@ class CaseProvider extends ChangeNotifier {
   int _casesPage = 0;
   String? _status;
   String? get status => _status;
+    Case? _currentCase;
+    Case? get currentCase => _currentCase;
 
   Future<void> loadCases({String? status}) async {
     _status = status;
@@ -64,6 +66,24 @@ class CaseProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+    /// Fetch a single case by UUID
+    Future<void> loadCaseByUUID(String uuid) async {
+      _loading = true;
+      _error = null;
+      _currentCase = null;
+      notifyListeners();
+
+      try {
+        _currentCase = await _repository.getCaseByUUID(uuid);
+        _error = null;
+      } catch (e) {
+        _error = e.toString();
+      } finally {
+        _loading = false;
+        notifyListeners();
+      }
+    }
 
   void clearError() {
     if (_error != null) {
