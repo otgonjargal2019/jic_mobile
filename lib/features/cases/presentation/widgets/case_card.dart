@@ -10,7 +10,7 @@ class CaseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AppLocalizations? _loc = AppLocalizations.of(context)!;
+    final AppLocalizations loc = AppLocalizations.of(context)!;
     final card = Container(
       margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
       padding: const EdgeInsets.all(12),
@@ -32,7 +32,7 @@ class CaseCard extends StatelessWidget {
           Row(
             children: [
               AppBadge(
-                text: _loc.translate('case_details.case_infringement_type.${item.infringementType}'),
+                text: loc.translate('case_details.case_infringement_type.${item.infringementType}'),
                 filled: true,
                 background: const Color(0xFF5C5C5C),
                 borderColor: Color(0xFF5C5C5C),
@@ -62,7 +62,7 @@ class CaseCard extends StatelessWidget {
               const Icon(Icons.circle, size: 10, color: Color(0xFF39BE8C)),
               const SizedBox(width: 6),
               Text(
-                _loc.translate('case_details.status.${item.status}'),
+                loc.translate('case_details.status.${item.status}'),
                 style: const TextStyle(
                   color: Color(0xFF39BE8C),
                   fontWeight: FontWeight.w600,
@@ -81,7 +81,7 @@ class CaseCard extends StatelessWidget {
                     )
                   : const SizedBox.shrink(),
               Text(
-                _loc.translate('case_details.progressStatus.${item.progressStatus}'),
+                loc.translate('case_details.progressStatus.${item.progressStatus}'),
                 style: const TextStyle(
                   color: Color(0xFF777777),
                   fontWeight: FontWeight.w600,
@@ -98,7 +98,7 @@ class CaseCard extends StatelessWidget {
                 ),
               ),
               Text(
-                item.date,
+                item.investigationDate,
                 style: const TextStyle(
                   color: Color(0xFF777777),
                   fontWeight: FontWeight.w600,

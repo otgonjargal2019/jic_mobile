@@ -1,28 +1,34 @@
 import 'package:intl/intl.dart';
 
 class Case {
+  final String id;
+  final String number;
   final String title;
+  final String outline;
+  final String investigationDate;
+  final String priority;
   final String infringementType;
   final String relatedCountries;
+  final String contentType;
   final List<String> chips;
   final String status;
   final String progressStatus;
   final String manager;
-  final String date;
-  final String id;
-  final String number;
 
   const Case({
+    required this.id,
+    required this.number,
     required this.title,
+    this.outline = '',
+    required this.investigationDate,
+    this.priority = '',
     required this.infringementType,
     required this.relatedCountries,
+    this.contentType = '',
     required this.chips,
     required this.status,
     required this.progressStatus,
     required this.manager,
-    required this.date,
-    required this.id,
-    required this.number,
   });
 
   factory Case.fromJson(Map<String, dynamic> json) {
@@ -47,12 +53,15 @@ class Case {
       id: json['caseId']?.toString() ?? '',
       number: json['number']?.toString() ?? '',
       title: json['caseName']?.toString() ?? '',
+      outline: json['caseOutline']?.toString() ?? '',
+      priority: json['priority']?.toString() ?? '',
+      contentType: json['contentType']?.toString() ?? '',
       manager: manager,
       infringementType: json['infringementType']?.toString() ?? '',
       relatedCountries: json['relatedCountries']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
       progressStatus: json['latestRecord']?['progressStatus']?.toString() ?? '',
-      date: DateFormat('yyyy.MM.dd').format(dateTime),
+      investigationDate: DateFormat('yyyy.MM.dd').format(dateTime),
       chips: (json['tags'] as List?)?.map((e) => e.toString()).toList() ?? [],
     );
   }

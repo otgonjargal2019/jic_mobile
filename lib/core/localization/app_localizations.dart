@@ -46,6 +46,14 @@ class AppLocalizations {
       'case_details.progressStatus.DISPOSE': 'dispose',
       'case_details.progressStatus.ON_HOLD': 'on hold',
       'case_details.progressStatus.CLOSED': 'closed',
+      'case_details.case_number': 'Case Number',
+      'case_details.investigationDate': 'Investigation Start Date',
+      'case_details.priority': 'Security level',
+      'case_details.relatedCountries': 'Country concerned',
+      'case_details.contentType': 'Content Type',
+      'case_details.infringementType': 'Types of copyright infringement',
+      'case_details.caseOutline': 'Case overview',
+      'case_details.etc': 'Other matters',
     },
     'ko': {
       'appTitle': '국제공조수사플랫폼',
@@ -79,6 +87,14 @@ class AppLocalizations {
       'case_details.progressStatus.DISPOSE': '디지털 증거물 파기',
       'case_details.progressStatus.ON_HOLD': '미해결',
       'case_details.progressStatus.CLOSED': '수사종료',
+      'case_details.case_number': '사건 번호',
+      'case_details.investigationDate': '발생 일시',
+      'case_details.priority': '수사 대응 순위',
+      'case_details.relatedCountries': '관련국가',
+      'case_details.contentType': '콘텐츠 유형',
+      'case_details.infringementType': '저작권 침해 유형',
+      'case_details.caseOutline': '사건 개요',
+      'case_details.etc': '기타사항',
     },
   };
 
@@ -99,7 +115,7 @@ class AppLocalizations {
   String _t(String key) {
     final code = locale.languageCode;
     // debugPrint('Looking up localization for key="$key" in locale="$code"');
-    return _localizedValues['ko']?[key] ?? _localizedValues['ko']![key] ?? '';
+    return _localizedValues['en']?[key] ?? _localizedValues['ko']![key] ?? '';
   }
 
   String translate(String key) => _t(key);

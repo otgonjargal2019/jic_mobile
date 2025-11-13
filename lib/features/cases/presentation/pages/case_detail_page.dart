@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jic_mob/core/localization/app_localizations.dart';
 import 'package:jic_mob/core/widgets/segmented_tabs.dart';
 import 'package:jic_mob/core/widgets/app_tag.dart';
 import 'package:jic_mob/core/widgets/app_badge.dart';
@@ -101,6 +102,7 @@ class _InfoSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations loc = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -116,12 +118,12 @@ class _InfoSummary extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _row('사건 번호', caseData.number),
-          _row('발생 일시', caseData.date),
-          _row('수사 대응 순위', caseData.status),
-          _row('관련국가', caseData.relatedCountries),
-          _row('콘텐츠 유형', caseData.title),
-          _row('저작권 침해 유형', caseData.infringementType),
+          _row(loc.translate('case_details.case_number'), caseData.number),
+          _row(loc.translate('case_details.investigationDate'), caseData.investigationDate),
+          _row(loc.translate('case_details.priority'), caseData.priority),
+          _row(loc.translate('case_details.relatedCountries'), caseData.relatedCountries),
+          _row(loc.translate('case_details.contentType'), caseData.contentType),
+          _row(loc.translate('case_details.infringementType'), caseData.infringementType),
         ],
       ),
     );
