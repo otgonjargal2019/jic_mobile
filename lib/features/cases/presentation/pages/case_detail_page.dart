@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:jic_mob/core/localization/app_localizations.dart';
 import 'package:jic_mob/core/widgets/segmented_tabs.dart';
-import 'package:jic_mob/core/widgets/app_tag.dart';
 import 'package:jic_mob/core/widgets/app_badge.dart';
 import 'package:jic_mob/core/navigation/app_router.dart' as app_router;
 import 'package:jic_mob/core/provider/case_provider.dart';
+import 'package:jic_mob/core/provider/investigation_record_provider.dart';
 import 'package:jic_mob/core/models/case/case.dart';
 import 'package:provider/provider.dart';
 
@@ -110,7 +110,12 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
             SegmentedTabs(
               index: _tabIndex,
               labels: [loc.translate('case_details.caseInformation'), loc.translate('case_details.invRecordsList')],
-              onChanged: (i) => setState(() => _tabIndex = i),
+              onChanged: (i) => setState(() {
+                _tabIndex = i;
+                if (i == 1) {
+                  context.read<InvestigationRecordProvider>().loadRecords(caseId: widget.id);
+                }
+              }),
             ),
             const SizedBox(height: 12),
             if (_tabIndex == 0) ...[
@@ -118,7 +123,7 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
               const SizedBox(height: 16),
               _SectionCard(title: loc.translate('case_details.etc'), body: caseDetail.etc),
             ] else ...[
-              _RecordList(),
+              _RecordList(caseId: widget.id),
             ],
           ] else ...[
             const SizedBox(height: 40),
@@ -235,50 +240,119 @@ class _SectionCard extends StatelessWidget {
 }
 
 class _RecordList extends StatelessWidget {
+  final String caseId;
+  const _RecordList({required this.caseId});
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: List.generate(5, (i) {
-        final recId = 'REC-${i + 1}';
-        return InkWell(
-          onTap: () {
-            Navigator.of(context).pushNamed(
-              app_router.AppRoute.recordDetail,
-              arguments: app_router.RecordDetailArgs(recId),
-            );
+    final provider = context.watch<InvestigationRecordProvider>();
+
+    // Ensure records are loaded for this case when the widget first builds
+    if (provider.records.isEmpty && !provider.loading && provider.error == null) {
+      Future.microtask(() => provider.loadRecords(caseId: caseId));
+    }
+
+    final records = provider.records;
+    final isLoading = provider.loading;
+    final error = provider.error;
+
+    if (error != null && records.isEmpty) {
+      return Column(
+        children: [
+          const SizedBox(height: 20),
+          Icon(Icons.error_outline, size: 36, color: Colors.red[700]),
+          const SizedBox(height: 8),
+          Text(error, style: const TextStyle(color: Colors.red)),
+          const SizedBox(height: 8),
+          ElevatedButton(
+            onPressed: () => provider.loadRecords(caseId: caseId),
+            child: const Text('다시 시도'),
+          ),
+        ],
+      );
+    }
+
+    return SizedBox(
+      height: 400, // allow scroll inside parent ListView
+      child: RefreshIndicator(
+        onRefresh: () => provider.loadRecords(caseId: caseId),
+        child: NotificationListener<ScrollNotification>(
+          onNotification: (notification) {
+            if (notification.metrics.pixels >=
+                notification.metrics.maxScrollExtent - 200) {
+              provider.loadMoreRecords();
+            }
+            return false;
           },
-          borderRadius: BorderRadius.circular(12),
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: const [
-                BoxShadow(
-                  color: Color(0x14000000),
-                  blurRadius: 8,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                const AppBadge(text: '기록', filled: false),
-                const SizedBox(width: 8),
-                const Expanded(
-                  child: Text(
-                    '디지털 포렌식 증거물 수집',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+          child: ListView.separated(
+            padding: EdgeInsets.zero,
+            itemCount: records.length + (isLoading ? 1 : 0),
+            separatorBuilder: (_, __) => const SizedBox(height: 8),
+            itemBuilder: (context, index) {
+              if (index == records.length) {
+                return const Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              final rec = records[index];
+              return InkWell(
+                onTap: () {
+                  Navigator.of(context).pushNamed(
+                    app_router.AppRoute.recordDetail,
+                    arguments: app_router.RecordDetailArgs(rec.recordId),
+                  );
+                },
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 0),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: Color(0x14000000),
+                        blurRadius: 8,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    children: [
+                      const AppBadge(text: '기록', filled: false),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              rec.recordName ?? '(무제)',
+                              style: const TextStyle(fontWeight: FontWeight.w700),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              rec.content ?? '',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(color: Color(0xFF777777)),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(rec.createdAt?.split('T').first ?? ''),
+                    ],
                   ),
                 ),
-                Text('2024.01.2${i}'),
-              ],
-            ),
+              );
+            },
           ),
-        );
-      }),
+        ),
+      ),
     );
   }
 }

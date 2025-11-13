@@ -14,6 +14,8 @@ import 'core/state/chat_provider.dart';
 import 'core/network/api_client.dart';
 import 'core/repository/posts_repository.dart';
 import 'core/provider/posts_provider.dart';
+import 'core/repository/investigation_record_repository.dart';
+import 'core/provider/investigation_record_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,6 +34,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(
           create: (_) => CaseProvider(CaseRepository(apiClient)),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => InvestigationRecordProvider(InvestigationRecordRepository(apiClient)),
         ),
       ],
       child: const MyApp(),
