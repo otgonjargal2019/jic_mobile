@@ -71,6 +71,7 @@ class UserProvider extends ChangeNotifier {
               name: displayName,
               email: email,
               avatarUrl: avatarUrl,
+              extra: userData,
             ),
           );
         } else {

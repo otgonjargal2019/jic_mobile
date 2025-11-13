@@ -4,9 +4,9 @@ import 'package:jic_mob/features/cases/presentation/widgets/case_card.dart';
 import 'package:jic_mob/core/widgets/app_bottom_nav.dart';
 import 'package:jic_mob/core/state/chat_provider.dart';
 import 'package:jic_mob/core/config/app_config.dart';
-import 'package:jic_mob/core/network/api_client.dart';
 import 'package:provider/provider.dart';
 import 'package:jic_mob/core/state/user_provider.dart';
+import 'package:jic_mob/features/profile/presentation/pages/profile_page.dart';
 
 class HomePage extends StatefulWidget {
   static const route = '/home';
@@ -167,21 +167,10 @@ class _ProfileCard extends StatelessWidget {
             right: -8,
             top: -8,
             child: IconButton(
-              icon: const Icon(Icons.logout, color: Colors.white70),
-              tooltip: 'Logout',
-              onPressed: () async {
-                try {
-                  final api = await ApiClient.create();
-                  await api.logout();
-                } catch (_) {}
-
-                if (context.mounted) {
-                  // Clear user provider state on logout
-                  context.read<UserProvider>().clear();
-                  Navigator.of(
-                    context,
-                  ).pushNamedAndRemoveUntil('/login', (route) => false);
-                }
+              icon: const Icon(Icons.chevron_right, color: Colors.white70),
+              tooltip: '내 정보',
+              onPressed: () {
+                Navigator.of(context).pushNamed(ProfilePage.route);
               },
             ),
           ),
