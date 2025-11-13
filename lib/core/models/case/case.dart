@@ -44,7 +44,7 @@ class Case {
 
     final dateTime = DateTime.parse(json['investigationDate']?.toString() ?? '');
     return Case(
-      id: json['id']?.toString() ?? '',
+      id: json['caseId']?.toString() ?? '',
       number: json['number']?.toString() ?? '',
       title: json['caseName']?.toString() ?? '',
       manager: manager,

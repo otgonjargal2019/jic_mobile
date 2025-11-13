@@ -3,6 +3,9 @@ import 'package:jic_mob/core/widgets/segmented_tabs.dart';
 import 'package:jic_mob/core/widgets/app_tag.dart';
 import 'package:jic_mob/core/widgets/app_badge.dart';
 import 'package:jic_mob/core/navigation/app_router.dart' as app_router;
+import 'package:jic_mob/core/provider/case_provider.dart';
+import 'package:jic_mob/core/models/case/case.dart';
+import 'package:provider/provider.dart';
 
 class CaseDetailPage extends StatefulWidget {
   final String id;
@@ -16,8 +19,20 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
   int _tabIndex = 0; // 0: 사건 정보, 1: 수사기록 내역
 
   @override
+  void initState() {
+    super.initState();
+    Future.microtask(() =>
+        context.read<CaseProvider>().loadCaseByUUID(widget.id));
+  }
+
+  @override
   Widget build(BuildContext context) {
     const background = Color(0xFFF5F6FA);
+    final provider = context.watch<CaseProvider>();
+    final isLoading = provider.loading;
+    final error = provider.error;
+    final caseDetail = provider.currentCase;
+
     return Scaffold(
       backgroundColor: background,
       appBar: AppBar(
@@ -29,42 +44,50 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text(
-            '해외 공유 플랫폼 사이트에 업로드 사건',
-            style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: const [
-              AppTag(text: '유튜브동영상'),
-              AppTag(text: '디지털 증거물 수집중'),
+          if (error != null) ...[
+            const SizedBox(height: 40),
+            Icon(Icons.error_outline, size: 48, color: Colors.red[700]),
+            const SizedBox(height: 12),
+            Text(error, style: const TextStyle(color: Colors.red)),
+            const SizedBox(height: 12),
+            ElevatedButton(
+              onPressed: () =>
+                  context.read<CaseProvider>().loadCaseByUUID(widget.id),
+              child: const Text('다시 시도'),
+            ),
+          ] else if (isLoading) ...[
+            const SizedBox(height: 40),
+            const Center(child: CircularProgressIndicator()),
+          ] else if (caseDetail != null) ...[
+            Text(
+              caseDetail.title,
+              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: caseDetail.chips.map((c) => AppTag(text: c)).toList(),
+            ),
+            const SizedBox(height: 12),
+            _InfoSummary(caseData: caseDetail),
+            const SizedBox(height: 12),
+            SegmentedTabs(
+              index: _tabIndex,
+              labels: const ['사건 정보', '수사기록 내역'],
+              onChanged: (i) => setState(() => _tabIndex = i),
+            ),
+            const SizedBox(height: 12),
+            if (_tabIndex == 0) ...[
+              _SectionCard(title: '사건 개요', body: caseDetail.infringementType),
+              const SizedBox(height: 16),
+              _SectionCard(title: '기타사항', body: caseDetail.progressStatus),
+            ] else ...[
+              _RecordList(),
             ],
-          ),
-          const SizedBox(height: 12),
-          _InfoSummary(id: widget.id),
-          const SizedBox(height: 12),
-          SegmentedTabs(
-            index: _tabIndex,
-            labels: const ['사건 정보', '수사기록 내역'],
-            onChanged: (i) => setState(() => _tabIndex = i),
-          ),
-          const SizedBox(height: 12),
-          if (_tabIndex == 0) ...[
-            _SectionCard(
-              title: '사건 개요',
-              body:
-                  '성범죄사건가 저작권자의 이용허락 없이 해외의 동영상 공유 플랫폼 사이트에 업로드한 영상저작물에 대한 저작침해소송으로 원고는 성범죄자 저작권자의 이용허락 없이 해외의 동영상 공유 플랫폼 사이트에 업로드한 영상저작물에 대한 저작침해소송으로 원고는 성범죄자 저작권자의 이용허락 없이 해외의 동영상 공유 플랫폼 사이트에 업로드한 영상저작물에 대한 저작침해소송으로 업로드를 제지 [더보기]',
-            ),
-            const SizedBox(height: 16),
-            _SectionCard(
-              title: '기타사항',
-              body:
-                  '성범죄사건가 저작권자의 이용허락 없이 해외의 동영상 공유 플랫폼 사이트에 업로드한 영상저작물에 대한 저작침해소송으로 원고는 성범죄자 저작권자의 이용허락 없이 해외의 동영상 공유 플랫폼 사이트에 업로드한 영상저작물에 대한 저작침해소송으로 원고는 성범죄자 저작권자의 이용허락 없이 해외의 동영상 공유 플랫폼 사이트에 업로드한 영상저작물에 대한 저작침해소송으로 업로드를 제지 [더보기]',
-            ),
           ] else ...[
-            _RecordList(),
+            const SizedBox(height: 40),
+            const Center(child: Text('데이터가 없습니다')),
           ],
         ],
       ),
@@ -73,8 +96,8 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
 }
 
 class _InfoSummary extends StatelessWidget {
-  final String id;
-  const _InfoSummary({required this.id});
+  final Case caseData;
+  const _InfoSummary({required this.caseData});
 
   @override
   Widget build(BuildContext context) {
@@ -93,12 +116,12 @@ class _InfoSummary extends StatelessWidget {
       ),
       child: Column(
         children: [
-          _row('사건 번호', id),
-          _row('발생 일시', '2024-01-01 05:59:00'),
-          _row('수사 대응 순위', 'C0'),
-          _row('관련국가', '태국'),
-          _row('콘텐츠 유형', '웹툰'),
-          _row('저작권 침해 유형', '불법 유통'),
+          _row('사건 번호', caseData.number),
+          _row('발생 일시', caseData.date),
+          _row('수사 대응 순위', caseData.status),
+          _row('관련국가', caseData.relatedCountries),
+          _row('콘텐츠 유형', caseData.title),
+          _row('저작권 침해 유형', caseData.infringementType),
         ],
       ),
     );
