@@ -17,6 +17,7 @@ class InvestigationRecordProvider extends ChangeNotifier {
   List<InvestigationRecord> get records => _records;
 
   bool _hasMore = true;
+  bool get hasMore => _hasMore;
   int _page = 0;
   String? _caseId;
 
@@ -51,9 +52,12 @@ class InvestigationRecordProvider extends ChangeNotifier {
       } else {
         _records = [..._records, ...res.content];
       }
-
-      _hasMore = !res.last;
-      _page = page + 1;
+      if (res.content.isEmpty) {
+        _hasMore = false;
+      } else {
+        _hasMore = !res.last;
+        _page = page + 1;
+      }
       _error = null;
     } catch (e) {
       _error = e.toString();

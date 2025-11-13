@@ -248,13 +248,22 @@ class _RecordList extends StatelessWidget {
     final provider = context.watch<InvestigationRecordProvider>();
 
     // Ensure records are loaded for this case when the widget first builds
-    if (provider.records.isEmpty && !provider.loading && provider.error == null) {
+    if (provider.records.isEmpty && !provider.loading && provider.error == null && provider.hasMore) {
       Future.microtask(() => provider.loadRecords(caseId: caseId));
     }
 
     final records = provider.records;
     final isLoading = provider.loading;
     final error = provider.error;
+
+    if (!isLoading && records.isEmpty) {
+      return Column(
+        children: [
+          const SizedBox(height: 20),
+          const Center(child: Text('수사 기록이 없습니다')),
+        ],
+      );
+    }
 
     if (error != null && records.isEmpty) {
       return Column(
@@ -276,10 +285,13 @@ class _RecordList extends StatelessWidget {
       height: 400, // allow scroll inside parent ListView
       child: RefreshIndicator(
         onRefresh: () => provider.loadRecords(caseId: caseId),
-        child: NotificationListener<ScrollNotification>(
+          child: NotificationListener<ScrollNotification>(
           onNotification: (notification) {
-            if (notification.metrics.pixels >=
-                notification.metrics.maxScrollExtent - 200) {
+            final metrics = notification.metrics;
+            if (metrics.maxScrollExtent > 0 &&
+                metrics.pixels >= metrics.maxScrollExtent - 200 &&
+                provider.hasMore &&
+                !provider.loading) {
               provider.loadMoreRecords();
             }
             return false;
