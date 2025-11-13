@@ -72,7 +72,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
     final title = boardType == BoardType.notice ? '공지사항' : '조사정보';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF9FAFB),
+      backgroundColor: Color(0xFFF7F7F5),
       appBar: AppBar(
         title: Text(title),
         centerTitle: true,

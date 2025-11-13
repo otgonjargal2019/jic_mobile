@@ -4,6 +4,7 @@ import 'package:jic_mob/core/provider/posts_provider.dart';
 import 'package:jic_mob/core/widgets/app_bottom_nav.dart';
 import 'package:jic_mob/core/widgets/segmented_tabs.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 class PostsPage extends StatefulWidget {
   const PostsPage({super.key});
@@ -32,21 +33,32 @@ class _PostsPageState extends State<PostsPage> {
     final loading = postsProvider.loading;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFF7F7F5),
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
+        backgroundColor: Color(0xFFF7F7F5),
         centerTitle: false,
-        title: const Text('게시판'),
         bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 1),
+          preferredSize: Size.fromHeight(2),
+          child: SizedBox(
+            width: double.infinity,
+            height: 2,
+            child: ColoredBox(color: Color(0xFFDCDCDC)),
+          ),
+          //Divider(height: 1, thickness: 1),
         ),
       ),
       bottomNavigationBar: const AppBottomNav(currentIndex: 3),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+            child: const Text(
+              '게시판',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
             child: SegmentedTabs(
@@ -111,7 +123,9 @@ class _PostsPageState extends State<PostsPage> {
                       final post = list[index];
                       return _PostTile(
                         title: post.title,
-                        dateTimeLabel: post.createdAt.toString(),
+                        dateTimeLabel: DateFormat(
+                          'yyyy-MM-dd HH:mm:ss',
+                        ).format(post.createdAt),
                         onTap: () {
                           Navigator.of(context).pushNamed(
                             app_router.AppRoute.postDetail,
@@ -165,7 +179,7 @@ class _PostTile extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               dateTimeLabel,
-              style: const TextStyle(fontSize: 12, color: Color(0xFF9AA0A6)),
+              style: const TextStyle(fontSize: 12, color: Color(0xFF656161)),
             ),
             const SizedBox(height: 10),
             const Divider(height: 1, thickness: 1),
