@@ -14,6 +14,7 @@ class Case {
   final String status;
   final String progressStatus;
   final String manager;
+  final String etc;
 
   const Case({
     required this.id,
@@ -29,6 +30,7 @@ class Case {
     required this.status,
     required this.progressStatus,
     required this.manager,
+    this.etc = '',
   });
 
   factory Case.fromJson(Map<String, dynamic> json) {
@@ -56,6 +58,7 @@ class Case {
       outline: json['caseOutline']?.toString() ?? '',
       priority: json['priority']?.toString() ?? '',
       contentType: json['contentType']?.toString() ?? '',
+      etc: json['etc']?.toString() ?? '',
       manager: manager,
       infringementType: json['infringementType']?.toString() ?? '',
       relatedCountries: json['relatedCountries']?.toString() ?? '',

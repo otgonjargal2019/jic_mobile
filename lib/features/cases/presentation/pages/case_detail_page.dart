@@ -34,6 +34,8 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
     final error = provider.error;
     final caseDetail = provider.currentCase;
 
+    final AppLocalizations loc = AppLocalizations.of(context)!;
+
     return Scaffold(
       backgroundColor: background,
       appBar: AppBar(
@@ -65,24 +67,56 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
               style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
             ),
             const SizedBox(height: 8),
-            Wrap(
-              spacing: 6,
-              runSpacing: 6,
-              children: caseDetail.chips.map((c) => AppTag(text: c)).toList(),
+            Row(
+              children: [
+                const Icon(Icons.circle, size: 10, color: Color(0xFF39BE8C)),
+                const SizedBox(width: 6),
+                Text(
+                  loc.translate('case_details.status.${caseDetail.status}'),
+                  style: const TextStyle(
+                    color: Color(0xFF39BE8C),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                caseDetail.progressStatus.trim().isNotEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                        child: Text(
+                          '|',
+                          style: const TextStyle(
+                            color: Color(0xFFD4D4D4),
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
+                Text(
+                  loc.translate('case_details.progressStatus.${caseDetail.progressStatus}'),
+                  style: const TextStyle(
+                    color: Color(0xFF777777),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
             ),
+            // Wrap(
+            //   spacing: 6,
+            //   runSpacing: 6,
+            //   children: caseDetail.chips.map((c) => AppTag(text: c)).toList(),
+            // ),
             const SizedBox(height: 12),
             _InfoSummary(caseData: caseDetail),
             const SizedBox(height: 12),
             SegmentedTabs(
               index: _tabIndex,
-              labels: const ['사건 정보', '수사기록 내역'],
+              labels: [loc.translate('case_details.caseInformation'), loc.translate('case_details.invRecordsList')],
               onChanged: (i) => setState(() => _tabIndex = i),
             ),
             const SizedBox(height: 12),
             if (_tabIndex == 0) ...[
-              _SectionCard(title: '사건 개요', body: caseDetail.infringementType),
+              _SectionCard(title: loc.translate('case_details.caseOutline'), body: caseDetail.outline),
               const SizedBox(height: 16),
-              _SectionCard(title: '기타사항', body: caseDetail.progressStatus),
+              _SectionCard(title: loc.translate('case_details.etc'), body: caseDetail.etc),
             ] else ...[
               _RecordList(),
             ],
@@ -99,6 +133,19 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
 class _InfoSummary extends StatelessWidget {
   final Case caseData;
   const _InfoSummary({required this.caseData});
+
+  String priorityLabel(dynamic priority) {
+    if (priority == null) return '-';
+    final s = priority.toString();
+    const mapping = {
+      '1': 'C1',
+      '2': 'C2',
+      '3': 'C3',
+      '4': 'C4',
+      '5': 'C5',
+    };
+    return mapping[s] ?? s;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,10 +167,10 @@ class _InfoSummary extends StatelessWidget {
         children: [
           _row(loc.translate('case_details.case_number'), caseData.number),
           _row(loc.translate('case_details.investigationDate'), caseData.investigationDate),
-          _row(loc.translate('case_details.priority'), caseData.priority),
+          _row(loc.translate('case_details.priority'), priorityLabel(caseData.priority)),
           _row(loc.translate('case_details.relatedCountries'), caseData.relatedCountries),
           _row(loc.translate('case_details.contentType'), caseData.contentType),
-          _row(loc.translate('case_details.infringementType'), caseData.infringementType),
+          _row(loc.translate('case_details.infringementType'), loc.translate('case_details.case_infringement_type.${caseData.infringementType}')),
         ],
       ),
     );

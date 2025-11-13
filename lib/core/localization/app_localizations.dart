@@ -54,6 +54,8 @@ class AppLocalizations {
       'case_details.infringementType': 'Types of copyright infringement',
       'case_details.caseOutline': 'Case overview',
       'case_details.etc': 'Other matters',
+      'case_details.caseInformation': 'Information',
+      'case_details.invRecordsList': 'Investigation records',
     },
     'ko': {
       'appTitle': '국제공조수사플랫폼',
@@ -95,6 +97,8 @@ class AppLocalizations {
       'case_details.infringementType': '저작권 침해 유형',
       'case_details.caseOutline': '사건 개요',
       'case_details.etc': '기타사항',
+      'case_details.caseInformation': '사건 정보',
+      'case_details.invRecordsList': '수사기록 내역',
     },
   };
 
@@ -115,7 +119,7 @@ class AppLocalizations {
   String _t(String key) {
     final code = locale.languageCode;
     // debugPrint('Looking up localization for key="$key" in locale="$code"');
-    return _localizedValues['en']?[key] ?? _localizedValues['ko']![key] ?? '';
+    return _localizedValues['ko']?[key] ?? _localizedValues['ko']![key] ?? '';
   }
 
   String translate(String key) => _t(key);
