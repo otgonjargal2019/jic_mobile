@@ -20,7 +20,8 @@ class _CasesPageState extends State<CasesPage> {
   void initState() {
     super.initState();
     // Load cases when the page is first created via the global provider
-    Future.microtask(() => context.read<CaseProvider>().loadCases());
+    Future.microtask(() => context.read<CaseProvider>().loadCases(
+        status: _tabIndex == 1 ? 'OPEN' : _tabIndex == 2 ? 'CLOSED' : null));
   }
 
   @override
@@ -30,16 +31,7 @@ class _CasesPageState extends State<CasesPage> {
     final isLoading = caseProvider.loading;
     final error = caseProvider.error;
     final cases = caseProvider.cases;
-    // final filtered = (() {
-    //   switch (_tabIndex) {
-    //     case 1:
-    //       return cases.where((e) => e.status == '진행중').toList();
-    //     case 2:
-    //       return cases.where((e) => e.status == '종료').toList();
-    //     default:
-    //       return cases;
-    //   }
-    // })();
+
     return Scaffold(
       backgroundColor: background,
       appBar: AppBar(
@@ -73,7 +65,12 @@ class _CasesPageState extends State<CasesPage> {
                 child: SegmentedTabs(
                   index: _tabIndex,
                   labels: const ['전체', '진행중인 사건', '종료 사건'],
-                  onChanged: (i) => setState(() => _tabIndex = i),
+                  onChanged: (i) => setState(() {
+                    _tabIndex = i;
+                    // request provider to reload using selected status
+                    final status = _tabIndex == 1 ? 'OPEN' : _tabIndex == 2 ? 'CLOSED' : null;
+                    context.read<CaseProvider>().loadCases(status: status);
+                  }),
                   backgroundColor: Colors.transparent,
                 ),
               ),
@@ -93,7 +90,8 @@ class _CasesPageState extends State<CasesPage> {
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
-                        onPressed: () => context.read<CaseProvider>().loadCases(),
+                        onPressed: () => context.read<CaseProvider>().loadCases(
+                            status: _tabIndex == 1 ? 'OPEN' : _tabIndex == 2 ? 'CLOSED' : null),
                         child: const Text('다시 시도'),
                       ),
                     ],
@@ -103,8 +101,9 @@ class _CasesPageState extends State<CasesPage> {
                 const Expanded(child: Center(child: CircularProgressIndicator()))
               else
                 Expanded(
-                  child: RefreshIndicator(
-                    onRefresh: () => context.read<CaseProvider>().loadCases(),
+          child: RefreshIndicator(
+            onRefresh: () => context.read<CaseProvider>().loadCases(
+              status: _tabIndex == 1 ? 'OPEN' : _tabIndex == 2 ? 'CLOSED' : null),
                     child: NotificationListener<ScrollNotification>(
                       onNotification: (notification) {
                         if (notification.metrics.pixels >=

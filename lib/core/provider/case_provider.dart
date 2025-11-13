@@ -17,9 +17,11 @@ class CaseProvider extends ChangeNotifier {
   List<Case> get cases => _cases;
   bool _hasMoreCases = true;
   int _casesPage = 0;
+  String? _status;
+  String? get status => _status;
 
-  /// Load both lists (refresh)
-  Future<void> loadCases() async {
+  Future<void> loadCases({String? status}) async {
+    _status = status;
     await Future.wait([
       loadMoreCases(refresh: true),
     ]);
@@ -43,6 +45,7 @@ class CaseProvider extends ChangeNotifier {
       final res = await _repository.getCases(
         page: page,
         size: size,
+        status: _status,
       );
 
       if (refresh) {

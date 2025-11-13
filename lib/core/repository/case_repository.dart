@@ -24,16 +24,21 @@ class CaseRepository {
     String sortDirection = 'desc',
     int page = 0,
     int size = 10,
+    String? status,
   }) async {
-    // Increase receive timeout for cases endpoint (server may take longer)
+    final queryParams = <String, dynamic>{
+      'sortBy': sortBy,
+      'sortDirection': sortDirection,
+      'page': page,
+      'size': size,
+    };
+    if (status != null) {
+      queryParams['status'] = status;
+    }
+
     final response = await _apiClient.get(
       '/api/cases',
-      queryParameters: {
-        'sortBy': sortBy,
-        'sortDirection': sortDirection,
-        'page': page,
-        'size': size,
-      },
+      queryParameters: queryParams,
       receiveTimeout: const Duration(seconds: 60),
     );
     final data = response.data;
