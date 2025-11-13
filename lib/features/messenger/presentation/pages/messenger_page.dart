@@ -342,7 +342,7 @@ class _ChatListTile extends StatelessWidget {
                           text: peer.unreadCount > 99
                               ? '99+'
                               : peer.unreadCount.toString(),
-                          background: const Color(0xFF22C55E),
+                          background: const Color(0xFF3EB491),
                           textStyle: const TextStyle(
                             color: Colors.white,
                             fontSize: 11,

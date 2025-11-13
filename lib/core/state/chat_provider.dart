@@ -280,7 +280,7 @@ class ChatProvider extends ChangeNotifier {
       'getHistory',
       {
         'peerId': peerId,
-        if (before != null) 'before': before.toIso8601String(),
+        if (before != null) 'before': _formatForServer(before),
         'limit': limit,
       },
       (resp) {
@@ -323,7 +323,7 @@ class ChatProvider extends ChangeNotifier {
 
     _socket.emitAck(
       'getHistory',
-      {'peerId': peerId, 'before': before.toIso8601String(), 'limit': limit},
+      {'peerId': peerId, 'before': _formatForServer(before), 'limit': limit},
       (resp) {
         try {
           final newMessages = (resp as List)
@@ -341,9 +341,20 @@ class ChatProvider extends ChangeNotifier {
               .reversed
               .toList();
 
-          // Prepend new messages to existing ones
+          // Prepend new messages to existing ones while removing duplicates
           final existingMessages = _messages[peerId] ?? [];
-          _messages[peerId] = [...newMessages, ...existingMessages];
+          final combined = [...newMessages, ...existingMessages];
+          final seenIds = <String>{};
+          final deduped = <ChatMessage>[];
+          for (final message in combined) {
+            // Combine messageId with timestamp just in case backend reuses ids
+            final key =
+                '${message.messageId}_${message.createdAt.toIso8601String()}';
+            if (seenIds.add(key)) {
+              deduped.add(message);
+            }
+          }
+          _messages[peerId] = deduped;
 
           completer.complete(newMessages.length);
         } catch (_) {
@@ -381,6 +392,8 @@ class ChatProvider extends ChangeNotifier {
     final parsed = DateTime.parse(value);
     return parsed.isUtc ? parsed.toLocal() : parsed;
   }
+
+  String _formatForServer(DateTime value) => value.toUtc().toIso8601String();
 
   Future<List<ChatUser>> searchUsers(String text) async {
     if (!connected) return [];
