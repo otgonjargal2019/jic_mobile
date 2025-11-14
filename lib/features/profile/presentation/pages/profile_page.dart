@@ -306,7 +306,7 @@ Future<void> _showLogoutSheet(BuildContext context) async {
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         minimumSize: const Size(0, 45),
-                        side: const BorderSide(color: Color(0xFFE1E3E8)),
+                        side: const BorderSide(color: Color(0xFF6D6A7C)),
                         foregroundColor: const Color(0xFF4E5055),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
