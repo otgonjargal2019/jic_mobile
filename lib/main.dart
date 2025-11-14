@@ -17,6 +17,8 @@ import 'core/provider/posts_provider.dart';
 import 'core/repository/investigation_record_repository.dart';
 import 'core/provider/investigation_record_provider.dart';
 import 'core/state/notification_provider.dart';
+import 'core/widgets/session_bootstrapper.dart';
+import 'core/network/realtime_gateway.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,11 +30,16 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => RealtimeGateway()),
         ChangeNotifierProvider(
           create: (_) => PostsProvider(PostsRepository(apiClient)),
         ),
-        ChangeNotifierProvider(create: (_) => ChatProvider()),
-        ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(
+          create: (ctx) => ChatProvider(ctx.read<RealtimeGateway>()),
+        ),
+        ChangeNotifierProvider(
+          create: (ctx) => NotificationProvider(ctx.read<RealtimeGateway>()),
+        ),
         ChangeNotifierProvider(
           create: (_) => CaseProvider(CaseRepository(apiClient)),
         ),
@@ -42,7 +49,7 @@ void main() async {
           ),
         ),
       ],
-      child: const MyApp(),
+      child: const SessionBootstrapper(child: MyApp()),
     ),
   );
 }

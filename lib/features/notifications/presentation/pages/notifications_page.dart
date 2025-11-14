@@ -26,20 +26,29 @@ class _NotificationsPageState extends State<NotificationsPage> {
       final userProv = context.read<UserProvider>();
       final notifProv = context.read<NotificationProvider>();
       final token = userProv.accessToken;
-      final u1 = '8efe5069-6389-4abb-960b-a6dfc67066d4';
-      final myId = (userProv.profile?.id.isNotEmpty ?? false)
-          ? userProv.profile!.id
-          : u1;
+      final myId = userProv.profile?.id;
 
       if (myId == null || myId.isEmpty || token == null || token.isEmpty) {
         return;
       }
-      await notifProv.connect(
-        baseUrl: AppConfig.socketBaseUrl,
-        userId: myId,
-        token: token,
-      );
-      await notifProv.loadInitialPage();
+      try {
+        await notifProv.connect(
+          baseUrl: AppConfig.socketBaseUrl,
+          userId: myId,
+          token: token,
+        );
+      } catch (_) {
+        return;
+      }
+
+      if (notifProv.notifications.isEmpty) {
+        await notifProv.loadInitialPage();
+      }
+      await notifProv.refreshUnreadCount();
+      if (!mounted) return;
+      setState(() {
+        _hasMoreNotifications = notifProv.hasMore;
+      });
     });
   }
 
@@ -77,22 +86,23 @@ class _NotificationsPageState extends State<NotificationsPage> {
     }
 
     final oldestNotif = notifications.last;
-    final loadedCount = await notifProv.loadMoreNotifications(
+    await notifProv.loadMoreNotifications(
       before: oldestNotif.createdAt,
       limit: 20,
     );
 
     setState(() {
       _isLoadingMore = false;
-      _hasMoreNotifications = loadedCount >= 20;
+      _hasMoreNotifications = notifProv.hasMore;
     });
   }
 
   Future<void> _onRefresh() async {
     final notifProv = context.read<NotificationProvider>();
     await notifProv.loadInitialPage();
+    await notifProv.refreshUnreadCount(fallbackDelay: Duration.zero);
     setState(() {
-      _hasMoreNotifications = true;
+      _hasMoreNotifications = notifProv.hasMore;
     });
   }
 

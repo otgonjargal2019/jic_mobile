@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 
 import 'package:jic_mob/core/network/api_client.dart';
 import 'package:jic_mob/core/state/user_provider.dart';
+import 'package:jic_mob/core/state/notification_provider.dart';
+import 'package:jic_mob/core/state/chat_provider.dart';
 
 class ProfilePage extends StatelessWidget {
   static const route = '/profile';
@@ -289,6 +291,8 @@ Future<void> _showLogoutSheet(BuildContext context) async {
 
   if (context.mounted) {
     context.read<UserProvider>().clear();
+    context.read<ChatProvider>().disconnect();
+    context.read<NotificationProvider>().disconnect();
     Navigator.of(context).pushNamedAndRemoveUntil('/login', (route) => false);
   }
 }
