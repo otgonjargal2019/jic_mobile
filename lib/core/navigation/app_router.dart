@@ -36,7 +36,7 @@ class ChatArgs {
 
 class PostDetailArgs {
   final String id;
-  final String? boardType; // optional, will be used to call API if provided
+  final String? boardType;
   const PostDetailArgs(this.id, {this.boardType});
 }
 

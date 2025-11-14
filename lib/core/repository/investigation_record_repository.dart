@@ -19,9 +19,6 @@ class InvestigationRecordRepository {
 
   InvestigationRecordRepository(this._apiClient);
 
-  /// Fetch paged investigation records. The backend returns an object with
-  /// `total` and `rows` keys (or variants). This method normalizes the
-  /// response into the project's `PagedResponse<T>` format.
   Future<PagedResponse<InvestigationRecord>> getInvestigationRecords({
     String sortBy = 'createdAt',
     String sortDirection = 'desc',
@@ -91,7 +88,6 @@ class InvestigationRecordRepository {
     throw ApiException('Unexpected response format for investigation records');
   }
 
-  /// Fetch a single investigation record by its [recordId].
   Future<InvestigationRecord> getInvestigationRecordById(String recordId) async {
     final response = await _apiClient.get(
       '/investigation-records/$recordId',

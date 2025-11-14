@@ -16,7 +16,6 @@ class InvestigationRecordProvider extends ChangeNotifier {
   List<InvestigationRecord> _records = [];
   List<InvestigationRecord> get records => _records;
 
-  // Single record state
   InvestigationRecord? _currentRecord;
   InvestigationRecord? get currentRecord => _currentRecord;
 
@@ -86,7 +85,6 @@ class InvestigationRecordProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Load a single investigation record by id and store it in [currentRecord].
   Future<void> loadRecordById(String recordId) async {
     _recordLoading = true;
     _recordError = null;

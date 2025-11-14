@@ -19,7 +19,6 @@ class _CasesPageState extends State<CasesPage> {
   @override
   void initState() {
     super.initState();
-    // Load cases when the page is first created via the global provider
     Future.microtask(() => context.read<CaseProvider>().loadCases(
         status: _tabIndex == 1 ? 'OPEN' : _tabIndex == 2 ? 'CLOSED' : null));
   }
