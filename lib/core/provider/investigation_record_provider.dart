@@ -16,6 +16,16 @@ class InvestigationRecordProvider extends ChangeNotifier {
   List<InvestigationRecord> _records = [];
   List<InvestigationRecord> get records => _records;
 
+  // Single record state
+  InvestigationRecord? _currentRecord;
+  InvestigationRecord? get currentRecord => _currentRecord;
+
+  bool _recordLoading = false;
+  bool get recordLoading => _recordLoading;
+
+  String? _recordError;
+  String? get recordError => _recordError;
+
   bool _hasMore = true;
   bool get hasMore => _hasMore;
   int _page = 0;
@@ -73,6 +83,32 @@ class InvestigationRecordProvider extends ChangeNotifier {
     _hasMore = true;
     _error = null;
     _loading = false;
+    notifyListeners();
+  }
+
+  /// Load a single investigation record by id and store it in [currentRecord].
+  Future<void> loadRecordById(String recordId) async {
+    _recordLoading = true;
+    _recordError = null;
+    _currentRecord = null;
+    notifyListeners();
+
+    try {
+      final rec = await _repository.getInvestigationRecordById(recordId);
+      _currentRecord = rec;
+      _recordError = null;
+    } catch (e) {
+      _recordError = e.toString();
+    } finally {
+      _recordLoading = false;
+      notifyListeners();
+    }
+  }
+
+  void clearCurrentRecord() {
+    _currentRecord = null;
+    _recordError = null;
+    _recordLoading = false;
     notifyListeners();
   }
 }

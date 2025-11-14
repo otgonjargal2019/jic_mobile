@@ -1,13 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:jic_mob/core/widgets/app_badge.dart';
+import 'package:provider/provider.dart';
+import 'package:jic_mob/core/provider/investigation_record_provider.dart';
+import 'package:jic_mob/core/models/investigation_record/investigation_record.dart';
 
-class RecordDetailPage extends StatelessWidget {
+class RecordDetailPage extends StatefulWidget {
   final String id;
   const RecordDetailPage({super.key, required this.id});
 
   @override
+  State<RecordDetailPage> createState() => _RecordDetailPageState();
+}
+
+class _RecordDetailPageState extends State<RecordDetailPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Load the record when page opens
+    Future.microtask(() =>
+        context.read<InvestigationRecordProvider>().loadRecordById(widget.id));
+  }
+
+  @override
   Widget build(BuildContext context) {
     const background = Color(0xFFF5F6FA);
+    final provider = context.watch<InvestigationRecordProvider>();
+    final isLoading = provider.recordLoading;
+    final error = provider.recordError;
+    final record = provider.currentRecord;
+
     return Scaffold(
       backgroundColor: background,
       appBar: AppBar(
@@ -16,40 +37,90 @@ class RecordDetailPage extends StatelessWidget {
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF3C3C43),
       ),
-      body: ListView(
+      body: Padding(
         padding: const EdgeInsets.all(16),
-        children: const [
-          _AuthorsSection(),
-          SizedBox(height: 12),
-          _AttachmentsSection(),
-          SizedBox(height: 12),
-          _InvestigationSection(),
-        ],
+        child: Builder(builder: (_) {
+          if (isLoading) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (error != null) {
+            return Column(
+              children: [
+                const SizedBox(height: 20),
+                Icon(Icons.error_outline, size: 36, color: Colors.red[700]),
+                const SizedBox(height: 8),
+                Text(error, style: const TextStyle(color: Colors.red)),
+                const SizedBox(height: 8),
+                ElevatedButton(
+                  onPressed: () => provider.loadRecordById(widget.id),
+                  child: const Text('다시 시도'),
+                ),
+              ],
+            );
+          }
+
+          if (record == null) {
+            return const Center(child: Text('데이터가 없습니다'));
+          }
+
+          return ListView(
+            children: [
+              _AuthorsSection(record: record),
+              const SizedBox(height: 12),
+              _AttachmentsSection(record: record),
+              const SizedBox(height: 12),
+              _InvestigationSection(record: record),
+            ],
+          );
+        }),
       ),
     );
   }
 }
 
 class _AuthorsSection extends StatelessWidget {
-  const _AuthorsSection();
+  final InvestigationRecord record;
+  const _AuthorsSection({required this.record});
 
   @override
   Widget build(BuildContext context) {
+    final creator = record.creator;
+    final reviewer = record.reviewer;
+    String creatorName = '';
+    String creatorDept = '';
+    String creatorDate = record.createdAt?.split('T').first ?? '';
+    if (creator is Map) {
+      final c = creator as Map;
+      creatorName = (c['nameEn'] ?? c['nameKr'] ?? c['loginId'] ?? '').toString();
+      // try to build a dept string from available keys
+      final country = (c['countryName'] ?? c['headquarterName'] ?? c['departmentName'])?.toString();
+      creatorDept = country ?? '';
+    }
+
+    String reviewerName = '';
+    String reviewerDept = '';
+    String reviewerDate = record.reviewedAt?.split('T').first ?? '';
+    if (reviewer is Map) {
+      final r = reviewer as Map;
+      reviewerName = (r['nameEn'] ?? r['nameKr'] ?? r['loginId'] ?? '').toString();
+      reviewerDept = (r['countryName'] ?? r['headquarterName'] ?? r['departmentName'])?.toString() ?? '';
+    }
+
     return _CardSection(
       title: '작성자',
       child: Column(
-        children: const [
+        children: [
           _AuthorRow(
-            name: '고광현',
-            dept: '경찰 대응 본부 | 온라인 보호부',
-            date: '2024/02/28',
+            name: creatorName.isNotEmpty ? creatorName : '(미등록)',
+            dept: creatorDept,
+            date: creatorDate,
             tag: '작성자',
           ),
-          SizedBox(height: 12),
+          const SizedBox(height: 12),
           _AuthorRow(
-            name: '김환수',
-            dept: '경찰 대응 본부 | 온라인 보호부',
-            date: '2024/02/28',
+            name: reviewerName.isNotEmpty ? reviewerName : '(미등록)',
+            dept: reviewerDept,
+            date: reviewerDate,
             tag: '검토자',
           ),
         ],
@@ -101,38 +172,35 @@ class _AuthorRow extends StatelessWidget {
 }
 
 class _AttachmentsSection extends StatelessWidget {
-  const _AttachmentsSection();
+  final InvestigationRecord record;
+  const _AttachmentsSection({required this.record});
 
   @override
   Widget build(BuildContext context) {
+    final files = record.attachedFiles;
+    List items = [];
+    if (files is List) items = files;
+
     return _CardSection(
       title: '첨부파일',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          _SubHeader('수사 보고서'),
-          _FileRow('사건 B 목적자 관련 제보 수사보고서.docx (39.7KB)'),
-          SizedBox(height: 8),
-          _SubHeader('디지털 증거물'),
-          _FileRow('사건 B 목적자 관련 음성 녹취록.mp4 (39.7KB)'),
-          _FileRow('사건 B 목적자 관련 음성 녹취록.mp4 (39.7KB)'),
-        ],
+        children: items.isEmpty
+            ? [const Text('첨부파일이 없습니다')]
+            : items.map((f) {
+                final name = (f is Map) ? (f['fileName']?.toString() ?? '') : f.toString();
+                return Column(
+                  children: [
+                    _FileRow(name),
+                  ],
+                );
+              }).toList(),
       ),
     );
   }
 }
 
-class _SubHeader extends StatelessWidget {
-  final String text;
-  const _SubHeader(this.text);
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
-      child: Text(text, style: const TextStyle(fontWeight: FontWeight.w700)),
-    );
-  }
-}
+
 
 class _FileRow extends StatelessWidget {
   final String name;
@@ -159,24 +227,21 @@ class _FileRow extends StatelessWidget {
 }
 
 class _InvestigationSection extends StatelessWidget {
-  const _InvestigationSection();
+  final InvestigationRecord record;
+  const _InvestigationSection({required this.record});
 
   @override
   Widget build(BuildContext context) {
     return _CardSection(
       title: '사건 수사 기록',
       child: Column(
-        children: const [
-          _KVRow('사건 번호', '156-8156'),
-          _KVRow('작성일', '2024-01-01 05:59:00'),
-          _KVRow('사건명', '사건 B'),
-          _KVRow('수사기록명', '사건 B 목적자 관련 제보'),
-          _KVRow('본인등급', '1등급', highlight: true),
-          _KVRow('상세진행상황', '수사 중'),
-          _KVRow(
-            '수사 내용',
-            '성범죄사건가 저작권자의 이용허락 없이 해외의 동영상 공유 플랫폼 사이트에 업로드한 영상저작물에 대한...',
-          ),
+        children: [
+          _KVRow('사건 번호', record.number.toString()),
+          _KVRow('작성일', record.createdAt ?? ''),
+          _KVRow('수사기록명', record.recordName ?? ''),
+          _KVRow('본인등급', record.securityLevel.toString(), highlight: true),
+          _KVRow('상세진행상황', record.progressStatus ?? ''),
+          _KVRow('수사 내용', record.content ?? ''),
         ],
       ),
     );
