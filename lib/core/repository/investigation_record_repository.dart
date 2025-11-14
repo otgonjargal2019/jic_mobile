@@ -90,4 +90,25 @@ class InvestigationRecordRepository {
 
     throw ApiException('Unexpected response format for investigation records');
   }
+
+  /// Fetch a single investigation record by its [recordId].
+  Future<InvestigationRecord> getInvestigationRecordById(String recordId) async {
+    final response = await _apiClient.get(
+      '/investigation-records/$recordId',
+      receiveTimeout: const Duration(seconds: 60),
+    );
+
+    final data = response.data;
+    if (data == null) throw ApiException('Empty response from server');
+
+    if (data is Map || data is Map<String, dynamic>) {
+      final map = data is Map<String, dynamic>
+          ? data
+          : Map<String, dynamic>.from(data as Map);
+
+      return InvestigationRecord.fromJson(map);
+    }
+
+    throw ApiException('Unexpected response format for investigation record');
+  }
 }
