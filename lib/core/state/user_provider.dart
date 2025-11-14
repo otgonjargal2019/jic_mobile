@@ -62,6 +62,7 @@ class UserProvider extends ChangeNotifier {
               : (nameKr ?? '');
 
           final id = (userData['userId'] ?? data['userId'])?.toString() ?? '';
+          final role = userData['role']?.toString();
           final email = userData['email']?.toString();
           final avatarUrl = userData['profileImageUrl']?.toString();
 
@@ -69,6 +70,7 @@ class UserProvider extends ChangeNotifier {
             UserProfile(
               id: id,
               name: displayName,
+              role: role ?? '',
               email: email,
               avatarUrl: avatarUrl,
               extra: userData,

@@ -1,6 +1,7 @@
 class UserProfile {
   final String id;
   final String name;
+  final String role;
   final String? email;
   final String? avatarUrl;
   final Map<String, dynamic>? extra;
@@ -8,6 +9,7 @@ class UserProfile {
   const UserProfile({
     required this.id,
     required this.name,
+    required this.role,
     this.email,
     this.avatarUrl,
     this.extra,
@@ -23,6 +25,7 @@ class UserProfile {
     return UserProfile(
       id: id ?? this.id,
       name: name ?? this.name,
+      role: role,
       email: email ?? this.email,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       extra: extra ?? this.extra,
@@ -33,6 +36,7 @@ class UserProfile {
     return UserProfile(
       id: json['id']?.toString() ?? '',
       name: json['name']?.toString() ?? '',
+      role: json['role']?.toString() ?? '',
       email: json['email']?.toString(),
       avatarUrl: json['avatarUrl']?.toString(),
       extra: json['extra'] is Map
