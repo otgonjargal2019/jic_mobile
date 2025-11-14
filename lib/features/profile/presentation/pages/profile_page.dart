@@ -50,9 +50,9 @@ class ProfilePage extends StatelessWidget {
     final avatarUrl = user?.avatarUrl;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F5),
+      backgroundColor: Color(0xFFF7F7F5),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF7F7F5),
+        backgroundColor: Color(0xFFF7F7F5),
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
@@ -62,28 +62,38 @@ class ProfilePage extends StatelessWidget {
           ),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text(
-          '마이페이지',
-          style: TextStyle(
-            color: Color(0xFF111111),
-            fontWeight: FontWeight.w600,
-          ),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1, color: Color(0xFFE3E5EA)),
         ),
         centerTitle: false,
       ),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+        padding: const EdgeInsets.fromLTRB(0, 12, 0, 24),
         children: [
+          const SizedBox(height: 8),
+          Padding(
+            padding: EdgeInsets.only(left: 24),
+            child: const Text(
+              '마이페이지',
+              style: TextStyle(
+                color: Color(0xFF111111),
+                fontSize: 24,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 24),
+            padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Color(0xFFF7F7F5),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
               children: [
                 CircleAvatar(
-                  radius: 36,
+                  radius: 30,
                   backgroundColor: const Color(0xFFE8E8E8),
                   backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
                       ? NetworkImage(avatarUrl)
@@ -91,12 +101,11 @@ class ProfilePage extends StatelessWidget {
                   child: (avatarUrl == null || avatarUrl.isEmpty)
                       ? const Icon(
                           Icons.person,
-                          size: 36,
+                          size: 30,
                           color: Color(0xFF9EA3AA),
                         )
                       : null,
                 ),
-                const SizedBox(height: 12),
                 Text(
                   name,
                   style: const TextStyle(
@@ -105,28 +114,67 @@ class ProfilePage extends StatelessWidget {
                     color: Color(0xFF111111),
                   ),
                 ),
-                const SizedBox(height: 4),
                 Text(
                   loginId,
                   style: const TextStyle(
                     color: Color(0xFF6F7177),
-                    fontSize: 13,
+                    fontSize: 12,
                   ),
                 ),
-                const SizedBox(height: 24),
-                const Divider(height: 1, color: Color(0xFFE3E5EA)),
-                _InfoRow(label: '국가', value: country),
-                _InfoRow(label: '소속 본부', value: org),
-                _InfoRow(label: '소속 부서', value: dept),
-                _InfoRow(label: '이메일', value: email),
-                _InfoRow(label: '연락처', value: phone),
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  height: 12,
+                  color: const Color(0xFFEAEAEA),
+                ),
+                const SizedBox(height: 6),
+                _InfoRow(
+                  label: '국가',
+                  value: country,
+                  showBottomBorder: false,
+                  bottomPadding: 4,
+                ),
+                _InfoRow(
+                  label: '소속 본부',
+                  value: org,
+                  showBottomBorder: false,
+                  bottomPadding: 4,
+                ),
+                _InfoRow(
+                  label: '소속 부서',
+                  value: dept,
+                  showBottomBorder: false,
+                  bottomPadding: 4,
+                ),
+                _InfoRow(
+                  label: '이메일',
+                  value: email,
+                  showBottomBorder: false,
+                  bottomPadding: 4,
+                ),
+                _InfoRow(
+                  label: '연락처',
+                  value: phone,
+                  showBottomBorder: false,
+                  bottomPadding: 0,
+                ),
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          const Text(
-            '* 정보 수정은 PC에서만 가능합니다.',
-            style: TextStyle(color: Color(0xFF6F7177), fontSize: 12),
+
+          // full-width thick separator below the card
+          Container(
+            width: double.infinity,
+            height: 12,
+            color: const Color(0xFFEAEAEA),
+          ),
+          const SizedBox(height: 12),
+          Padding(
+            padding: EdgeInsets.only(left: 24),
+            child: const Text(
+              '* 정보 수정은 PC에서만 가능합니다.',
+              style: TextStyle(color: Color(0xFF363249), fontSize: 14),
+            ),
           ),
           const SizedBox(height: 16),
           Align(
@@ -135,7 +183,7 @@ class ProfilePage extends StatelessWidget {
               onPressed: () => _showLogoutSheet(context),
               style: TextButton.styleFrom(
                 padding: EdgeInsets.zero,
-                foregroundColor: const Color(0xFF2F4C9F),
+                foregroundColor: const Color(0xFF363249),
                 textStyle: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -144,7 +192,7 @@ class ProfilePage extends StatelessWidget {
               child: const Text('로그아웃'),
             ),
           ),
-          const SizedBox(height: 12),
+          //const SizedBox(height: 12),
         ],
       ),
     );
@@ -154,14 +202,28 @@ class ProfilePage extends StatelessWidget {
 class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
-  const _InfoRow({required this.label, required this.value});
+
+  /// Whether to draw the bottom border for this row. Defaults to true.
+  final bool showBottomBorder;
+  final double bottomPadding;
+
+  const _InfoRow({
+    required this.label,
+    required this.value,
+    this.showBottomBorder = true,
+    this.bottomPadding = 6,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-      decoration: const BoxDecoration(
-        border: Border(bottom: BorderSide(color: Color(0xFFE3E5EA), width: 1)),
+      padding: EdgeInsets.fromLTRB(24, 6, 24, bottomPadding),
+      decoration: BoxDecoration(
+        border: showBottomBorder
+            ? const Border(
+                bottom: BorderSide(color: Color(0xFFE3E5EA), width: 1),
+              )
+            : null,
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,22 +271,25 @@ Future<void> _showLogoutSheet(BuildContext context) async {
   final shouldLogout = await showModalBottomSheet<bool>(
     context: context,
     backgroundColor: Colors.transparent,
+    isScrollControlled: true, // ⬅ доод талын system inset устгана
+    useSafeArea: false, // ⬅ SafeArea padding арилгана
     builder: (sheetContext) {
-      return SafeArea(
+      return Container(
+        margin: EdgeInsets.zero,
+        padding: EdgeInsets.zero,
         child: Container(
-          margin: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(18),
           ),
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 20),
+          padding: const EdgeInsets.fromLTRB(24, 24, 24, 45),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
                 '로그아웃 하시겠어요?',
                 style: TextStyle(
-                  fontSize: 17,
+                  fontSize: 20,
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF111111),
                 ),
@@ -237,15 +302,16 @@ Future<void> _showLogoutSheet(BuildContext context) async {
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(sheetContext).pop(false),
                       style: OutlinedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        minimumSize: const Size(0, 45),
                         side: const BorderSide(color: Color(0xFFE1E3E8)),
                         foregroundColor: const Color(0xFF4E5055),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
                         textStyle: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       child: const Text('취소'),
@@ -256,16 +322,17 @@ Future<void> _showLogoutSheet(BuildContext context) async {
                     child: ElevatedButton(
                       onPressed: () => Navigator.of(sheetContext).pop(true),
                       style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        backgroundColor: const Color(0xFF2F4C9F),
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        minimumSize: const Size(0, 45),
+                        backgroundColor: const Color(0xFF6D6A7C),
                         foregroundColor: Colors.white,
                         elevation: 0,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(24),
                         ),
                         textStyle: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       child: const Text('로그아웃'),
