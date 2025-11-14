@@ -1,6 +1,7 @@
 import 'package:jic_mob/core/network/api_client.dart';
 import 'package:jic_mob/core/models/pagination.dart';
 import 'package:jic_mob/core/models/case/case.dart';
+import 'package:jic_mob/core/state/user_provider.dart';
 
 int _toInt(dynamic v) {
   if (v == null) return 0;
@@ -16,8 +17,9 @@ int _toInt(dynamic v) {
 
 class CaseRepository {
   final ApiClient _apiClient;
+  final UserProvider? _userProvider;
 
-  CaseRepository(this._apiClient);
+  CaseRepository(this._apiClient, [this._userProvider]);
 
   Future<PagedResponse<Case>> getCases({
     String sortBy = 'number',
@@ -36,8 +38,15 @@ class CaseRepository {
       queryParams['status'] = status;
     }
 
+    String path = '/api/cases';
+    final role = _userProvider?.profile?.role;
+    if (role == 'INV_ADMIN') {
+    } else if (role == 'INVESTIGATOR' || role == 'RESEARCHER') {
+      path += '/my-assigned';
+    }
+
     final response = await _apiClient.get(
-      '/api/cases',
+      path,
       queryParameters: queryParams,
       receiveTimeout: const Duration(seconds: 60),
     );

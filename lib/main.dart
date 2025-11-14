@@ -33,7 +33,9 @@ void main() async {
         ),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(
-          create: (_) => CaseProvider(CaseRepository(apiClient)),
+          create: (context) => CaseProvider(
+            CaseRepository(apiClient, context.read<UserProvider>()),
+          ),
         ),
         ChangeNotifierProvider(
           create: (_) => InvestigationRecordProvider(InvestigationRecordRepository(apiClient)),
