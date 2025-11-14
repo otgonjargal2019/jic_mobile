@@ -16,6 +16,7 @@ import 'core/repository/posts_repository.dart';
 import 'core/provider/posts_provider.dart';
 import 'core/repository/investigation_record_repository.dart';
 import 'core/provider/investigation_record_provider.dart';
+import 'core/state/notification_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,16 +28,18 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
-        // Provide PostsProvider so PostsPage can read/watch it
         ChangeNotifierProvider(
           create: (_) => PostsProvider(PostsRepository(apiClient)),
         ),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
         ChangeNotifierProvider(
           create: (_) => CaseProvider(CaseRepository(apiClient)),
         ),
         ChangeNotifierProvider(
-          create: (_) => InvestigationRecordProvider(InvestigationRecordRepository(apiClient)),
+          create: (_) => InvestigationRecordProvider(
+            InvestigationRecordRepository(apiClient),
+          ),
         ),
       ],
       child: const MyApp(),
