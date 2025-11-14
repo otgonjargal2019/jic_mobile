@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'package:jic_mob/core/navigation/app_router.dart' as app_router;
 import 'package:jic_mob/core/state/chat_provider.dart';
+import 'package:jic_mob/core/state/notification_provider.dart';
 import 'package:jic_mob/core/widgets/app_badge.dart';
 
 class AppBottomNav extends StatelessWidget {
@@ -40,6 +41,9 @@ class AppBottomNav extends StatelessWidget {
     final chat = context.watch<ChatProvider>();
     final unreadUsers = chat.unreadUsersCount;
 
+    final notif = context.watch<NotificationProvider>();
+    final unreadNotifCount = notif.unreadCount;
+
     return NavigationBar(
       selectedIndex: currentIndex,
       height: 64,
@@ -72,9 +76,15 @@ class AppBottomNav extends StatelessWidget {
           selectedIcon: Icon(Icons.article),
           label: 'Posts',
         ),
-        const NavigationDestination(
-          icon: Icon(Icons.notifications_none),
-          selectedIcon: Icon(Icons.notifications),
+        NavigationDestination(
+          icon: _NavIconWithBadge(
+            icon: Icon(Icons.notifications_none),
+            badgeCount: unreadNotifCount,
+          ),
+          selectedIcon: _NavIconWithBadge(
+            icon: Icon(Icons.notifications),
+            badgeCount: unreadNotifCount,
+          ),
           label: 'Notifications',
         ),
       ],

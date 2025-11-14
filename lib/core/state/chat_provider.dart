@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'dart:async';
-import '../network/socket_service.dart';
+import '../network/realtime_gateway.dart';
 
 class ChatUser {
   final String userId;
@@ -37,7 +37,7 @@ class ChatMessage {
 }
 
 class ChatProvider extends ChangeNotifier {
-  final SocketService _socket = SocketService();
+  final RealtimeGateway _gateway;
   final List<ChatUser> _peers = [];
   final Map<String, List<ChatMessage>> _messages = {};
   String? _myId;
@@ -46,9 +46,12 @@ class ChatProvider extends ChangeNotifier {
   bool _loadingPeers = false;
   bool _loadingHistory = false;
 
+  ChatProvider(this._gateway);
+
   List<ChatUser> get peers => List.unmodifiable(_peers);
   List<ChatMessage> messagesFor(String peerId) => _messages[peerId] ?? const [];
-  bool get connected => _socket.isConnected;
+  bool get connected =>
+      _gateway.isConnected && _myId != null && _listenersRegistered;
   bool get loadingPeers => _loadingPeers;
   bool get loadingHistory => _loadingHistory;
   String? get myId => _myId;
@@ -65,6 +68,59 @@ class ChatProvider extends ChangeNotifier {
   bool _listenersRegistered = false;
   static final DateTime _minTimestamp = DateTime.fromMillisecondsSinceEpoch(0);
 
+  void _handleConnectionStatus(dynamic _) {}
+
+  void _handleSocketConnect(dynamic _) {
+    if (!_loadingPeers) {
+      unawaited(loadPeers());
+    }
+  }
+
+  void _handleDirectMessage(dynamic data) {
+    if (data is! Map) return;
+    final senderId = data['senderId'] as String;
+    final recipientId = data['recipientId'] as String;
+    final peerId = senderId == _myId ? recipientId : senderId;
+    final isRead = (data['isRead'] as bool?) ?? false;
+
+    final list = _messages.putIfAbsent(peerId, () => []);
+    list.add(
+      ChatMessage(
+        messageId: data['messageId'] as String,
+        senderId: senderId,
+        recipientId: recipientId,
+        content: data['content'] as String,
+        isRead: isRead,
+        createdAt: _parseTimestamp(data['createdAt'] as String),
+      ),
+    );
+
+    final peerIndex = _peers.indexWhere((p) => p.userId == peerId);
+    if (peerIndex != -1) {
+      final peer = _peers[peerIndex];
+      final isIncoming = senderId == peerId;
+      final shouldIncrementUnread =
+          isIncoming && !isRead && _currentPeerId != peerId;
+      final newUnreadCount = shouldIncrementUnread
+          ? peer.unreadCount + 1
+          : peer.unreadCount;
+
+      _peers[peerIndex] = ChatUser(
+        userId: peer.userId,
+        displayName: peer.displayName,
+        lastMessage: data['content'] as String,
+        lastTime: _parseTimestamp(data['createdAt'] as String),
+        unreadCount: newUnreadCount,
+        profileImageUrl: peer.profileImageUrl,
+      );
+      _sortPeers();
+    } else {
+      loadPeers();
+    }
+
+    notifyListeners();
+  }
+
   void _sortPeers() {
     _peers.sort((a, b) {
       final aTime = a.lastTime ?? _minTimestamp;
@@ -80,80 +136,61 @@ class ChatProvider extends ChangeNotifier {
   }) async {
     if (token.isEmpty) return;
 
-    if (connected) {
-      if (_myId == userId && _authToken == token) {
-        return;
+    if (connected && (_myId != userId || _authToken != token)) {
+      disconnect();
+    }
+
+    if (connected && _myId == userId && _authToken == token) {
+      if (_peers.isEmpty && !_loadingPeers) {
+        unawaited(loadPeers());
       }
-      _socket.disconnect();
+      return;
     }
 
     _myId = userId;
     _authToken = token;
-    await _socket.connect(baseUrl: baseUrl, token: token);
+    await _gateway.connectModule(
+      module: 'chat',
+      baseUrl: baseUrl,
+      userId: userId,
+      token: token,
+    );
 
     // Register socket event listeners only once
     if (!_listenersRegistered) {
       _listenersRegistered = true;
 
-      _socket.on('connectionStatus', (_) {});
-
-      // Load peers immediately when connected (like Next.js does)
-      _socket.raw?.on('connect', (_) {
-        print('[ChatProvider] Socket connected, loading peers...');
-        loadPeers();
-      });
-
-      _socket.on('directMessage', (data) {
-        final senderId = data['senderId'] as String;
-        final recipientId = data['recipientId'] as String;
-        final peerId = senderId == _myId ? recipientId : senderId;
-        final isRead = (data['isRead'] as bool?) ?? false;
-
-        final list = _messages.putIfAbsent(peerId, () => []);
-        list.add(
-          ChatMessage(
-            messageId: data['messageId'] as String,
-            senderId: senderId,
-            recipientId: recipientId,
-            content: data['content'] as String,
-            isRead: isRead,
-            createdAt: _parseTimestamp(data['createdAt'] as String),
-          ),
-        );
-
-        // Update peer list with new last message and potentially unread count
-        final peerIndex = _peers.indexWhere((p) => p.userId == peerId);
-        if (peerIndex != -1) {
-          final peer = _peers[peerIndex];
-          final isIncoming = senderId == peerId;
-
-          // Only increment unread count if:
-          // 1. It's an incoming message
-          // 2. The message is not read
-          // 3. We're NOT currently viewing this chat
-          final shouldIncrementUnread =
-              isIncoming && !isRead && _currentPeerId != peerId;
-          final newUnreadCount = shouldIncrementUnread
-              ? peer.unreadCount + 1
-              : peer.unreadCount;
-
-          _peers[peerIndex] = ChatUser(
-            userId: peer.userId,
-            displayName: peer.displayName,
-            lastMessage: data['content'] as String,
-            lastTime: DateTime.parse(data['createdAt'] as String),
-            unreadCount: newUnreadCount,
-            profileImageUrl: peer.profileImageUrl,
-          );
-          _sortPeers();
-        } else {
-          // New or previously unseen peer: refresh from server to pull metadata
-          loadPeers();
-        }
-
-        notifyListeners();
-      });
+      _gateway.client.on('connectionStatus', _handleConnectionStatus);
+      _gateway.client.on('connect', _handleSocketConnect);
+      _gateway.client.on('directMessage', _handleDirectMessage);
     }
+
+    if (!_loadingPeers) {
+      if (_peers.isEmpty) {
+        await loadPeers();
+      } else {
+        unawaited(loadPeers());
+      }
+    }
+  }
+
+  void disconnect() {
+    if (_listenersRegistered) {
+      final raw = _gateway.client.raw;
+      raw?.off('connectionStatus', _handleConnectionStatus);
+      raw?.off('connect', _handleSocketConnect);
+      raw?.off('directMessage', _handleDirectMessage);
+    }
+    _gateway.disconnectModule('chat');
+    _listenersRegistered = false;
+    _myId = null;
+    _currentPeerId = null;
+    _authToken = null;
+    _peers.clear();
+    _messages.clear();
+    _loadingPeers = false;
+    _loadingHistory = false;
+    notifyListeners();
   }
 
   Future<void> loadPeers() async {
@@ -171,7 +208,7 @@ class ChatProvider extends ChangeNotifier {
 
     _loadingPeers = true;
     notifyListeners();
-    _socket.emitAck('getChatUsers', null, (resp) {
+    _gateway.client.emitAck('getChatUsers', null, (resp) {
       try {
         final serverList = (resp as List)
             .map(
@@ -245,7 +282,7 @@ class ChatProvider extends ChangeNotifier {
     _currentPeerId = peerId;
     notifyListeners();
     await loadHistory(peerId: peerId);
-    _socket.emit('markMessagesAsRead', {'peerId': peerId});
+    _gateway.client.emit('markMessagesAsRead', {'peerId': peerId});
 
     // Update local unread count for this peer to 0
     final peerIndex = _peers.indexWhere((p) => p.userId == peerId);
@@ -276,7 +313,7 @@ class ChatProvider extends ChangeNotifier {
     if (!connected) return;
     _loadingHistory = true;
     notifyListeners();
-    _socket.emitAck(
+    _gateway.client.emitAck(
       'getHistory',
       {
         'peerId': peerId,
@@ -321,7 +358,7 @@ class ChatProvider extends ChangeNotifier {
 
     final completer = Completer<int>();
 
-    _socket.emitAck(
+    _gateway.client.emitAck(
       'getHistory',
       {'peerId': peerId, 'before': _formatForServer(before), 'limit': limit},
       (resp) {
@@ -374,7 +411,7 @@ class ChatProvider extends ChangeNotifier {
     if (!connected || (_myId == null)) return;
     final text = content.trim();
     if (text.isEmpty) return;
-    _socket.emitAck('sendDirectMessage', {
+    _gateway.client.emitAck('sendDirectMessage', {
       'recipientId': peerId,
       'content': text,
     }, (_) {});
@@ -401,7 +438,7 @@ class ChatProvider extends ChangeNotifier {
     if (query.isEmpty) return [];
 
     final completer = Completer<List<ChatUser>>();
-    _socket.emitAck('searchUsers', query, (resp) {
+    _gateway.client.emitAck('searchUsers', query, (resp) {
       try {
         final list = (resp as List)
             .map(
@@ -425,7 +462,7 @@ class ChatProvider extends ChangeNotifier {
 
   @override
   void dispose() {
-    _socket.disconnect();
+    disconnect();
     super.dispose();
   }
 }

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:jic_mob/core/models/case/case.dart';
 import 'package:jic_mob/features/cases/presentation/widgets/case_card.dart';
 import 'package:jic_mob/core/widgets/app_bottom_nav.dart';
-import 'package:jic_mob/core/state/chat_provider.dart';
-import 'package:jic_mob/core/config/app_config.dart';
 import 'package:provider/provider.dart';
 import 'package:jic_mob/core/state/user_provider.dart';
 import 'package:jic_mob/features/profile/presentation/pages/profile_page.dart';
@@ -17,25 +15,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final userProvider = context.read<UserProvider>();
-      final userId = userProvider.profile?.id;
-      final token = userProvider.accessToken;
-      if (userId == null || userId.isEmpty || token == null || token.isEmpty) {
-        return;
-      }
-      context.read<ChatProvider>().connect(
-        baseUrl: AppConfig.socketBaseUrl,
-        userId: userId,
-        token: token,
-      );
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     const background = Color(0xFFF5F6FA);
