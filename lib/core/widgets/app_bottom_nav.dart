@@ -7,31 +7,28 @@ import 'package:jic_mob/core/state/notification_provider.dart';
 import 'package:jic_mob/core/widgets/app_badge.dart';
 
 class AppBottomNav extends StatelessWidget {
-  final int
-  currentIndex; // 0: Home, 1: Cases, 2: Messenger, 3: Posts, 4: Notifications
+  final int currentIndex;
   const AppBottomNav({super.key, required this.currentIndex});
 
   void _onTap(BuildContext context, int i) {
-    if (i == currentIndex) return; // no-op if selecting current tab
+    if (i == currentIndex) return;
+
+    final navigator = Navigator.of(context, rootNavigator: true);
     switch (i) {
       case 0:
-        Navigator.of(context).pushReplacementNamed('/home');
+        navigator.pushReplacementNamed('/home');
         break;
       case 1:
-        Navigator.of(context).pushReplacementNamed(app_router.AppRoute.cases);
+        navigator.pushReplacementNamed(app_router.AppRoute.cases);
         break;
       case 2:
-        Navigator.of(
-          context,
-        ).pushReplacementNamed(app_router.AppRoute.messenger);
+        navigator.pushReplacementNamed(app_router.AppRoute.messenger);
         break;
       case 3:
-        Navigator.of(context).pushReplacementNamed(app_router.AppRoute.posts);
+        navigator.pushReplacementNamed(app_router.AppRoute.posts);
         break;
       case 4:
-        Navigator.of(
-          context,
-        ).pushReplacementNamed(app_router.AppRoute.notifications);
+        navigator.pushReplacementNamed(app_router.AppRoute.notifications);
         break;
     }
   }
