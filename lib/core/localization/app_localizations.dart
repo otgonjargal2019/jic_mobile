@@ -42,7 +42,8 @@ class AppLocalizations {
       'case_details.progressStatus.INVESTIGATION': 'investigation',
       'case_details.progressStatus.TRANSFER': 'transfer',
       'case_details.progressStatus.ANALYZING': 'analysing',
-      'case_details.progressStatus.REPORT_INVESTIGATION': 'report investigation',
+      'case_details.progressStatus.REPORT_INVESTIGATION':
+          'report investigation',
       'case_details.progressStatus.DISPOSE': 'dispose',
       'case_details.progressStatus.ON_HOLD': 'on hold',
       'case_details.progressStatus.CLOSED': 'closed',
@@ -99,6 +100,48 @@ class AppLocalizations {
       'case_details.etc': '기타사항',
       'case_details.caseInformation': '사건 정보',
       'case_details.invRecordsList': '수사기록 내역',
+      'user-role.PLATFORM_ADMIN': '플랫폼 관리자',
+      'user-role.INV_ADMIN': '수사 관리자',
+      'user-role.INVESTIGATOR': '수사관',
+      'user-role.RESEARCHER': '조사관',
+      'user-role.COPYRIGHT_HOLDER': '저작권자',
+      'notification': '알림',
+      'delete-whole-thing': '전체 삭제',
+      'full-reading': '전체 읽음',
+      'loading': '로딩 중...',
+      'no-more-notification': '알람이 없습니다.',
+      'NOTIFICATION-KEY.ID': 'ID',
+      'NOTIFICATION-KEY.NAME': '성명',
+      'NOTIFICATION-KEY.REQUEST-DATE': '요청 일시',
+      'NOTIFICATION-KEY.CASE-NUMBER': '사건번호',
+      'NOTIFICATION-KEY.CASE-TITLE': '사건 명',
+      'NOTIFICATION-KEY.ALLOCATION-DATE': '배정 일시',
+      'NOTIFICATION-KEY.DEALLOCATION-DATE': '배정 해제 일시',
+      'NOTIFICATION-KEY.APPROVED-DATE': '승인 일시',
+      'NOTIFICATION-KEY.REJECTED-DATE': '반려 일시',
+      'NOTIFICATION-KEY.UPDATED-DATE': '업데이트 일시',
+      'NOTIFICATION-KEY.REQUESTED-TO-REVIEW-DATE': '등록 일시',
+      'NOTIFICATION-KEY.PREVIOUS-PROGRESS': '이전 진행 상태',
+      'NOTIFICATION-KEY.CURRENT-PROGRESS': '현재 진행 상태',
+      'NOTIFICATION-KEY.PREVIOUS-ROLE': '이전 권한',
+      'NOTIFICATION-KEY.CURRENT-ROLE': '현재 권한',
+      'NOTIFICATION-KEY.APPROVAL-DATE': '승인 일시',
+      'NOTIFICATION-KEY.REASON': '사유',
+      'NOTIFICATION-KEY.CHANGE-DATE': '일시',
+      'NOTIFICATION-KEY.TITLE.NEW-ACCOUNT-REGISTERED': '신규 계정 등록',
+      'NOTIFICATION-KEY.TITLE.CASE-ASSIGNMENT': '신규 사건 배정',
+      'NOTIFICATION-KEY.TITLE.CASE-DEALLOCATION': 'CASE DEALLOCATION',
+      'NOTIFICATION-KEY.TITLE.CASE-CLOSED': '사건 종료',
+      'NOTIFICATION-KEY.TITLE.REJECTED-INVESTIGATION-RECORD': '수사 기록 검토 반려',
+      'NOTIFICATION-KEY.TITLE.APPROVED-INVESTIGATION-RECORD': '수사 기록 검토 승인',
+      'NOTIFICATION-KEY.TITLE.NEW-INVESTIGATION-RECORD': '신규 수사 기록 등록',
+      'NOTIFICATION-KEY.TITLE.PROGRESS-STATUS-CHANGED': '상세 진행 현황 변동',
+      'NOTIFICATION-KEY.TITLE.REQUEST-TO-REVIEW': '신규 수사 기록 등록',
+      'NOTIFICATION-KEY.TITLE.MEMBER-INFORMATION-CHANGE-APPROVAL':
+          '회원 정보 변경 승인',
+      'NOTIFICATION-KEY.TITLE.MEMBER-INFORMATION-CHANGE-REJECTION':
+          '회원 정보 변경 거절',
+      'NOTIFICATION-KEY.TITLE.ACCOUNT-PERMISSION-CHANGED': '계정 권한 변동',
     },
   };
 
@@ -119,7 +162,11 @@ class AppLocalizations {
   String _t(String key) {
     final code = locale.languageCode;
     // debugPrint('Looking up localization for key="$key" in locale="$code"');
-    return _localizedValues['ko']?[key] ?? _localizedValues['ko']![key] ?? '';
+    final primary = _localizedValues[code];
+    if (primary != null && primary.containsKey(key)) {
+      return primary[key]!;
+    }
+    return _localizedValues['ko']?[key] ?? _localizedValues['en']?[key] ?? key;
   }
 
   String translate(String key) => _t(key);

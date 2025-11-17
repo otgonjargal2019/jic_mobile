@@ -1,9 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:jic_mob/core/widgets/app_bottom_nav.dart';
+
+import 'package:jic_mob/core/config/app_config.dart';
+import 'package:jic_mob/core/localization/app_localizations.dart';
 import 'package:jic_mob/core/state/notification_provider.dart';
 import 'package:jic_mob/core/state/user_provider.dart';
-import 'package:jic_mob/core/config/app_config.dart';
+import 'package:jic_mob/core/widgets/app_bottom_nav.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -31,6 +35,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       if (myId == null || myId.isEmpty || token == null || token.isEmpty) {
         return;
       }
+
       try {
         await notifProv.connect(
           baseUrl: AppConfig.socketBaseUrl,
@@ -54,6 +59,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   void dispose() {
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     super.dispose();
   }
@@ -108,13 +114,23 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7F9),
+      backgroundColor: const Color(0xFFF7F7F5),
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        title: const Text('알림'),
+        centerTitle: false,
         elevation: 0,
         scrolledUnderElevation: 0,
-        toolbarHeight: 0,
+        backgroundColor: const Color(0xFFF7F7F5),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(2),
+          child: SizedBox(
+            width: double.infinity,
+            height: 2,
+            child: ColoredBox(color: Color(0xFFDCDCDC)),
+          ),
+        ),
       ),
       bottomNavigationBar: const AppBottomNav(currentIndex: 4),
       body: Consumer<NotificationProvider>(
@@ -124,27 +140,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(height: 60, color: Colors.white),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 16, 12, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      '알림',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                    if (notifProv.unreadCount > 0)
-                      TextButton(
-                        onPressed: () => notifProv.markAllAsRead(),
-                        child: const Text('모두 읽음'),
-                      ),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 8),
               Expanded(
                 child: notifProv.loadingPage && items.isEmpty
                     ? const Center(child: CircularProgressIndicator())
@@ -162,7 +158,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                           padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
                           itemCount: items.length + (_isLoadingMore ? 1 : 0),
                           separatorBuilder: (_, __) =>
-                              const SizedBox(height: 10),
+                              const SizedBox(height: 14),
                           itemBuilder: (context, index) {
                             if (index == items.length) {
                               return const Center(
@@ -201,79 +197,131 @@ class _NotificationCard extends StatelessWidget {
 
   const _NotificationCard({required this.notification, this.onTap});
 
-  String _formatDateTime(DateTime dt) {
-    final year = dt.year;
-    final month = dt.month.toString().padLeft(2, '0');
-    final day = dt.day.toString().padLeft(2, '0');
-    final hour = dt.hour.toString().padLeft(2, '0');
-    final minute = dt.minute.toString().padLeft(2, '0');
-    final second = dt.second.toString().padLeft(2, '0');
-    return '$year-$month-$day $hour:$minute:$second';
-  }
-
   @override
   Widget build(BuildContext context) {
-    final contentLines = notification.content?.split('\n') ?? [];
+    final l10n = AppLocalizations.of(context);
+    final translatedTitle =
+        l10n?.translate(notification.title.trim()) ?? notification.title;
 
-    return InkWell(
-      onTap: onTap,
+    final contentEntries = <String>[];
+    final rawContent = notification.content;
+    if (rawContent != null && rawContent.trim().isNotEmpty) {
+      Map<String, dynamic>? parsed;
+      try {
+        final decoded = jsonDecode(rawContent);
+        if (decoded is Map<String, dynamic>) {
+          parsed = decoded;
+        } else if (decoded is Map) {
+          parsed = decoded.map((key, value) => MapEntry('$key', value));
+        }
+      } catch (_) {
+        parsed = null;
+      }
+
+      if (parsed != null) {
+        parsed.forEach((key, value) {
+          final label = _translateString(l10n, key);
+          String displayValue = '';
+          if (value is String) {
+            final trimmed = value.trim();
+            if (trimmed.isNotEmpty) {
+              displayValue = _translateString(l10n, trimmed);
+            }
+          } else if (value != null) {
+            displayValue = value.toString();
+          }
+
+          final line = displayValue.isEmpty ? label : '$label: $displayValue';
+          if (line.trim().isNotEmpty) {
+            contentEntries.add(line);
+          }
+        });
+      } else {
+        for (final line in rawContent.split('\n')) {
+          final trimmed = line.trim();
+          if (trimmed.isNotEmpty) {
+            contentEntries.add(trimmed);
+          }
+        }
+      }
+    }
+
+    final isRead = notification.isRead;
+    final backgroundColor = const Color(0xFFFCFCFC);
+    final titleColor = const Color(0xFF363249);
+    final contentColor = const Color(0xFF363453);
+
+    return Opacity(
+      opacity: isRead ? 0.5 : 1.0,
       child: Container(
-        decoration: BoxDecoration(
-          color: notification.isRead ? Colors.white : const Color(0xFFF0F9FF),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: notification.isRead
-                ? const Color(0xFFE5E7EB)
-                : const Color(0xFF3B82F6).withOpacity(0.3),
-          ),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    notification.title,
-                    style: TextStyle(
-                      fontWeight: notification.isRead
-                          ? FontWeight.w600
-                          : FontWeight.w700,
-                      color: const Color(0xFF111827),
-                    ),
-                  ),
-                ),
-                if (!notification.isRead)
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF3B82F6),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-              ],
-            ),
-            if (contentLines.isNotEmpty) const SizedBox(height: 6),
-            for (final line in contentLines) ...[
-              if (line.trim().isNotEmpty)
-                Text(
-                  line,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF6B7280),
-                  ),
-                ),
-            ],
-            const SizedBox(height: 8),
-            Text(
-              _formatDateTime(notification.createdAt),
-              style: const TextStyle(fontSize: 12, color: Color(0xFF9AA0A6)),
+        decoration: const BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Color(0x44000000),
+              offset: Offset(2, 4),
+              blurRadius: 6,
+              spreadRadius: 0.5,
             ),
           ],
+        ),
+        child: Material(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(10),
+          clipBehavior: Clip.antiAlias,
+          child: InkWell(
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          translatedTitle,
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: titleColor,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      if (!isRead)
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: Color(0xFF22C55E),
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                    ],
+                  ),
+                  if (contentEntries.isNotEmpty) const SizedBox(height: 6),
+                  for (final line in contentEntries)
+                    Text(
+                      line,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: contentColor,
+                        fontWeight: FontWeight.w400,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
   }
+}
+
+String _translateString(AppLocalizations? l10n, String source) {
+  if (source.trim().isEmpty) {
+    return source;
+  }
+  final translated = l10n?.translate(source.trim()) ?? source.trim();
+  return translated.isEmpty ? source.trim() : translated;
 }
