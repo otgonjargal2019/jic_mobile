@@ -10,11 +10,11 @@ class AppBottomNav extends StatelessWidget {
   final int currentIndex;
   const AppBottomNav({super.key, required this.currentIndex});
 
-  void _onTap(BuildContext context, int i) {
-    if (i == currentIndex) return;
+  void _onTap(BuildContext context, int index) {
+    if (index == currentIndex) return;
 
     final navigator = Navigator.of(context, rootNavigator: true);
-    switch (i) {
+    switch (index) {
       case 0:
         navigator.pushReplacementNamed('/home');
         break;
@@ -41,50 +41,108 @@ class AppBottomNav extends StatelessWidget {
     final notif = context.watch<NotificationProvider>();
     final unreadNotifCount = notif.unreadCount;
 
-    return NavigationBar(
-      selectedIndex: currentIndex,
-      height: 64,
-      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-      onDestinationSelected: (i) => _onTap(context, i),
-      destinations: [
-        const NavigationDestination(
-          icon: Icon(Icons.home_outlined),
-          selectedIcon: Icon(Icons.home),
-          label: 'Home',
+    final theme = Theme.of(context);
+    const activeColor = Color(0xFF1F2933);
+    const inactiveColor = Color(0xFF9CA3AF);
+    final labelStyle =
+        theme.textTheme.labelSmall ?? const TextStyle(fontSize: 12);
+
+    return NavigationBarTheme(
+      data: NavigationBarThemeData(
+        height: 90,
+        indicatorColor: Colors.transparent,
+        overlayColor: WidgetStateProperty.all(Colors.transparent),
+        backgroundColor: Colors.white,
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          final color = states.contains(WidgetState.selected)
+              ? activeColor
+              : inactiveColor;
+          return IconThemeData(color: color, size: 24);
+        }),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) {
+          final color = states.contains(WidgetState.selected)
+              ? activeColor
+              : inactiveColor;
+          return labelStyle.copyWith(height: 0.85, color: color);
+        }),
+      ),
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          border: Border(top: BorderSide(color: Color(0xFFDCDCDC), width: 1)),
         ),
-        const NavigationDestination(
-          icon: Icon(Icons.folder_open_outlined),
-          selectedIcon: Icon(Icons.folder_open),
-          label: 'Cases',
+        child: NavigationBar(
+          selectedIndex: currentIndex,
+          onDestinationSelected: (index) => _onTap(context, index),
+          destinations: [
+            const NavigationDestination(
+              icon: Icon(Icons.home_outlined),
+              selectedIcon: Icon(Icons.home),
+              label: '홈',
+            ),
+            const NavigationDestination(
+              icon: Icon(Icons.apps),
+              selectedIcon: Icon(Icons.apps_outlined),
+              label: '전체사건',
+            ),
+            NavigationDestination(
+              icon: Semantics(
+                label: '메신저',
+                child: SizedBox(
+                  height: 60,
+                  child: Center(
+                    child: Transform.translate(
+                      offset: const Offset(0, 3),
+                      child: _NavIconWithBadge(
+                        icon: Transform.rotate(
+                          angle: -0.6,
+                          child: const Icon(Icons.send_outlined),
+                        ),
+                        badgeCount: unreadUsers,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              selectedIcon: Semantics(
+                label: '메신저',
+                child: SizedBox(
+                  height: 60,
+                  child: Center(
+                    child: Transform.translate(
+                      offset: const Offset(0, 3),
+                      child: _NavIconWithBadge(
+                        icon: Transform.rotate(
+                          angle: -0.6,
+                          child: const Icon(Icons.send),
+                        ),
+                        badgeCount: unreadUsers,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              label: '',
+            ),
+            const NavigationDestination(
+              icon: Icon(Icons.article_outlined),
+              selectedIcon: Icon(Icons.article),
+              label: '게시판',
+            ),
+            NavigationDestination(
+              icon: _NavIconWithBadge(
+                icon: const Icon(Icons.notifications_none),
+                badgeCount: unreadNotifCount,
+              ),
+              selectedIcon: _NavIconWithBadge(
+                icon: const Icon(Icons.notifications),
+                badgeCount: unreadNotifCount,
+              ),
+              label: '알람',
+            ),
+          ],
         ),
-        NavigationDestination(
-          icon: _NavIconWithBadge(
-            icon: Icon(Icons.chat_bubble_outline),
-            badgeCount: unreadUsers,
-          ),
-          selectedIcon: _NavIconWithBadge(
-            icon: Icon(Icons.chat_bubble),
-            badgeCount: unreadUsers,
-          ),
-          label: 'Messenger',
-        ),
-        const NavigationDestination(
-          icon: Icon(Icons.article_outlined),
-          selectedIcon: Icon(Icons.article),
-          label: 'Posts',
-        ),
-        NavigationDestination(
-          icon: _NavIconWithBadge(
-            icon: Icon(Icons.notifications_none),
-            badgeCount: unreadNotifCount,
-          ),
-          selectedIcon: _NavIconWithBadge(
-            icon: Icon(Icons.notifications),
-            badgeCount: unreadNotifCount,
-          ),
-          label: 'Notifications',
-        ),
-      ],
+      ),
     );
   }
 }
