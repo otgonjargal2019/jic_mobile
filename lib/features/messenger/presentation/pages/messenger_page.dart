@@ -149,6 +149,10 @@ class _MessengerPageState extends State<MessengerPage> {
               onChanged: _onQueryChanged,
               decoration: InputDecoration(
                 hintText: '대화방, 참여자 검색',
+                hintStyle: const TextStyle(
+                  color: Color(0xFF909090),
+                  fontSize: 14,
+                ),
                 prefixIcon: const Icon(
                   Icons.search,
                   color: Color(0xFF9AA0A6),
@@ -235,9 +239,8 @@ class _MessengerPageState extends State<MessengerPage> {
                             ),
                           ],
                         )
-                      : ListView.separated(
+                      : ListView.builder(
                           itemCount: displayList.length,
-                          separatorBuilder: (_, __) => const Divider(height: 1),
                           itemBuilder: (context, index) {
                             final peer = displayList[index];
                             return _ChatListTile(
@@ -274,10 +277,10 @@ class _ChatListTile extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        color: Colors.white,
+        color: Colors.transparent,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             CircleAvatar(
               radius: 20,
@@ -312,6 +315,7 @@ class _ChatListTile extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
+                            color: Color(0xFF000000),
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -320,7 +324,7 @@ class _ChatListTile extends StatelessWidget {
                         timeLabel,
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF9AA0A6),
+                          color: Color(0xFF909090),
                         ),
                       ),
                     ],
@@ -331,7 +335,10 @@ class _ChatListTile extends StatelessWidget {
                       Expanded(
                         child: Text(
                           lastMessage,
-                          style: const TextStyle(color: Color(0xFF6B7280)),
+                          style: const TextStyle(
+                            color: Color(0xFF777777),
+                            fontSize: 15,
+                          ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
