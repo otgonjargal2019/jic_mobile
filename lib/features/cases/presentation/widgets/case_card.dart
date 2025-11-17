@@ -62,7 +62,7 @@ class CaseCard extends StatelessWidget {
               const Icon(Icons.circle, size: 10, color: Color(0xFF39BE8C)),
               const SizedBox(width: 6),
               Text(
-                loc.translate('case_details.status.${item.status}'),
+                item.status.trim().isNotEmpty ? loc.translate('case_details.status.${item.status}') : '',
                 style: const TextStyle(
                   color: Color(0xFF39BE8C),
                   fontWeight: FontWeight.w600,
@@ -81,7 +81,7 @@ class CaseCard extends StatelessWidget {
                     )
                   : const SizedBox.shrink(),
               Text(
-                loc.translate('case_details.progressStatus.${item.progressStatus}'),
+                item.progressStatus.trim().isNotEmpty ? loc.translate('case_details.progressStatus.${item.progressStatus}') : '',
                 style: const TextStyle(
                   color: Color(0xFF777777),
                   fontWeight: FontWeight.w600,

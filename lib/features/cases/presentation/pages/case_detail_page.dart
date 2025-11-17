@@ -72,7 +72,7 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
                 const Icon(Icons.circle, size: 10, color: Color(0xFF39BE8C)),
                 const SizedBox(width: 6),
                 Text(
-                  loc.translate('case_details.status.${caseDetail.status}'),
+                  caseDetail.status.trim().isNotEmpty ? loc.translate('case_details.status.${caseDetail.status}') : '',
                   style: const TextStyle(
                     color: Color(0xFF39BE8C),
                     fontWeight: FontWeight.w600,
@@ -91,7 +91,7 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
                       )
                     : const SizedBox.shrink(),
                 Text(
-                  loc.translate('case_details.progressStatus.${caseDetail.progressStatus}'),
+                  caseDetail.progressStatus.trim().isNotEmpty ? loc.translate('case_details.progressStatus.${caseDetail.progressStatus}') : '',
                   style: const TextStyle(
                     color: Color(0xFF777777),
                     fontWeight: FontWeight.w600,
