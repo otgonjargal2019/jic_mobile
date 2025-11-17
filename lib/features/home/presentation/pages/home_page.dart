@@ -82,17 +82,24 @@ class _ProfileCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final user = context.watch<UserProvider>().profile;
     final name = user?.name ?? 'Guest';
-    final email = user?.email ?? '—';
-    final shortId = (user?.id ?? '').isNotEmpty
-        ? '#${(user!.id.length >= 8 ? user.id.substring(0, 8) : user.id)}'
-        : 'Not signed in';
+    //final email = user?.email ?? '—';
+    //final shortId = (user?.id ?? '').isNotEmpty
+    //    ? '#${(user!.id.length >= 8 ? user.id.substring(0, 8) : user.id)}'
+    //    : 'Not signed in';
     final avatarUrl = user?.avatarUrl;
-    const cardColor = Color(0xFF2C2D3A);
+    //const cardColor = Color(0xFF2C2D3A);
+
+    //final dept = "침해 대응 본부 | 온라인 보호부";
+    final extra = user?.extra;
+    final org = _readField(extra, ['headquarterName']);
+    final dept = _readField(extra, ['departmentName']);
+    final headAndDept = '$org | $dept';
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: cardColor,
-        borderRadius: BorderRadius.circular(16),
+        color: Color(0xFF363249),
+        borderRadius: BorderRadius.circular(12),
         boxShadow: const [
           BoxShadow(
             color: Color(0x14000000),
@@ -124,18 +131,19 @@ class _ProfileCard extends StatelessWidget {
                       name,
                       style: const TextStyle(
                         color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _Chip(text: email),
-                        _Chip(text: shortId),
-                      ],
+                    const SizedBox(height: 4),
+                    Text(
+                      headAndDept,
+                      style: const TextStyle(
+                        color: Color(0xFFBFC0CA),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 14,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -143,14 +151,22 @@ class _ProfileCard extends StatelessWidget {
             ],
           ),
           Positioned(
-            right: -8,
-            top: -8,
-            child: IconButton(
-              icon: const Icon(Icons.chevron_right, color: Colors.white70),
-              tooltip: '내 정보',
-              onPressed: () {
-                Navigator.of(context).pushNamed(ProfilePage.route);
-              },
+            right: 0,
+            top: 0,
+            bottom: 0,
+            child: Center(
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                icon: const Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.white70,
+                  size: 22,
+                ),
+                onPressed: () {
+                  Navigator.of(context).pushNamed(ProfilePage.route);
+                },
+              ),
             ),
           ),
         ],
@@ -159,28 +175,38 @@ class _ProfileCard extends StatelessWidget {
   }
 }
 
-class _Chip extends StatelessWidget {
-  final String text;
-  const _Chip({required this.text});
+// class _Chip extends StatelessWidget {
+//   final String text;
+//   const _Chip({required this.text});
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-      decoration: BoxDecoration(
-        color: const Color(0xFF3A3B49),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
-    );
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+//       decoration: BoxDecoration(
+//         color: const Color(0xFF3A3B49),
+//         borderRadius: BorderRadius.circular(999),
+//       ),
+//       child: Text(
+//         text,
+//         style: const TextStyle(
+//           color: Colors.white,
+//           fontSize: 12,
+//           fontWeight: FontWeight.w600,
+//         ),
+//       ),
+//     );
+//   }
+// }
+String _readField(Map<String, dynamic>? extra, List<String> keys) {
+  if (extra == null) return '---';
+  for (final key in keys) {
+    final value = extra[key];
+    if (value == null) continue;
+    final text = value.toString().trim();
+    if (text.isNotEmpty) return text;
   }
+  return '---';
 }
 
 class _CaseStatusCard extends StatelessWidget {
