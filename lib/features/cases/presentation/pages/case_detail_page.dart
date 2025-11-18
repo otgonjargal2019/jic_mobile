@@ -39,6 +39,18 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
     return Scaffold(
       backgroundColor: background,
       appBar: AppBar(
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Icon(Icons.arrow_back_ios, size: 22),
+            ),
+          ),
+        ),
         elevation: 0,
         backgroundColor: background,
         surfaceTintColor: Colors.transparent,
