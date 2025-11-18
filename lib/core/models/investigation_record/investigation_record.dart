@@ -26,7 +26,7 @@ class InvestigationRecord {
     this.securityLevel = 0,
     this.number = 0,
     this.progressStatus,
-    this.reviewStatus,
+    dynamic reviewStatus,
     this.rejectionReason,
     this.creator,
     this.reviewer,
@@ -35,7 +35,7 @@ class InvestigationRecord {
     this.updatedAt,
     this.requestedAt,
     this.attachedFiles,
-  });
+  }) : reviewStatus = _parseReviewStatus(reviewStatus);
 
   factory InvestigationRecord.fromJson(Map<String, dynamic> json) {
     return InvestigationRecord(
@@ -50,7 +50,7 @@ class InvestigationRecord {
           ? json['number'] as int
           : (int.tryParse(json['number']?.toString() ?? '') ?? 0),
       progressStatus: json['progressStatus']?.toString(),
-      reviewStatus: _parseReviewStatus(json['reviewStatus']),
+      reviewStatus: json['reviewStatus'],
       rejectionReason: json['rejectionReason']?.toString(),
       creator: json['creator'] is Map ? Map<String, dynamic>.from(json['creator']) : null,
       reviewer: json['reviewer'] is Map ? Map<String, dynamic>.from(json['reviewer']) : null,

@@ -447,11 +447,10 @@ class _RecordList extends StatelessWidget {
                                         CrossAxisAlignment.end,
                                     children: [
                                       Text(
-                                        // _reviewStatusLabel(rec.reviewStatus),
-                                        rec.reviewStatus?.toString() ?? '',
+                                        _reviewStatusLabel(rec.reviewStatus),
                                         style: TextStyle(
                                           fontWeight: FontWeight.w700,
-                                          // color: _reviewStatusColor(rec.reviewStatus),
+                                          color: _reviewStatusColor(rec.reviewStatus),
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
