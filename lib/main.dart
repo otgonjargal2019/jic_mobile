@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jic_mob/core/provider/case_provider.dart';
+import 'package:jic_mob/core/provider/dashboard_provider.dart';
 import 'package:jic_mob/core/repository/case_repository.dart';
+import 'package:jic_mob/core/repository/dashboard_repository.dart';
 import 'features/auth/presentation/pages/login_page.dart';
 import 'features/home/presentation/pages/home_page.dart';
 import 'features/profile/presentation/pages/profile_page.dart';
@@ -30,6 +32,9 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => RealtimeGateway()),
+        ChangeNotifierProvider(
+          create: (_) => DashboardProvider(DashboardRepository(apiClient)),
+        ),
         ChangeNotifierProvider(
           create: (_) => PostsProvider(PostsRepository(apiClient)),
         ),
