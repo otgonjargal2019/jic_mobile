@@ -344,6 +344,46 @@ class _RecordList extends StatelessWidget {
     return 0;
   }
 
+  int _countInvestigationReports(dynamic attached) {
+    if (attached == null) return 0;
+    int count = 0;
+
+    bool _isTrue(dynamic v) {
+      if (v == null) return false;
+      if (v is bool) return v;
+      return v.toString().toLowerCase() == 'true';
+    }
+
+    if (attached is Iterable) {
+      for (var item in attached) {
+        if (item is Map) {
+          if (_isTrue(item['investigationReport'])) count++;
+        }
+      }
+      return count;
+    }
+
+    if (attached is Map) {
+      final candidates = ['files', 'attachments', 'items'];
+      for (var key in candidates) {
+        final v = attached[key];
+        if (v is Iterable) {
+          for (var item in v) {
+            if (item is Map && _isTrue(item['investigationReport'])) count++;
+          }
+          return count;
+        }
+      }
+
+      for (var val in attached.values) {
+        if (val is Map && _isTrue(val['investigationReport'])) count++;
+      }
+      return count;
+    }
+
+    return 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<InvestigationRecordProvider>();
@@ -431,7 +471,7 @@ class _RecordList extends StatelessWidget {
               }
 
               int digitalEvidenceCount = _countDigitalEvidence(rec.attachedFiles);
-              int investigationRecordCount = 0;
+              int investigationRecordCount = _countInvestigationReports(rec.attachedFiles);
               return InkWell(
                 onTap: () {
                   Navigator.of(context).pushNamed(
