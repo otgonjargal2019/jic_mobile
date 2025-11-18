@@ -1,12 +1,13 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:jic_mob/core/localization/app_localizations.dart';
 import 'package:jic_mob/core/network/api_client.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:provider/provider.dart';
 import 'package:jic_mob/core/state/user_provider.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-/// A simple login page that mirrors the provided design.
-/// Uses AppLocalizations for en/ko strings.
 class LoginPage extends StatefulWidget {
   static const route = '/login';
 
@@ -17,6 +18,9 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  static const _rememberedIdKey = 'remembered_id';
+  static const _stayLoggedInKey = 'stay_logged_in';
+
   final _formKey = GlobalKey<FormState>();
   final _idController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -36,13 +40,18 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _loadRememberedId() async {
     final prefs = await SharedPreferences.getInstance();
-    final savedId = prefs.getString('remembered_id');
-    if (savedId != null && mounted) {
-      setState(() {
-        _idController.text = savedId;
+    final rememberedId = prefs.getString(_rememberedIdKey);
+    final stayLoggedIn = prefs.getBool(_stayLoggedInKey) ?? false;
+
+    if (!mounted) return;
+
+    setState(() {
+      if (rememberedId != null && rememberedId.isNotEmpty) {
+        _idController.text = rememberedId;
         _rememberId = true;
-      });
-    }
+      }
+      _autoLogin = stayLoggedIn;
+    });
   }
 
   @override
@@ -54,151 +63,134 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    const background = Color(0xFF1E202B); // deep navy/charcoal
-    const accentGreen = Color(0xFF39BE8C);
-    const inputFill = Color(0xFFF0F0F0);
-    const hint = Color(0xFF9AA0A6);
-    final loc = AppLocalizations.of(context)!;
+    const background = Color(0xFF1F1E2E);
+    const accentGreen = Color(0xFF3EB491);
+    const inputFill = Color(0xFFF5F5F5);
+    final media = MediaQuery.of(context);
+    final double topPadding = (120.0 - media.padding.top).clamp(
+      0.0,
+      double.infinity,
+    );
 
     return Scaffold(
       backgroundColor: background,
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24.0,
-              vertical: 16.0,
-            ),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 420),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 24),
-                    const _LogoAndTitle(),
-                    const SizedBox(height: 56),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            const double bottomPadding = 16.0;
+            final double minContentHeight = math.max(
+              constraints.maxHeight - topPadding - bottomPadding,
+              0.0,
+            );
 
-                    // ID
-                    _FieldLabel(text: loc.idLabel),
-                    _TextField(
-                      controller: _idController,
-                      hintText: loc.idHint,
-                      fillColor: inputFill,
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Password
-                    _FieldLabel(text: loc.passwordLabel),
-                    _TextField(
-                      controller: _passwordController,
-                      hintText: loc.passwordHint,
-                      fillColor: inputFill,
-                      obscureText: true,
-                    ),
-                    const SizedBox(height: 10),
-
-                    // Checkboxes
-                    Row(
-                      children: [
-                        SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: Checkbox(
-                            value: _autoLogin,
-                            onChanged: (v) =>
-                                setState(() => _autoLogin = v ?? false),
-                            activeColor: accentGreen,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          loc.autoLogin,
-                          style: const TextStyle(color: Colors.white70),
-                        ),
-                        const SizedBox(width: 16),
-                        SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: Checkbox(
-                            value: _rememberId,
-                            onChanged: (v) =>
-                                setState(() => _rememberId = v ?? false),
-                            activeColor: accentGreen,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          loc.rememberId,
-                          style: const TextStyle(color: Colors.white70),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Login button
-                    SizedBox(
-                      width: double.infinity,
-                      height: 52,
-                      child: ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor: const WidgetStatePropertyAll(
-                            accentGreen,
-                          ),
-                          foregroundColor: const WidgetStatePropertyAll(
-                            Colors.white,
-                          ),
-                          shape: WidgetStatePropertyAll(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          textStyle: const WidgetStatePropertyAll(
-                            TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                        onPressed: _loading ? null : _onLoginPressed,
-                        child: _loading
-                            ? const SizedBox(
-                                height: 22,
-                                width: 22,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.4,
-                                  valueColor: AlwaysStoppedAnimation(
-                                    Colors.white,
-                                  ),
-                                ),
-                              )
-                            : Text(loc.loginButton),
-                      ),
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    // Links
-                    Row(
+            return SingleChildScrollView(
+              padding: EdgeInsets.fromLTRB(45.0, 0, 45.0, bottomPadding),
+              child: Align(
+                alignment: Alignment.topCenter,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: 420,
+                    minHeight: minContentHeight,
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _LinkText(label: loc.findId, onTap: () {}),
-                        const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 8.0),
-                          child: Text('|', style: TextStyle(color: hint)),
+                        const _LogoAndTitle(),
+                        const SizedBox(height: 56),
+
+                        // ID
+                        const _FieldLabel(text: '아이디'),
+                        _TextField(
+                          controller: _idController,
+                          hintText: '아이디를 입력하세요',
+                          fillColor: inputFill,
                         ),
-                        _LinkText(label: loc.findPassword, onTap: () {}),
+                        const SizedBox(height: 16),
+
+                        // Password
+                        const _FieldLabel(text: '비밀번호'),
+                        _TextField(
+                          controller: _passwordController,
+                          hintText: '비밀번호를 입력하세요',
+                          fillColor: inputFill,
+                          obscureText: true,
+                        ),
+                        const SizedBox(height: 10),
+
+                        // Checkboxes
+                        Wrap(
+                          spacing: 16,
+                          runSpacing: 12,
+                          children: [
+                            _CheckboxWithLabel(
+                              value: _autoLogin,
+                              onChanged: (value) =>
+                                  setState(() => _autoLogin = value ?? false),
+                              label: '자동 로그인',
+                              accentColor: accentGreen,
+                            ),
+                            _CheckboxWithLabel(
+                              value: _rememberId,
+                              onChanged: (value) =>
+                                  setState(() => _rememberId = value ?? false),
+                              label: '아이디 저장',
+                              accentColor: accentGreen,
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        // Login button
+                        SizedBox(
+                          width: double.infinity,
+                          height: 52,
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: const WidgetStatePropertyAll(
+                                accentGreen,
+                              ),
+                              foregroundColor: const WidgetStatePropertyAll(
+                                Colors.white,
+                              ),
+                              shape: WidgetStatePropertyAll(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                              textStyle: const WidgetStatePropertyAll(
+                                TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                            onPressed: _loading ? null : _onLoginPressed,
+                            child: _loading
+                                ? const SizedBox(
+                                    height: 22,
+                                    width: 22,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.4,
+                                      valueColor: AlwaysStoppedAnimation(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                : const Text('로그인'),
+                          ),
+                        ),
+                        const SizedBox(height: 32),
                       ],
                     ),
-
-                    const SizedBox(height: 32),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
@@ -223,9 +215,15 @@ class _LoginPageState extends State<LoginPage> {
 
       final prefs = await SharedPreferences.getInstance();
       if (_rememberId) {
-        await prefs.setString('remembered_id', id);
+        await prefs.setString(_rememberedIdKey, id);
       } else {
-        await prefs.remove('remembered_id');
+        await prefs.remove(_rememberedIdKey);
+      }
+
+      if (_autoLogin) {
+        await prefs.setBool(_stayLoggedInKey, true);
+      } else {
+        await prefs.remove(_stayLoggedInKey);
       }
 
       // Fetch user profile after successful authentication and store globally
@@ -238,8 +236,8 @@ class _LoginPageState extends State<LoginPage> {
             userProv.setAccessToken(accessToken);
           }
           await userProv.fetchMe();
-        } catch (e) {
-          // Non-fatal: proceed to home but inform the user
+        } catch (error) {
+          // Non-fatal: proceed to home but inform the user.
           messenger.showSnackBar(
             SnackBar(
               content: Text('${loc.appTitle}: Failed to load profile'),
@@ -249,13 +247,13 @@ class _LoginPageState extends State<LoginPage> {
         }
         navigator.pushReplacementNamed('/home');
       }
-    } catch (e) {
-      final msg = e.toString().contains('ADMIN_CONFIRMATION_NEEDED')
+    } catch (error) {
+      final message = error.toString().contains('ADMIN_CONFIRMATION_NEEDED')
           ? 'ADMIN_CONFIRMATION_NEEDED'
-          : (e is ApiException ? e.message : loc.loginError);
+          : (error is ApiException ? error.message : loc.loginError);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(msg), behavior: SnackBarBehavior.floating),
+          SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
         );
       }
     } finally {
@@ -275,9 +273,9 @@ class _FieldLabel extends StatelessWidget {
       child: Text(
         text,
         style: const TextStyle(
-          color: Colors.white,
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
+          color: Color(0xD9FFFFFF),
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
@@ -302,7 +300,8 @@ class _TextField extends StatelessWidget {
     return TextFormField(
       controller: controller,
       obscureText: obscureText,
-      validator: (v) => (v == null || v.isEmpty) ? '필수 입력 항목입니다' : null,
+      validator: (value) =>
+          (value == null || value.isEmpty) ? '필수 입력 항목입니다' : null,
       decoration: InputDecoration(
         hintText: hintText,
         filled: true,
@@ -312,14 +311,52 @@ class _TextField extends StatelessWidget {
           vertical: 14,
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(6),
           borderSide: const BorderSide(color: Colors.transparent),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(6),
           borderSide: const BorderSide(color: Colors.transparent),
         ),
       ),
+    );
+  }
+}
+
+class _CheckboxWithLabel extends StatelessWidget {
+  final bool value;
+  final ValueChanged<bool?>? onChanged;
+  final String label;
+  final Color accentColor;
+
+  const _CheckboxWithLabel({
+    required this.value,
+    required this.onChanged,
+    required this.label,
+    required this.accentColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(
+          height: 24,
+          width: 24,
+          child: Checkbox(
+            value: value,
+            onChanged: onChanged,
+            activeColor: accentColor,
+            side: const BorderSide(color: Color(0xFFB1B1B1)),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: const TextStyle(color: Color(0xFFB1B1B1), fontSize: 14),
+        ),
+      ],
     );
   }
 }
@@ -332,93 +369,21 @@ class _LogoAndTitle extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        const _SimpleLogo(size: 40),
+        SvgPicture.asset('assets/icons/logo.svg', width: 40, height: 40),
         const SizedBox(width: 12),
-        Expanded(child: _LocalizedTitle()),
-      ],
-    );
-  }
-}
-
-class _LocalizedTitle extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final loc = AppLocalizations.of(context)!;
-    return Text(
-      loc.appTitle,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 22,
-        fontWeight: FontWeight.w700,
-        height: 1.2,
-      ),
-      maxLines: 2,
-    );
-  }
-}
-
-/// Draws a simple two-tile tilted mark similar to the screenshot.
-class _SimpleLogo extends StatelessWidget {
-  final double size;
-  const _SimpleLogo({this.size = 36});
-
-  @override
-  Widget build(BuildContext context) {
-    const blue = Color(0xFF2E7BF6);
-    const green = Color(0xFF39BE8C);
-
-    return SizedBox(
-      width: size,
-      height: size,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          Transform.rotate(
-            angle: -0.6,
-            child: _roundedTile(color: blue, size: size * 0.75),
-          ),
-          Positioned(
-            bottom: 2,
-            right: 2,
-            child: Transform.rotate(
-              angle: -0.6,
-              child: _roundedTile(color: green, size: size * 0.58),
+        Expanded(
+          child: const Text(
+            '국제공조수사플랫폼',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 22.5,
+              fontWeight: FontWeight.w500,
+              height: 1.2,
             ),
+            maxLines: 2,
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _roundedTile({required Color color, required double size}) {
-    return Container(
-      width: size,
-      height: size * 0.55,
-      decoration: BoxDecoration(
-        color: color,
-        borderRadius: BorderRadius.circular(size * 0.28),
-      ),
-    );
-  }
-}
-
-class _LinkText extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-  const _LinkText({required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Text(
-        label,
-        style: const TextStyle(
-          color: Colors.white70,
-          decoration: TextDecoration.underline,
-          decorationColor: Colors.white54,
         ),
-      ),
+      ],
     );
   }
 }
