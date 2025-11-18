@@ -304,6 +304,7 @@ class _RecordList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<InvestigationRecordProvider>();
+    final AppLocalizations loc = AppLocalizations.of(context)!;
 
     if (provider.records.isEmpty &&
         !provider.loading &&
@@ -380,6 +381,11 @@ class _RecordList extends StatelessWidget {
               } else {
                 name = '-';
               }
+
+              String reviewStatus = _reviewStatusLabel(rec.reviewStatus);
+              if (reviewStatus.trim().isNotEmpty) {
+                reviewStatus = loc.translate('inv_record.reviewStatus.$reviewStatus');
+              }
               return InkWell(
                 onTap: () {
                   Navigator.of(context).pushNamed(
@@ -447,7 +453,7 @@ class _RecordList extends StatelessWidget {
                                         CrossAxisAlignment.end,
                                     children: [
                                       Text(
-                                        _reviewStatusLabel(rec.reviewStatus),
+                                        reviewStatus,
                                         style: TextStyle(
                                           fontWeight: FontWeight.w700,
                                           color: _reviewStatusColor(rec.reviewStatus),
