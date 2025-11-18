@@ -280,7 +280,9 @@ class _RecordList extends StatelessWidget {
 
   Color _reviewStatusColor(dynamic status) {
     if (status == null) return const Color(0xFF7C7C7C);
-    final s = status is String ? status.toString().toUpperCase() : status.toString().split('.').last.toUpperCase();
+    final s = status is String
+        ? status.toString().toUpperCase()
+        : status.toString().split('.').last.toUpperCase();
     switch (s) {
       case 'WRITING':
         return const Color(0xFF3EB491);
@@ -467,11 +469,17 @@ class _RecordList extends StatelessWidget {
 
               String reviewStatus = _reviewStatusLabel(rec.reviewStatus);
               if (reviewStatus.trim().isNotEmpty) {
-                reviewStatus = loc.translate('inv_record.reviewStatus.$reviewStatus');
+                reviewStatus = loc.translate(
+                  'inv_record.reviewStatus.$reviewStatus',
+                );
               }
 
-              int digitalEvidenceCount = _countDigitalEvidence(rec.attachedFiles);
-              int investigationRecordCount = _countInvestigationReports(rec.attachedFiles);
+              int digitalEvidenceCount = _countDigitalEvidence(
+                rec.attachedFiles,
+              );
+              int investigationRecordCount = _countInvestigationReports(
+                rec.attachedFiles,
+              );
               return InkWell(
                 onTap: () {
                   Navigator.of(context).pushNamed(
@@ -535,14 +543,15 @@ class _RecordList extends StatelessWidget {
                                     ],
                                   ),
                                   Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.end,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
                                     children: [
                                       Text(
                                         reviewStatus,
                                         style: TextStyle(
                                           fontWeight: FontWeight.w700,
-                                          color: _reviewStatusColor(rec.reviewStatus),
+                                          color: _reviewStatusColor(
+                                            rec.reviewStatus,
+                                          ),
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,
@@ -567,40 +576,73 @@ class _RecordList extends StatelessWidget {
                                   bottomRight: Radius.circular(10),
                                 ),
                               ),
-                              child: Padding(
-                                padding: EdgeInsets.fromLTRB(14, 4, 14, 4),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          style: const TextStyle(
-                                            color: Color(0xFF737080),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.fromLTRB(
+                                        14,
+                                        4,
+                                        14,
+                                        4,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            style: const TextStyle(
+                                              color: Color(0xFF737080),
+                                            ),
+                                            '디지털 증거물',
                                           ),
-                                          '디지털 증거물 수: $digitalEvidenceCount',
-                                        ),
-                                      ],
+                                          Text(
+                                            style: const TextStyle(
+                                              color: Color(0xFF737080),
+                                            ),
+                                            '$digitalEvidenceCount 건',
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    Text(
-                                          style: const TextStyle(
-                                            color: Color(0xFFD6D6D6),
-                                          ),
-                                          '|',
-                                        ),
-                                    Row(
-                                      children: [
-                                        Text(
-                                          style: const TextStyle(
-                                            color: Color(0xFF737080),
-                                          ),
-                                          '수사보고서 수: $investigationRecordCount',
-                                        ),
-                                      ],
+                                  ),
+                                  Text(
+                                    style: const TextStyle(
+                                      color: Color(0xFFD6D6D6),
                                     ),
-                                  ],
-                                ),
+                                    '|',
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.fromLTRB(
+                                        14,
+                                        4,
+                                        14,
+                                        4,
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            style: const TextStyle(
+                                              color: Color(0xFF737080),
+                                            ),
+                                            '수사보고서',
+                                          ),
+                                          Text(
+                                            style: const TextStyle(
+                                              color: Color(0xFF737080),
+                                            ),
+                                            '$investigationRecordCount 건',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
