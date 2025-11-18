@@ -28,7 +28,7 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    const background = Color(0xFFF5F6FA);
+    const background = Color(0xFFF7F7F5);
     final provider = context.watch<CaseProvider>();
     final isLoading = provider.loading;
     final error = provider.error;
@@ -39,13 +39,19 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
     return Scaffold(
       backgroundColor: background,
       appBar: AppBar(
-        title: const Text('사건 상세'),
         elevation: 0,
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF3C3C43),
+        backgroundColor: background,
+        surfaceTintColor: Colors.transparent,
+        shape: const Border(
+          bottom: BorderSide(
+            color: Color(0xFFDCDCDC),
+            width: 1, // 1px solid line
+          ),
+        ),
+        toolbarHeight: 99,
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(0.0),
         children: [
           if (error != null) ...[
             const SizedBox(height: 40),
@@ -62,69 +68,90 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
             const SizedBox(height: 40),
             const Center(child: CircularProgressIndicator()),
           ] else if (caseDetail != null) ...[
-            Text(
-              caseDetail.title,
-              style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                const Icon(Icons.circle, size: 10, color: Color(0xFF39BE8C)),
-                const SizedBox(width: 6),
-                Text(
-                  caseDetail.status.trim().isNotEmpty ? loc.translate('case_details.status.${caseDetail.status}') : '',
-                  style: const TextStyle(
-                    color: Color(0xFF39BE8C),
-                    fontWeight: FontWeight.w600,
+            Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        caseDetail.title,
+                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+                      ),
+                    ],
                   ),
-                ),
-                caseDetail.progressStatus.trim().isNotEmpty
-                    ? Padding(
-                        padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
-                        child: Text(
-                          '|',
-                          style: const TextStyle(
-                            color: Color(0xFFD4D4D4),
-                            fontWeight: FontWeight.w600,
-                          ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.circle, size: 10, color: Color(0xFF39BE8C)),
+                      const SizedBox(width: 6),
+                      Text(
+                        caseDetail.status.trim().isNotEmpty ? loc.translate('case_details.status.${caseDetail.status}') : '',
+                        style: const TextStyle(
+                          color: Color(0xFF39BE8C),
+                          fontWeight: FontWeight.w600,
                         ),
-                      )
-                    : const SizedBox.shrink(),
-                Text(
-                  caseDetail.progressStatus.trim().isNotEmpty ? loc.translate('case_details.progressStatus.${caseDetail.progressStatus}') : '',
-                  style: const TextStyle(
-                    color: Color(0xFF777777),
-                    fontWeight: FontWeight.w600,
+                      ),
+                      caseDetail.progressStatus.trim().isNotEmpty
+                          ? Padding(
+                              padding: const EdgeInsets.fromLTRB(4, 0, 4, 0),
+                              child: Text(
+                                '|',
+                                style: const TextStyle(
+                                  color: Color(0xFFD4D4D4),
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                      Text(
+                        caseDetail.progressStatus.trim().isNotEmpty ? loc.translate('case_details.progressStatus.${caseDetail.progressStatus}') : '',
+                        style: const TextStyle(
+                          color: Color(0xFF777777),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            // Wrap(
-            //   spacing: 6,
-            //   runSpacing: 6,
-            //   children: caseDetail.chips.map((c) => AppTag(text: c)).toList(),
-            // ),
-            const SizedBox(height: 12),
+            SizedBox(
+              height: 10,
+              child: Container(color: Color(0xFFEAEAEA)),
+            ),
             _InfoSummary(caseData: caseDetail),
-            const SizedBox(height: 12),
-            SegmentedTabs(
-              index: _tabIndex,
-              labels: [loc.translate('case_details.caseInformation'), loc.translate('case_details.invRecordsList')],
-              onChanged: (i) => setState(() {
-                _tabIndex = i;
-                if (i == 1) {
-                  context.read<InvestigationRecordProvider>().loadRecords(caseId: widget.id);
-                }
-              }),
+            SizedBox(
+              height: 10,
+              child: Container(color: Color(0xFFEAEAEA)),
             ),
-            const SizedBox(height: 12),
-            if (_tabIndex == 0) ...[
-              _SectionCard(title: loc.translate('case_details.caseOutline'), body: caseDetail.outline),
-              const SizedBox(height: 16),
-              _SectionCard(title: loc.translate('case_details.etc'), body: caseDetail.etc),
-            ] else ...[
-              _RecordList(caseId: widget.id),
-            ],
+            Container(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SegmentedTabs(
+                    backgroundColor: Colors.transparent,
+                    index: _tabIndex,
+                    labels: [loc.translate('case_details.caseInformation'), loc.translate('case_details.invRecordsList')],
+                    onChanged: (i) => setState(() {
+                      _tabIndex = i;
+                      if (i == 1) {
+                        context.read<InvestigationRecordProvider>().loadRecords(caseId: widget.id);
+                      }
+                    }),
+                  ),
+                  const SizedBox(height: 12),
+                  if (_tabIndex == 0) ...[
+                    _SectionCard(title: loc.translate('case_details.caseOutline'), body: caseDetail.outline),
+                    const SizedBox(height: 16),
+                    _SectionCard(title: loc.translate('case_details.etc'), body: caseDetail.etc),
+                  ] else ...[
+                    _RecordList(caseId: widget.id),
+                  ],
+                ],
+              ),
+            ),
           ] else ...[
             const SizedBox(height: 40),
             const Center(child: Text('데이터가 없습니다')),
@@ -157,17 +184,6 @@ class _InfoSummary extends StatelessWidget {
     final AppLocalizations loc = AppLocalizations.of(context)!;
     return Container(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
       child: Column(
         children: [
           _row(loc.translate('case_details.case_number'), caseData.number),
@@ -190,15 +206,15 @@ class _InfoSummary extends StatelessWidget {
             width: 120,
             child: Text(
               label,
-              style: const TextStyle(color: Color(0xFF6B7280)),
+              style: const TextStyle(color: Color(0xFFA1A1A1)),
             ),
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
               value,
-              style: const TextStyle(fontWeight: FontWeight.w600),
-              textAlign: TextAlign.right,
+              style: const TextStyle(fontWeight: FontWeight.normal),
+              textAlign: TextAlign.left,
             ),
           ),
         ],
@@ -215,23 +231,12 @@ class _SectionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
+      padding: const EdgeInsets.all(0.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: const TextStyle(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(body, style: const TextStyle(color: Color(0xFF464A50))),
         ],
       ),
