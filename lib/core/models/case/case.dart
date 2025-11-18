@@ -50,7 +50,13 @@ class Case {
 
     final manager = name + (count > 0 ? ' 외 ${count}명' : '');
 
-    final dateTime = DateTime.parse(json['investigationDate']?.toString() ?? '');
+    DateTime? dateTime;
+    final rawDate = json['investigationDate'];
+    if (rawDate != null) {
+      try {
+        dateTime = DateTime.parse(rawDate.toString());
+      } catch (_) {}
+    }
     return Case(
       id: json['caseId']?.toString() ?? '',
       number: json['number']?.toString() ?? '',
@@ -64,7 +70,9 @@ class Case {
       relatedCountries: json['relatedCountries']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
       progressStatus: json['latestRecord']?['progressStatus']?.toString() ?? '',
-      investigationDate: DateFormat('yyyy.MM.dd').format(dateTime),
+      investigationDate: dateTime != null
+          ? DateFormat('yyyy.MM.dd').format(dateTime)
+          : '',
       chips: (json['tags'] as List?)?.map((e) => e.toString()).toList() ?? [],
     );
   }
