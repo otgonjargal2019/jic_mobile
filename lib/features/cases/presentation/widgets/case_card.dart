@@ -32,17 +32,25 @@ class CaseCard extends StatelessWidget {
           Row(
             children: [
               AppBadge(
-                text: loc.translate('case_details.case_infringement_type.${item.infringementType}'),
+                text: loc.translate(
+                  'case_details.case_infringement_type.${item.infringementType}',
+                ),
                 filled: true,
                 background: const Color(0xFF5C5C5C),
                 borderColor: Color(0xFF5C5C5C),
-                textStyle: const TextStyle(fontSize: 11, color: Color(0xFFFFFFFF)),
+                textStyle: const TextStyle(
+                  fontSize: 11,
+                  color: Color(0xFFFFFFFF),
+                ),
               ),
               const SizedBox(width: 6),
               AppBadge(
                 text: item.relatedCountries,
                 filled: false,
-                textStyle: const TextStyle(fontSize: 11, color: Color(0xFF60646B)),
+                textStyle: const TextStyle(
+                  fontSize: 11,
+                  color: Color(0xFF60646B),
+                ),
                 borderColor: Color(0xFF60646B),
               ),
               const Spacer(),
@@ -55,14 +63,23 @@ class CaseCard extends StatelessWidget {
           const SizedBox(height: 10),
           Text(item.title, style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: 0),
-          Text(item.manager, style: const TextStyle(fontWeight: FontWeight.normal, color: Color(0xFF60646B), fontSize: 12)),
+          Text(
+            item.manager,
+            style: const TextStyle(
+              fontWeight: FontWeight.normal,
+              color: Color(0xFF60646B),
+              fontSize: 12,
+            ),
+          ),
           const SizedBox(height: 16),
           Row(
             children: [
               const Icon(Icons.circle, size: 10, color: Color(0xFF39BE8C)),
               const SizedBox(width: 6),
               Text(
-                item.status.trim().isNotEmpty ? loc.translate('case_details.status.${item.status}') : '',
+                item.status.trim().isNotEmpty
+                    ? loc.translate('case_details.status.${item.status}')
+                    : '',
                 style: const TextStyle(
                   color: Color(0xFF39BE8C),
                   fontWeight: FontWeight.w600,
@@ -81,7 +98,11 @@ class CaseCard extends StatelessWidget {
                     )
                   : const SizedBox.shrink(),
               Text(
-                item.progressStatus.trim().isNotEmpty ? loc.translate('case_details.progressStatus.${item.progressStatus}') : '',
+                item.progressStatus.trim().isNotEmpty
+                    ? loc.translate(
+                        'case_details.progressStatus.${item.progressStatus}',
+                      )
+                    : '',
                 style: const TextStyle(
                   color: Color(0xFF777777),
                   fontWeight: FontWeight.w600,
