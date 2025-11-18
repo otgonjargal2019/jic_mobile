@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jic_mob/core/provider/case_provider.dart';
+import 'package:jic_mob/core/provider/investigation_record_provider.dart';
 import 'package:jic_mob/core/widgets/app_bottom_nav.dart';
 import 'package:jic_mob/features/cases/presentation/widgets/case_card.dart';
 import 'package:jic_mob/core/navigation/app_router.dart' as app_router;
@@ -27,6 +28,7 @@ class _CasesPageState extends State<CasesPage> {
   Widget build(BuildContext context) {
     const background = Color(0xFFF7F7F5);
     final caseProvider = context.watch<CaseProvider>();
+    final invRecProvider = context.watch<InvestigationRecordProvider>();
     final isLoading = caseProvider.loading;
     final error = caseProvider.error;
     final cases = caseProvider.cases;
@@ -128,6 +130,7 @@ class _CasesPageState extends State<CasesPage> {
                           return CaseCard(
                             item: item,
                             onTap: () {
+                              invRecProvider.clearRecords();
                               Navigator.of(context).pushNamed(
                                 app_router.AppRoute.caseDetail,
                                 arguments: app_router.CaseDetailArgs(item.id),

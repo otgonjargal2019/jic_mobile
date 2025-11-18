@@ -43,6 +43,15 @@ class InvestigationRecordProvider extends ChangeNotifier {
     await Future.wait([loadMoreRecords(refresh: true)]);
   }
 
+  void clearRecords() {
+    _records = [];
+    _page = 0;
+    _hasMore = true;
+    _error = null;
+    _loading = false;
+    notifyListeners();
+  }
+
   Future<void> loadRecords({String? caseId}) async {
     _caseId = caseId;
     await Future.wait([loadMoreRecords(refresh: true)]);
