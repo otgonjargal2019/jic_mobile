@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:jic_mob/core/localization/app_localizations.dart';
 import 'package:jic_mob/core/widgets/segmented_tabs.dart';
-import 'package:jic_mob/core/widgets/app_badge.dart';
 import 'package:jic_mob/core/navigation/app_router.dart' as app_router;
 import 'package:jic_mob/core/provider/case_provider.dart';
 import 'package:jic_mob/core/provider/investigation_record_provider.dart';
 import 'package:jic_mob/core/models/case/case.dart';
-import 'package:jic_mob/core/models/investigation_record/investigation_record.dart';
 import 'package:provider/provider.dart';
 
 class CaseDetailPage extends StatefulWidget {
@@ -401,6 +399,7 @@ class _RecordList extends StatelessWidget {
     final records = provider.records;
     final isLoading = provider.loading;
     final error = provider.error;
+    final sortDirection = provider.sortDirection;
 
     if (!isLoading && records.isEmpty) {
       return Column(
@@ -427,235 +426,256 @@ class _RecordList extends StatelessWidget {
       );
     }
 
-    return SizedBox(
-      height: 400, // allow scroll inside parent ListView
-      child: RefreshIndicator(
-        onRefresh: () => provider.loadRecords(caseId: caseId),
-        child: NotificationListener<ScrollNotification>(
-          onNotification: (notification) {
-            final metrics = notification.metrics;
-            if (metrics.maxScrollExtent > 0 &&
-                metrics.pixels >= metrics.maxScrollExtent - 200 &&
-                provider.hasMore &&
-                !provider.loading) {
-              provider.loadMoreRecords();
-            }
-            return false;
-          },
-          child: ListView.separated(
-            padding: EdgeInsets.zero,
-            itemCount: records.length + (isLoading ? 1 : 0),
-            separatorBuilder: (_, __) => const SizedBox(height: 8),
-            itemBuilder: (context, index) {
-              if (index == records.length) {
-                return const Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-
-              final rec = records[index];
-
-              String nameEn = rec.creator?['nameEn']?.toString() ?? '';
-              String nameKr = rec.creator?['nameKr']?.toString() ?? '';
-              String name = '';
-              if (nameEn.trim().isNotEmpty) {
-                name = nameEn;
-              } else if (nameKr.trim().isNotEmpty) {
-                name = nameKr;
-              } else {
-                name = '-';
-              }
-
-              String reviewStatus = _reviewStatusLabel(rec.reviewStatus);
-              if (reviewStatus.trim().isNotEmpty) {
-                reviewStatus = loc.translate(
-                  'inv_record.reviewStatus.$reviewStatus',
-                );
-              }
-
-              int digitalEvidenceCount = _countDigitalEvidence(
-                rec.attachedFiles,
-              );
-              int investigationRecordCount = _countInvestigationReports(
-                rec.attachedFiles,
-              );
-              return InkWell(
-                onTap: () {
-                  Navigator.of(context).pushNamed(
-                    app_router.AppRoute.recordDetail,
-                    arguments: app_router.RecordDetailArgs(rec.recordId),
-                  );
-                },
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 0),
-                  padding: const EdgeInsets.all(0.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: const Color(0xFF7D7D7D),
-                      width: 1,
-                    ),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x22000000),
-                        blurRadius: 2,
-                        spreadRadius: 0,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.fromLTRB(14, 10, 14, 4),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        rec.recordName ?? '(무제)',
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        name,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          color: Color(0xFF777777),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Text(
-                                        reviewStatus,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          color: _reviewStatusColor(
-                                            rec.reviewStatus,
-                                          ),
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        style: const TextStyle(
-                                          color: Color(0xFFA1A1A1),
-                                        ),
-                                        rec.createdAt?.split('T').first ?? '',
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              decoration: const BoxDecoration(
-                                color: const Color(0xFFF3F3F3),
-                                borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(10),
-                                  bottomRight: Radius.circular(10),
-                                ),
-                              ),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Expanded(
-                                    child: Padding(
-                                      padding: EdgeInsets.fromLTRB(
-                                        14,
-                                        4,
-                                        14,
-                                        4,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            style: const TextStyle(
-                                              color: Color(0xFF737080),
-                                            ),
-                                            '디지털 증거물',
-                                          ),
-                                          Text(
-                                            style: const TextStyle(
-                                              color: Color(0xFF737080),
-                                            ),
-                                            '$digitalEvidenceCount 건',
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Text(
-                                    style: const TextStyle(
-                                      color: Color(0xFFD6D6D6),
-                                    ),
-                                    '|',
-                                  ),
-                                  Expanded(
-                                    child: Padding(
-                                      padding: EdgeInsets.fromLTRB(
-                                        14,
-                                        4,
-                                        14,
-                                        4,
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Text(
-                                            style: const TextStyle(
-                                              color: Color(0xFF737080),
-                                            ),
-                                            '수사보고서',
-                                          ),
-                                          Text(
-                                            style: const TextStyle(
-                                              color: Color(0xFF737080),
-                                            ),
-                                            '$investigationRecordCount 건',
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () => provider.toggleSortDirection(),
+          borderRadius: BorderRadius.circular(0),
+          radius: 0,
+          hoverColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          focusColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          child: Row(
+            children: [
+              const Text('최신순'),
+              Icon(sortDirection == 'desc' ? Icons.arrow_drop_down : Icons.arrow_drop_up, size: 26, color: Colors.black),
+            ]
           ),
         ),
-      ),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 400, // allow scroll inside parent ListView
+          child: RefreshIndicator(
+            onRefresh: () => provider.loadRecords(caseId: caseId),
+            child: NotificationListener<ScrollNotification>(
+              onNotification: (notification) {
+                final metrics = notification.metrics;
+                if (metrics.maxScrollExtent > 0 &&
+                    metrics.pixels >= metrics.maxScrollExtent - 200 &&
+                    provider.hasMore &&
+                    !provider.loading) {
+                  provider.loadMoreRecords();
+                }
+                return false;
+              },
+              child: ListView.separated(
+                padding: EdgeInsets.zero,
+                itemCount: records.length + (isLoading ? 1 : 0),
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  if (index == records.length) {
+                    return const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+
+                  final rec = records[index];
+
+                  String nameEn = rec.creator?['nameEn']?.toString() ?? '';
+                  String nameKr = rec.creator?['nameKr']?.toString() ?? '';
+                  String name = '';
+                  if (nameEn.trim().isNotEmpty) {
+                    name = nameEn;
+                  } else if (nameKr.trim().isNotEmpty) {
+                    name = nameKr;
+                  } else {
+                    name = '-';
+                  }
+
+                  String reviewStatus = _reviewStatusLabel(rec.reviewStatus);
+                  if (reviewStatus.trim().isNotEmpty) {
+                    reviewStatus = loc.translate(
+                      'inv_record.reviewStatus.$reviewStatus',
+                    );
+                  }
+
+                  int digitalEvidenceCount = _countDigitalEvidence(
+                    rec.attachedFiles,
+                  );
+                  int investigationRecordCount = _countInvestigationReports(
+                    rec.attachedFiles,
+                  );
+                  return InkWell(
+                    onTap: () {
+                      Navigator.of(context).pushNamed(
+                        app_router.AppRoute.recordDetail,
+                        arguments: app_router.RecordDetailArgs(rec.recordId),
+                      );
+                    },
+                    borderRadius: BorderRadius.circular(12),
+                    child: Container(
+                      margin: const EdgeInsets.only(bottom: 0),
+                      padding: const EdgeInsets.all(0.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: const Color(0xFF7D7D7D),
+                          width: 1,
+                        ),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Color(0x22000000),
+                            blurRadius: 2,
+                            spreadRadius: 0,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.fromLTRB(14, 10, 14, 4),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            rec.recordName ?? '(무제)',
+                                            style: const TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            name,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: const TextStyle(
+                                              color: Color(0xFF777777),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            reviewStatus,
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w700,
+                                              color: _reviewStatusColor(
+                                                rec.reviewStatus,
+                                              ),
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            style: const TextStyle(
+                                              color: Color(0xFFA1A1A1),
+                                            ),
+                                            rec.createdAt?.split('T').first ?? '',
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  decoration: const BoxDecoration(
+                                    color: const Color(0xFFF3F3F3),
+                                    borderRadius: BorderRadius.only(
+                                      bottomLeft: Radius.circular(10),
+                                      bottomRight: Radius.circular(10),
+                                    ),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: EdgeInsets.fromLTRB(
+                                            14,
+                                            4,
+                                            14,
+                                            4,
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                style: const TextStyle(
+                                                  color: Color(0xFF737080),
+                                                ),
+                                                '디지털 증거물',
+                                              ),
+                                              Text(
+                                                style: const TextStyle(
+                                                  color: Color(0xFF737080),
+                                                ),
+                                                '$digitalEvidenceCount 건',
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        style: const TextStyle(
+                                          color: Color(0xFFD6D6D6),
+                                        ),
+                                        '|',
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: EdgeInsets.fromLTRB(
+                                            14,
+                                            4,
+                                            14,
+                                            4,
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(
+                                                style: const TextStyle(
+                                                  color: Color(0xFF737080),
+                                                ),
+                                                '수사보고서',
+                                              ),
+                                              Text(
+                                                style: const TextStyle(
+                                                  color: Color(0xFF737080),
+                                                ),
+                                                '$investigationRecordCount 건',
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

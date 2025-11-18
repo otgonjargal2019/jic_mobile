@@ -30,6 +30,19 @@ class InvestigationRecordProvider extends ChangeNotifier {
   int _page = 0;
   String? _caseId;
 
+  String? _sortDirection;
+
+  String get sortDirection => _sortDirection ?? 'desc';
+
+  void toggleSortDirection() async {
+    if (_sortDirection == 'asc') {
+      _sortDirection = 'desc';
+    } else {
+      _sortDirection = 'asc';
+    }
+    await Future.wait([loadMoreRecords(refresh: true)]);
+  }
+
   Future<void> loadRecords({String? caseId}) async {
     _caseId = caseId;
     await Future.wait([loadMoreRecords(refresh: true)]);
@@ -51,6 +64,7 @@ class InvestigationRecordProvider extends ChangeNotifier {
     try {
       final page = _page;
       final res = await _repository.getInvestigationRecords(
+        sortDirection: _sortDirection ?? 'desc',
         page: page,
         size: size,
         caseId: _caseId,
