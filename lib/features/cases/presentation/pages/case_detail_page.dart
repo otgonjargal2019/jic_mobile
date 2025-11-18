@@ -301,6 +301,49 @@ class _RecordList extends StatelessWidget {
     return status.toString().split('.').last;
   }
 
+  int _countDigitalEvidence(dynamic attached) {
+    if (attached == null) return 0;
+    int count = 0;
+
+    bool _isTrue(dynamic v) {
+      if (v == null) return false;
+      if (v is bool) return v;
+      return v.toString().toLowerCase() == 'true';
+    }
+
+    // If it's a list/iterable, iterate items
+    if (attached is Iterable) {
+      for (var item in attached) {
+        if (item is Map) {
+          if (_isTrue(item['digitalEvidence'])) count++;
+        }
+      }
+      return count;
+    }
+
+    // If it's a map that contains lists under common keys
+    if (attached is Map) {
+      final candidates = ['files', 'attachments', 'items'];
+      for (var key in candidates) {
+        final v = attached[key];
+        if (v is Iterable) {
+          for (var item in v) {
+            if (item is Map && _isTrue(item['digitalEvidence'])) count++;
+          }
+          return count;
+        }
+      }
+
+      // Fallback: check map values
+      for (var val in attached.values) {
+        if (val is Map && _isTrue(val['digitalEvidence'])) count++;
+      }
+      return count;
+    }
+
+    return 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<InvestigationRecordProvider>();
@@ -386,6 +429,9 @@ class _RecordList extends StatelessWidget {
               if (reviewStatus.trim().isNotEmpty) {
                 reviewStatus = loc.translate('inv_record.reviewStatus.$reviewStatus');
               }
+
+              int digitalEvidenceCount = _countDigitalEvidence(rec.attachedFiles);
+              int investigationRecordCount = 0;
               return InkWell(
                 onTap: () {
                   Navigator.of(context).pushNamed(
@@ -493,7 +539,7 @@ class _RecordList extends StatelessWidget {
                                           style: const TextStyle(
                                             color: Color(0xFF737080),
                                           ),
-                                          rec.createdAt?.split('T').first ?? '',
+                                          '디지털 증거물 수: $digitalEvidenceCount',
                                         ),
                                       ],
                                     ),
@@ -506,7 +552,10 @@ class _RecordList extends StatelessWidget {
                                     Row(
                                       children: [
                                         Text(
-                                          rec.createdAt?.split('T').first ?? '',
+                                          style: const TextStyle(
+                                            color: Color(0xFF737080),
+                                          ),
+                                          '수사보고서 수: $investigationRecordCount',
                                         ),
                                       ],
                                     ),
