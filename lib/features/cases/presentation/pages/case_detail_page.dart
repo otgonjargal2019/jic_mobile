@@ -6,6 +6,7 @@ import 'package:jic_mob/core/navigation/app_router.dart' as app_router;
 import 'package:jic_mob/core/provider/case_provider.dart';
 import 'package:jic_mob/core/provider/investigation_record_provider.dart';
 import 'package:jic_mob/core/models/case/case.dart';
+import 'package:jic_mob/core/models/investigation_record/investigation_record.dart';
 import 'package:provider/provider.dart';
 
 class CaseDetailPage extends StatefulWidget {
@@ -277,6 +278,29 @@ class _RecordList extends StatelessWidget {
   final String caseId;
   const _RecordList({required this.caseId});
 
+  Color _reviewStatusColor(dynamic status) {
+    if (status == null) return const Color(0xFF7C7C7C);
+    final s = status is String ? status.toString().toUpperCase() : status.toString().split('.').last.toUpperCase();
+    switch (s) {
+      case 'WRITING':
+        return const Color(0xFF3EB491);
+      case 'PENDING':
+        return const Color(0xFF7C7C7C);
+      case 'APPROVED':
+        return const Color(0xFF4F4F4F);
+      case 'REJECTED':
+        return const Color(0xFFDB8383);
+      default:
+        return const Color(0xFF7C7C7C);
+    }
+  }
+
+  String _reviewStatusLabel(dynamic status) {
+    if (status == null) return '';
+    if (status is String) return status;
+    return status.toString().split('.').last;
+  }
+
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<InvestigationRecordProvider>();
@@ -423,9 +447,11 @@ class _RecordList extends StatelessWidget {
                                         CrossAxisAlignment.end,
                                     children: [
                                       Text(
-                                        rec.recordName ?? '(무제)',
-                                        style: const TextStyle(
+                                        // _reviewStatusLabel(rec.reviewStatus),
+                                        rec.reviewStatus?.toString() ?? '',
+                                        style: TextStyle(
                                           fontWeight: FontWeight.w700,
+                                          // color: _reviewStatusColor(rec.reviewStatus),
                                         ),
                                         maxLines: 1,
                                         overflow: TextOverflow.ellipsis,

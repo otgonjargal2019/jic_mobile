@@ -1,3 +1,5 @@
+enum ReviewStatus { WRITING, PENDING, APPROVED, REJECTED }
+
 class InvestigationRecord {
   final String recordId;
   final String caseId;
@@ -6,7 +8,7 @@ class InvestigationRecord {
   final int securityLevel;
   final int number;
   final String? progressStatus;
-  final String? reviewStatus;
+  final ReviewStatus? reviewStatus;
   final String? rejectionReason;
   final Map<String, dynamic>? creator;
   final Map<String, dynamic>? reviewer;
@@ -48,7 +50,7 @@ class InvestigationRecord {
           ? json['number'] as int
           : (int.tryParse(json['number']?.toString() ?? '') ?? 0),
       progressStatus: json['progressStatus']?.toString(),
-      reviewStatus: json['reviewStatus']?.toString(),
+      reviewStatus: _parseReviewStatus(json['reviewStatus']),
       rejectionReason: json['rejectionReason']?.toString(),
       creator: json['creator'] is Map ? Map<String, dynamic>.from(json['creator']) : null,
       reviewer: json['reviewer'] is Map ? Map<String, dynamic>.from(json['reviewer']) : null,
@@ -60,6 +62,23 @@ class InvestigationRecord {
     );
   }
 
+  static ReviewStatus? _parseReviewStatus(dynamic value) {
+    if (value == null) return null;
+    final s = value is String ? value : value.toString();
+    switch (s.toUpperCase()) {
+      case 'WRITING':
+        return ReviewStatus.WRITING;
+      case 'PENDING':
+        return ReviewStatus.PENDING;
+      case 'APPROVED':
+        return ReviewStatus.APPROVED;
+      case 'REJECTED':
+        return ReviewStatus.REJECTED;
+      default:
+        return null;
+    }
+  }
+
   Map<String, dynamic> toJson() => {
         'recordId': recordId,
         'caseId': caseId,
@@ -68,7 +87,7 @@ class InvestigationRecord {
         'securityLevel': securityLevel,
         'number': number,
         'progressStatus': progressStatus,
-        'reviewStatus': reviewStatus,
+        'reviewStatus': reviewStatus == null ? null : reviewStatus.toString().split('.').last,
         'rejectionReason': rejectionReason,
         'creator': creator,
         'reviewer': reviewer,
