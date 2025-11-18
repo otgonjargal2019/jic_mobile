@@ -22,8 +22,9 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() =>
-        context.read<CaseProvider>().loadCaseByUUID(widget.id));
+    Future.microtask(
+      () => context.read<CaseProvider>().loadCaseByUUID(widget.id),
+    );
   }
 
   @override
@@ -76,17 +77,28 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
                     children: [
                       Text(
                         caseDetail.title,
-                        style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 18,
+                        ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.circle, size: 10, color: Color(0xFF39BE8C)),
+                      const Icon(
+                        Icons.circle,
+                        size: 10,
+                        color: Color(0xFF39BE8C),
+                      ),
                       const SizedBox(width: 6),
                       Text(
-                        caseDetail.status.trim().isNotEmpty ? loc.translate('case_details.status.${caseDetail.status}') : '',
+                        caseDetail.status.trim().isNotEmpty
+                            ? loc.translate(
+                                'case_details.status.${caseDetail.status}',
+                              )
+                            : '',
                         style: const TextStyle(
                           color: Color(0xFF39BE8C),
                           fontWeight: FontWeight.w600,
@@ -105,7 +117,11 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
                             )
                           : const SizedBox.shrink(),
                       Text(
-                        caseDetail.progressStatus.trim().isNotEmpty ? loc.translate('case_details.progressStatus.${caseDetail.progressStatus}') : '',
+                        caseDetail.progressStatus.trim().isNotEmpty
+                            ? loc.translate(
+                                'case_details.progressStatus.${caseDetail.progressStatus}',
+                              )
+                            : '',
                         style: const TextStyle(
                           color: Color(0xFF777777),
                           fontWeight: FontWeight.w600,
@@ -116,15 +132,9 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
                 ],
               ),
             ),
-            SizedBox(
-              height: 10,
-              child: Container(color: Color(0xFFEAEAEA)),
-            ),
+            SizedBox(height: 10, child: Container(color: Color(0xFFEAEAEA))),
             _InfoSummary(caseData: caseDetail),
-            SizedBox(
-              height: 10,
-              child: Container(color: Color(0xFFEAEAEA)),
-            ),
+            SizedBox(height: 10, child: Container(color: Color(0xFFEAEAEA))),
             Container(
               padding: const EdgeInsets.all(16),
               child: Column(
@@ -133,19 +143,30 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
                   SegmentedTabs(
                     backgroundColor: Colors.transparent,
                     index: _tabIndex,
-                    labels: [loc.translate('case_details.caseInformation'), loc.translate('case_details.invRecordsList')],
+                    labels: [
+                      loc.translate('case_details.caseInformation'),
+                      loc.translate('case_details.invRecordsList'),
+                    ],
                     onChanged: (i) => setState(() {
                       _tabIndex = i;
                       if (i == 1) {
-                        context.read<InvestigationRecordProvider>().loadRecords(caseId: widget.id);
+                        context.read<InvestigationRecordProvider>().loadRecords(
+                          caseId: widget.id,
+                        );
                       }
                     }),
                   ),
                   const SizedBox(height: 12),
                   if (_tabIndex == 0) ...[
-                    _SectionCard(title: loc.translate('case_details.caseOutline'), body: caseDetail.outline),
+                    _SectionCard(
+                      title: loc.translate('case_details.caseOutline'),
+                      body: caseDetail.outline,
+                    ),
                     const SizedBox(height: 16),
-                    _SectionCard(title: loc.translate('case_details.etc'), body: caseDetail.etc),
+                    _SectionCard(
+                      title: loc.translate('case_details.etc'),
+                      body: caseDetail.etc,
+                    ),
                   ] else ...[
                     _RecordList(caseId: widget.id),
                   ],
@@ -169,13 +190,7 @@ class _InfoSummary extends StatelessWidget {
   String priorityLabel(dynamic priority) {
     if (priority == null) return '-';
     final s = priority.toString();
-    const mapping = {
-      '1': 'C1',
-      '2': 'C2',
-      '3': 'C3',
-      '4': 'C4',
-      '5': 'C5',
-    };
+    const mapping = {'1': 'C1', '2': 'C2', '3': 'C3', '4': 'C4', '5': 'C5'};
     return mapping[s] ?? s;
   }
 
@@ -187,11 +202,25 @@ class _InfoSummary extends StatelessWidget {
       child: Column(
         children: [
           _row(loc.translate('case_details.case_number'), caseData.number),
-          _row(loc.translate('case_details.investigationDate'), caseData.investigationDate),
-          _row(loc.translate('case_details.priority'), priorityLabel(caseData.priority)),
-          _row(loc.translate('case_details.relatedCountries'), caseData.relatedCountries),
+          _row(
+            loc.translate('case_details.investigationDate'),
+            caseData.investigationDate,
+          ),
+          _row(
+            loc.translate('case_details.priority'),
+            priorityLabel(caseData.priority),
+          ),
+          _row(
+            loc.translate('case_details.relatedCountries'),
+            caseData.relatedCountries,
+          ),
           _row(loc.translate('case_details.contentType'), caseData.contentType),
-          _row(loc.translate('case_details.infringementType'), loc.translate('case_details.case_infringement_type.${caseData.infringementType}')),
+          _row(
+            loc.translate('case_details.infringementType'),
+            loc.translate(
+              'case_details.case_infringement_type.${caseData.infringementType}',
+            ),
+          ),
         ],
       ),
     );
@@ -252,8 +281,10 @@ class _RecordList extends StatelessWidget {
   Widget build(BuildContext context) {
     final provider = context.watch<InvestigationRecordProvider>();
 
-    // Ensure records are loaded for this case when the widget first builds
-    if (provider.records.isEmpty && !provider.loading && provider.error == null && provider.hasMore) {
+    if (provider.records.isEmpty &&
+        !provider.loading &&
+        provider.error == null &&
+        provider.hasMore) {
       Future.microtask(() => provider.loadRecords(caseId: caseId));
     }
 
@@ -290,7 +321,7 @@ class _RecordList extends StatelessWidget {
       height: 400, // allow scroll inside parent ListView
       child: RefreshIndicator(
         onRefresh: () => provider.loadRecords(caseId: caseId),
-          child: NotificationListener<ScrollNotification>(
+        child: NotificationListener<ScrollNotification>(
           onNotification: (notification) {
             final metrics = notification.metrics;
             if (metrics.maxScrollExtent > 0 &&
@@ -314,6 +345,17 @@ class _RecordList extends StatelessWidget {
               }
 
               final rec = records[index];
+
+              String nameEn = rec.creator?['nameEn']?.toString() ?? '';
+              String nameKr = rec.creator?['nameKr']?.toString() ?? '';
+              String name = '';
+              if (nameEn.trim().isNotEmpty) {
+                name = nameEn;
+              } else if (nameKr.trim().isNotEmpty) {
+                name = nameKr;
+              } else {
+                name = '-';
+              }
               return InkWell(
                 onTap: () {
                   Navigator.of(context).pushNamed(
@@ -324,44 +366,126 @@ class _RecordList extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12),
                 child: Container(
                   margin: const EdgeInsets.only(bottom: 0),
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(0.0),
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: const Color(0xFF7D7D7D),
+                      width: 1,
+                    ),
                     boxShadow: const [
                       BoxShadow(
-                        color: Color(0x14000000),
-                        blurRadius: 8,
+                        color: Color(0x22000000),
+                        blurRadius: 2,
+                        spreadRadius: 0,
                         offset: Offset(0, 2),
                       ),
                     ],
                   ),
                   child: Row(
                     children: [
-                      const AppBadge(text: '기록', filled: false),
-                      const SizedBox(width: 8),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              rec.recordName ?? '(무제)',
-                              style: const TextStyle(fontWeight: FontWeight.w700),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            Padding(
+                              padding: EdgeInsets.fromLTRB(14, 10, 14, 4),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        rec.recordName ?? '(무제)',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        name,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          color: Color(0xFF777777),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        rec.recordName ?? '(무제)',
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        style: const TextStyle(
+                                          color: Color(0xFFA1A1A1),
+                                        ),
+                                        rec.createdAt?.split('T').first ?? '',
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              rec.content ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(color: Color(0xFF777777)),
+                            Container(
+                              decoration: const BoxDecoration(
+                                color: const Color(0xFFF3F3F3),
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(10),
+                                  bottomRight: Radius.circular(10),
+                                ),
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.fromLTRB(14, 4, 14, 4),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          style: const TextStyle(
+                                            color: Color(0xFF737080),
+                                          ),
+                                          rec.createdAt?.split('T').first ?? '',
+                                        ),
+                                      ],
+                                    ),
+                                    Text(
+                                          style: const TextStyle(
+                                            color: Color(0xFFD6D6D6),
+                                          ),
+                                          '|',
+                                        ),
+                                    Row(
+                                      children: [
+                                        Text(
+                                          rec.createdAt?.split('T').first ?? '',
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Text(rec.createdAt?.split('T').first ?? ''),
                     ],
                   ),
                 ),
