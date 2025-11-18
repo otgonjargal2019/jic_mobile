@@ -37,7 +37,7 @@ class _HomePageState extends State<HomePage> {
     final profile = context.read<UserProvider>().profile;
     final dashboard = context.watch<DashboardProvider>();
     final dashboardData = dashboard.data;
-    print('UserProvider profile: ${profile?.toJson()}');
+    //print('UserProvider profile: ${profile?.toJson()}');
     return Scaffold(
       backgroundColor: background,
       appBar: PreferredSize(
@@ -311,50 +311,83 @@ class _CaseStatusCard extends StatelessWidget {
 
   const _CaseStatusCard({required this.summary, this.isRefreshing = false});
 
+  static const double _leftStop = 5 / 11;
+
   @override
   Widget build(BuildContext context) {
+    const borderRadiusValue = 16.0;
+    final borderRadius = BorderRadius.circular(borderRadiusValue);
+
     final card = Container(
       decoration: _buildCardDecoration(),
-      padding: const EdgeInsets.all(16.0),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 104,
-            height: 104,
-            child: CaseStatusDonut(
-              summary: summary,
-              openColor: _openColor,
-              onHoldColor: _onHoldColor,
-              closedColor: _closedColor,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _StatusRow(
-                  label: '진행 중인 사건',
-                  value: summary.open,
-                  color: _openColor,
-                ),
-                const SizedBox(height: 8),
-                _StatusRow(
-                  label: '미해결 사건',
-                  value: summary.onHold,
-                  color: _onHoldColor,
-                ),
-                const SizedBox(height: 8),
-                _StatusRow(
-                  label: '종료된 사건',
-                  value: summary.closed,
-                  color: _closedColor,
-                ),
+      child: ClipRRect(
+        borderRadius: borderRadius,
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              stops: [0.0, _leftStop, _leftStop, 1.0],
+              colors: [
+                Color(0xFFF2F2F2),
+                Color(0xFFF2F2F2),
+                Colors.white,
+                Colors.white,
               ],
             ),
           ),
-        ],
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                flex: 5,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Center(
+                    child: CaseStatusDonut(
+                      summary: summary,
+                      openColor: _openColor,
+                      onHoldColor: _onHoldColor,
+                      closedColor: _closedColor,
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                flex: 6,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _StatusRow(
+                        label: '진행 중인 사건',
+                        value: summary.open,
+                        color: _openColor,
+                        hasDivider: true,
+                      ),
+                      const SizedBox(height: 12),
+                      _StatusRow(
+                        label: '미해결 사건',
+                        value: summary.onHold,
+                        color: _onHoldColor,
+                        hasDivider: true,
+                      ),
+                      const SizedBox(height: 12),
+                      _StatusRow(
+                        label: '종료된 사건',
+                        value: summary.closed,
+                        color: _closedColor,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
 
@@ -380,26 +413,40 @@ class _StatusRow extends StatelessWidget {
   final String label;
   final int value;
   final Color color;
+  final bool hasDivider;
   const _StatusRow({
     required this.label,
     required this.value,
     required this.color,
+    this.hasDivider = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        Row(
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(color: Color(0xFF464A50)),
+              ),
+            ),
+            Text('$value', style: const TextStyle(fontWeight: FontWeight.w700)),
+          ],
         ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(label, style: const TextStyle(color: Color(0xFF464A50))),
-        ),
-        Text('$value', style: const TextStyle(fontWeight: FontWeight.w700)),
+        if (hasDivider) ...[
+          const SizedBox(height: 12),
+          const Divider(color: Color(0xFFD7D7D7), height: 1, thickness: 1),
+        ],
       ],
     );
   }
