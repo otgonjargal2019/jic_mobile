@@ -191,6 +191,7 @@ class _AuthorsSection extends StatelessWidget {
     return _CardSection(
       title: '작성자',
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      expandable: true,
       child: Column(
         children: [
           _AuthorRow(
@@ -201,15 +202,16 @@ class _AuthorsSection extends StatelessWidget {
             date: creatorDate,
             tag: '작성자',
           ),
-          reviewerName.isNotEmpty ?
-          _AuthorRow(
-            name: reviewerName.isNotEmpty ? reviewerName : '(미등록)',
-            avatarUrl: reviewerAvatar.isNotEmpty ? reviewerAvatar : '',
-            hq: reviewerHq,
-            dept: reviewerDept,
-            date: reviewerDate,
-            tag: '검토자',
-          ) : SizedBox.shrink(),
+          reviewerName.isNotEmpty
+              ? _AuthorRow(
+                  name: reviewerName.isNotEmpty ? reviewerName : '(미등록)',
+                  avatarUrl: reviewerAvatar.isNotEmpty ? reviewerAvatar : '',
+                  hq: reviewerHq,
+                  dept: reviewerDept,
+                  date: reviewerDate,
+                  tag: '검토자',
+                )
+              : SizedBox.shrink(),
         ],
       ),
     );
@@ -289,11 +291,8 @@ class _AuthorRow extends StatelessWidget {
                 Positioned(
                   top: 0,
                   bottom: 0, // half of height, stopping before avatar
-                  left: 20,    // center
-                  child: Container(
-                    width: 1,
-                    color: const Color(0xFFC8C8C8),
-                  ),
+                  left: 20, // center
+                  child: Container(width: 1, color: const Color(0xFFC8C8C8)),
                 ),
 
                 Positioned(
@@ -301,8 +300,9 @@ class _AuthorRow extends StatelessWidget {
                   child: CircleAvatar(
                     radius: 18,
                     backgroundColor: const Color(0xFFBDBDBD),
-                    backgroundImage:
-                        avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+                    backgroundImage: avatarUrl.isNotEmpty
+                        ? NetworkImage(avatarUrl)
+                        : null,
                   ),
                 ),
               ],
@@ -326,14 +326,18 @@ class _AuthorRow extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   '$hq ${hq.isNotEmpty && dept.isNotEmpty ? " | " : ""} $dept',
-                  style:
-                      const TextStyle(color: Color(0xFF5F5F5F), fontSize: 14),
+                  style: const TextStyle(
+                    color: Color(0xFF5F5F5F),
+                    fontSize: 14,
+                  ),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   date,
-                  style:
-                      const TextStyle(color: Color(0xFF7BA591), fontSize: 14),
+                  style: const TextStyle(
+                    color: Color(0xFF7BA591),
+                    fontSize: 14,
+                  ),
                 ),
               ],
             ),
@@ -378,6 +382,7 @@ class _AttachmentsSection extends StatelessWidget {
 
     return _CardSection(
       title: '첨부파일',
+      expandable: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: investigationReport.isEmpty && digitalEvidence.isEmpty
@@ -555,26 +560,85 @@ class _KVRow extends StatelessWidget {
   }
 }
 
-class _CardSection extends StatelessWidget {
+class _CardSection extends StatefulWidget {
   final String title;
   final Widget child;
   final EdgeInsetsGeometry padding;
-  const _CardSection({required this.title, required this.child, this.padding = const EdgeInsets.all(20)});
+  final bool expandable;
+
+  const _CardSection({
+    required this.title,
+    required this.child,
+    this.expandable = false,
+    this.padding = const EdgeInsets.all(20),
+  });
+
+  @override
+  State<_CardSection> createState() => _CardSectionState();
+}
+
+class _CardSectionState extends State<_CardSection> {
+  bool _expanded = true;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: padding,
+      padding: widget.padding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          const SizedBox(height: 8),
-          child,
-        ],
+        children: widget.expandable
+            ? [
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => setState(() => _expanded = !_expanded),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        widget.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      AnimatedRotation(
+                        duration: const Duration(milliseconds: 200),
+                        turns: _expanded ? 0 : 0.5,
+                        child: const Icon(
+                          Icons.keyboard_arrow_down,
+                          size: 28,
+                          color: Colors.black87,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                AnimatedCrossFade(
+                  firstChild: Container(),
+                  secondChild: widget.child,
+                  crossFadeState: _expanded
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
+                  duration: const Duration(milliseconds: 200),
+                ),
+              ]
+            : [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.title,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    widget.child,
+                  ],
+                ),
+              ],
       ),
     );
   }
