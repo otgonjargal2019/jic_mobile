@@ -140,23 +140,60 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F5),
-      appBar: AppBar(
-        title: Consumer<ChatProvider>(
-          builder: (context, chat, _) {
-            final peer = _resolvePeer(chat);
-            return Text(peer.displayName);
-          },
-        ),
-        centerTitle: true,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        backgroundColor: const Color(0xFFF7F7F5),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(2),
-          child: SizedBox(
-            width: double.infinity,
-            height: 2,
-            child: ColoredBox(color: Color(0xFFDCDCDC)),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(99),
+        child: Container(
+          height: 99,
+          decoration: const BoxDecoration(
+            color: Color(0xFFF7F7F5),
+            border: Border(
+              bottom: BorderSide(color: Color(0xFFDCDCDC), width: 1),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x1A000000),
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(
+                      Icons.arrow_back_ios_new,
+                      color: Color(0xFF000000),
+                      size: 20,
+                    ),
+                    onPressed: () => Navigator.of(context).maybePop(),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: Consumer<ChatProvider>(
+                        builder: (context, chat, _) {
+                          final peer = _resolvePeer(chat);
+                          return Text(
+                            peer.displayName,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: Color(0xFF000000),
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 48),
+                ],
+              ),
+            ),
           ),
         ),
       ),
@@ -245,7 +282,7 @@ class _ChatPageState extends State<ChatPage> {
 
                 return ListView.builder(
                   controller: _scrollController,
-                  padding: const EdgeInsets.fromLTRB(18, 0, 18, 12),
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
                   itemCount: items.length,
                   itemBuilder: (context, index) => items[index],
                 );
