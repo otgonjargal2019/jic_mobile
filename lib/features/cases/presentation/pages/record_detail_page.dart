@@ -60,7 +60,7 @@ class _RecordDetailPageState extends State<RecordDetailPage> {
               child: Align(
                 alignment: Alignment.bottomLeft,
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
                   child: Icon(Icons.arrow_back_ios, size: 22),
                 ),
               ),

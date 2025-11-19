@@ -64,7 +64,7 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
               child: Align(
                 alignment: Alignment.bottomLeft,
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
                   child: Icon(Icons.arrow_back_ios, size: 22),
                 ),
               ),
@@ -95,7 +95,7 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
             const Center(child: CircularProgressIndicator()),
           ] else if (caseDetail != null) ...[
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
                   Row(
@@ -161,7 +161,7 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
             _InfoSummary(caseData: caseDetail),
             SizedBox(height: 10, child: Container(color: Color(0xFFEAEAEA))),
             Container(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -223,7 +223,7 @@ class _InfoSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations loc = AppLocalizations.of(context)!;
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       child: Column(
         children: [
           _row(loc.translate('case_details.case_number'), caseData.number),

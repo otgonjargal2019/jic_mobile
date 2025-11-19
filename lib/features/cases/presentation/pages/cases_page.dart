@@ -74,7 +74,7 @@ class _CasesPageState extends State<CasesPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                 child: const Text(
                   '전체사건 현황',
                   style: TextStyle(fontWeight: FontWeight.w700, fontSize: 24),
@@ -82,13 +82,12 @@ class _CasesPageState extends State<CasesPage> {
               ),
               const SizedBox(height: 12),
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                 child: SegmentedTabs(
                   index: _tabIndex,
                   labels: const ['전체', '진행중인 사건', '종료 사건'],
                   onChanged: (i) => setState(() {
                     _tabIndex = i;
-                    // request provider to reload using selected status
                     final status = _tabIndex == 1
                         ? 'OPEN'
                         : _tabIndex == 2
@@ -168,7 +167,7 @@ class _CasesPageState extends State<CasesPage> {
 
                           final item = cases[index];
                           return Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                            padding: const EdgeInsets.fromLTRB(20, 4, 20, 4),
                             child: CaseCard(
                               item: item,
                               onTap: () {
