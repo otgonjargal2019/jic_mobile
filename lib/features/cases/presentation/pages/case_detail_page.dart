@@ -337,7 +337,6 @@ class _RecordList extends StatelessWidget {
       return v.toString().toLowerCase() == 'true';
     }
 
-    // If it's a list/iterable, iterate items
     if (attached is Iterable) {
       for (var item in attached) {
         if (item is Map) {
@@ -347,7 +346,6 @@ class _RecordList extends StatelessWidget {
       return count;
     }
 
-    // If it's a map that contains lists under common keys
     if (attached is Map) {
       final candidates = ['files', 'attachments', 'items'];
       for (var key in candidates) {
@@ -360,7 +358,6 @@ class _RecordList extends StatelessWidget {
         }
       }
 
-      // Fallback: check map values
       for (var val in attached.values) {
         if (val is Map && _isTrue(val['digitalEvidence'])) count++;
       }

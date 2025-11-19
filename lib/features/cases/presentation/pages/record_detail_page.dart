@@ -254,18 +254,47 @@ class _AttachmentsSection extends StatelessWidget {
     List items = [];
     if (files is List) items = files;
 
+    bool _isTrue(dynamic v) {
+      if (v == null) return false;
+      if (v is bool) return v;
+      return v.toString().toLowerCase() == 'true';
+    }
+
+    List digitalEvidence = [];
+    List investigationReport = [];
+
+    for (var item in items) {
+      if (item is Map) {
+        if (_isTrue(item['digitalEvidence'])) digitalEvidence.add(item);
+        if (_isTrue(item['investigationReport'])) investigationReport.add(item);
+      }
+    }
+
     return _CardSection(
       title: '첨부파일',
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: items.isEmpty
+        children: investigationReport.isEmpty && digitalEvidence.isEmpty
             ? [const Text('첨부파일이 없습니다')]
-            : items.map((f) {
+            : [
+              const Text('수사 보고서', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF000000)),),
+              ...investigationReport.map((f) {
                 final name = (f is Map)
                     ? (f['fileName']?.toString() ?? '')
                     : f.toString();
-                return Column(children: [_FileRow(name)]);
-              }).toList(),
+                final size = f['fileSize'] != null ? (f['fileSize'] / 1024).toStringAsFixed(1) : "";
+                return Column(children: [_FileRow(name, size)]);
+              }),
+              const Divider(height: 16, color: Color(0xFFC8C8C8),),
+              const Text('디지털 증거물', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF000000)),),
+              ...digitalEvidence.map((f) {
+                final name = (f is Map)
+                    ? (f['fileName']?.toString() ?? '')
+                    : f.toString();
+                final size = f['fileSize'] != null ? (f['fileSize'] / 1024).toStringAsFixed(1) : "";
+                return Column(children: [_FileRow(name, size)]);
+              }),
+            ],
       ),
     );
   }
@@ -273,23 +302,19 @@ class _AttachmentsSection extends StatelessWidget {
 
 class _FileRow extends StatelessWidget {
   final String name;
-  const _FileRow(this.name);
+  final String size;
+  const _FileRow(this.name, this.size);
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Row(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const Icon(
-              Icons.insert_drive_file,
-              size: 18,
-              color: Color(0xFF9AA0A6),
-            ),
-            const SizedBox(width: 8),
-            Expanded(child: Text(name)),
+            Text(name, style: TextStyle(color: Color(0xFF737080)),),
+            size.trim().isNotEmpty ? Text(' (${size}KB)', style: TextStyle(color: Color(0xFFAAAAAA)),) : Container(),
           ],
         ),
-        const Divider(height: 16),
       ],
     );
   }
@@ -335,7 +360,7 @@ class _InvestigationSection extends StatelessWidget {
                   )
                 : '',
             style: TextStyle(
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.normal,
               color: const Color(0xFF737080),
             ),
           ),
