@@ -190,6 +190,7 @@ class _AuthorsSection extends StatelessWidget {
 
     return _CardSection(
       title: '작성자',
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Column(
         children: [
           _AuthorRow(
@@ -200,7 +201,7 @@ class _AuthorsSection extends StatelessWidget {
             date: creatorDate,
             tag: '작성자',
           ),
-          const SizedBox(height: 12),
+          reviewerName.isNotEmpty ?
           _AuthorRow(
             name: reviewerName.isNotEmpty ? reviewerName : '(미등록)',
             avatarUrl: reviewerAvatar.isNotEmpty ? reviewerAvatar : '',
@@ -208,7 +209,7 @@ class _AuthorsSection extends StatelessWidget {
             dept: reviewerDept,
             date: reviewerDate,
             tag: '검토자',
-          ),
+          ) : SizedBox.shrink(),
         ],
       ),
     );
@@ -263,6 +264,7 @@ class _AuthorRow extends StatelessWidget {
   final String dept;
   final String date;
   final String tag;
+
   const _AuthorRow({
     this.avatarUrl = '',
     required this.name,
@@ -274,49 +276,76 @@ class _AuthorRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 8),
-          child: CircleAvatar(
-            radius: 18,
-            backgroundColor: const Color(0xFFBDBDBD),
-            backgroundImage: avatarUrl.isNotEmpty
-                ? NetworkImage(avatarUrl)
-                : null,
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                name,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
+    return SizedBox(
+      height: 80, // enough for a top + bottom line
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 40,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Positioned(
+                  top: 0,
+                  bottom: 0, // half of height, stopping before avatar
+                  left: 20,    // center
+                  child: Container(
+                    width: 1,
+                    color: const Color(0xFFC8C8C8),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                '$hq ${hq.isNotEmpty && dept.isNotEmpty ? " | " : ""} $dept',
-                style: const TextStyle(color: Color(0xFF5F5F5F), fontSize: 14),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                date,
-                style: const TextStyle(color: Color(0xFF7BA591), fontSize: 14),
-              ),
-            ],
+
+                Positioned(
+                  top: 20,
+                  child: CircleAvatar(
+                    radius: 18,
+                    backgroundColor: const Color(0xFFBDBDBD),
+                    backgroundImage:
+                        avatarUrl.isNotEmpty ? NetworkImage(avatarUrl) : null,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
-          child: UserBadge(text: tag, filled: false),
-        ),
-      ],
+
+          const SizedBox(width: 12),
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 14),
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '$hq ${hq.isNotEmpty && dept.isNotEmpty ? " | " : ""} $dept',
+                  style:
+                      const TextStyle(color: Color(0xFF5F5F5F), fontSize: 14),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  date,
+                  style:
+                      const TextStyle(color: Color(0xFF7BA591), fontSize: 14),
+                ),
+              ],
+            ),
+          ),
+
+          // Tag badge
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: UserBadge(text: tag, filled: false),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -529,12 +558,13 @@ class _KVRow extends StatelessWidget {
 class _CardSection extends StatelessWidget {
   final String title;
   final Widget child;
-  const _CardSection({required this.title, required this.child});
+  final EdgeInsetsGeometry padding;
+  const _CardSection({required this.title, required this.child, this.padding = const EdgeInsets.all(20)});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: padding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
