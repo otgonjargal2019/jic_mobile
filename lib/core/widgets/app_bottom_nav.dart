@@ -172,7 +172,7 @@ class _MessengerNavIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     const messengerColor = Color(0xFF3EB491);
-    const badgeColor = Color(0xFFF6C944);
+    const badgeColor = Color(0xFF85D685);
     const Color background = messengerColor;
     final Color iconColor = selected ? const Color(0xFF1F2933) : Colors.white;
 
