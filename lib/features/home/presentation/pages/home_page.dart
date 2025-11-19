@@ -42,8 +42,8 @@ class _HomePageState extends State<HomePage> {
             boxShadow: [
               BoxShadow(
                 color: Color(0x1A000000),
-                blurRadius: 4,
-                offset: Offset(0, 2),
+                blurRadius: 1,
+                offset: Offset(0, 1),
               ),
             ],
           ),
@@ -71,7 +71,7 @@ class _HomePageState extends State<HomePage> {
         child: RefreshIndicator(
           onRefresh: () => context.read<DashboardProvider>().refresh(),
           child: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             physics: const AlwaysScrollableScrollPhysics(),
             children: [
               const ProfileCard(),
@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 0),
               RecentCasesSection(
                 items: dashboardData?.recentCases ?? const [],
                 isLoading:
@@ -112,7 +112,6 @@ class _HomePageState extends State<HomePage> {
                 error: dashboard.error,
                 onRetry: () => context.read<DashboardProvider>().refresh(),
               ),
-              const SizedBox(height: 12),
             ],
           ),
         ),

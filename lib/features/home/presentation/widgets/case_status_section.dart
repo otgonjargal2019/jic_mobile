@@ -60,11 +60,11 @@ class _CaseStatusCard extends StatelessWidget {
 
   const _CaseStatusCard({required this.summary, this.isRefreshing = false});
 
-  static const double _leftStop = 5 / 11;
+  static const double _leftStop = 5 / 12;
 
   @override
   Widget build(BuildContext context) {
-    const borderRadiusValue = 16.0;
+    const borderRadiusValue = 10.0;
     final borderRadius = BorderRadius.circular(borderRadiusValue);
 
     final card = Container(
@@ -91,7 +91,7 @@ class _CaseStatusCard extends StatelessWidget {
               Expanded(
                 flex: 5,
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
                   child: Center(
                     child: CaseStatusDonut(
                       summary: summary,
@@ -103,9 +103,9 @@ class _CaseStatusCard extends StatelessWidget {
                 ),
               ),
               Expanded(
-                flex: 6,
+                flex: 7,
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -117,14 +117,14 @@ class _CaseStatusCard extends StatelessWidget {
                         color: _openColor,
                         hasDivider: true,
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       _StatusRow(
                         label: '미해결 사건',
                         value: summary.onHold,
                         color: _onHoldColor,
                         hasDivider: true,
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       _StatusRow(
                         label: '종료된 사건',
                         value: summary.closed,
@@ -182,14 +182,25 @@ class _StatusRow extends StatelessWidget {
               height: 10,
               decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 5),
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(color: Color(0xFF464A50)),
+                style: const TextStyle(
+                  color: Color(0xFF363249),
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
             ),
-            Text('$value', style: const TextStyle(fontWeight: FontWeight.w700)),
+            Text(
+              '$value',
+              style: const TextStyle(
+                color: Color(0xFF363249),
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ],
         ),
         if (hasDivider) ...[
