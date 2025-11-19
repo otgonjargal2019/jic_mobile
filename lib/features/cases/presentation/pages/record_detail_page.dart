@@ -153,30 +153,39 @@ class _AuthorsSection extends StatelessWidget {
     final creator = record.creator;
     final reviewer = record.reviewer;
     String creatorName = '';
+    String creatorAvatar = '';
+    String creatorHq = '';
     String creatorDept = '';
-    String creatorDate = record.createdAt?.split('T').first ?? '';
+    String creatorDate = record.createdAt != null
+        ? DateFormat(
+            'yyyy/MM/dd',
+          ).format(DateTime.parse(record.createdAt.toString()))
+        : '';
     if (creator is Map) {
       final c = creator as Map;
       creatorName = (c['nameEn'] ?? c['nameKr'] ?? c['loginId'] ?? '')
           .toString();
-      // try to build a dept string from available keys
-      final country =
-          (c['countryName'] ?? c['headquarterName'] ?? c['departmentName'])
-              ?.toString();
-      creatorDept = country ?? '';
+      creatorAvatar = c['profileImageUrl']?.toString() ?? '';
+      creatorHq = c['headquarterName']?.toString() ?? '';
+      creatorDept = c['departmentName']?.toString() ?? '';
     }
 
     String reviewerName = '';
+    String reviewerAvatar = '';
+    String reviewerHq = '';
     String reviewerDept = '';
-    String reviewerDate = record.reviewedAt?.split('T').first ?? '';
+    String reviewerDate = record.reviewedAt != null
+        ? DateFormat(
+            'yyyy/MM/dd',
+          ).format(DateTime.parse(record.reviewedAt.toString()))
+        : '';
     if (reviewer is Map) {
       final r = reviewer as Map;
       reviewerName = (r['nameEn'] ?? r['nameKr'] ?? r['loginId'] ?? '')
           .toString();
-      reviewerDept =
-          (r['countryName'] ?? r['headquarterName'] ?? r['departmentName'])
-              ?.toString() ??
-          '';
+      reviewerAvatar = r['profileImageUrl']?.toString() ?? '';
+      reviewerHq = r['headquarterName']?.toString() ?? '';
+      reviewerDept = r['departmentName']?.toString() ?? '';
     }
 
     return _CardSection(
@@ -185,6 +194,8 @@ class _AuthorsSection extends StatelessWidget {
         children: [
           _AuthorRow(
             name: creatorName.isNotEmpty ? creatorName : '(미등록)',
+            avatarUrl: creatorAvatar.isNotEmpty ? creatorAvatar : '',
+            hq: creatorHq,
             dept: creatorDept,
             date: creatorDate,
             tag: '작성자',
@@ -192,6 +203,8 @@ class _AuthorsSection extends StatelessWidget {
           const SizedBox(height: 12),
           _AuthorRow(
             name: reviewerName.isNotEmpty ? reviewerName : '(미등록)',
+            avatarUrl: reviewerAvatar.isNotEmpty ? reviewerAvatar : '',
+            hq: reviewerHq,
             dept: reviewerDept,
             date: reviewerDate,
             tag: '검토자',
@@ -202,13 +215,58 @@ class _AuthorsSection extends StatelessWidget {
   }
 }
 
+class UserBadge extends StatelessWidget {
+  final String text;
+  final bool filled;
+  final EdgeInsetsGeometry padding;
+  final Color? background;
+  final Color? borderColor;
+  final TextStyle? textStyle;
+
+  const UserBadge({
+    super.key,
+    required this.text,
+    this.filled = true,
+    this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    this.background,
+    this.borderColor,
+    this.textStyle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bg =
+        background ?? (filled ? const Color(0xFFEFF1F5) : Colors.transparent);
+    final border = Border.all(color: borderColor ?? const Color(0xB2363249));
+
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(10),
+        border: filled ? null : border,
+      ),
+      child: Text(
+        text,
+        style:
+            textStyle ??
+            const TextStyle(fontSize: 14, color: Color(0xB2363249)),
+      ),
+    );
+  }
+}
+
 class _AuthorRow extends StatelessWidget {
+  final String avatarUrl;
   final String name;
+  final String hq;
   final String dept;
   final String date;
   final String tag;
   const _AuthorRow({
+    this.avatarUrl = '',
     required this.name,
+    required this.hq,
     required this.dept,
     required this.date,
     required this.tag,
@@ -217,28 +275,47 @@ class _AuthorRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const CircleAvatar(radius: 18, backgroundColor: Color(0xFFBDBDBD)),
+        Padding(
+          padding: const EdgeInsets.only(top: 8),
+          child: CircleAvatar(
+            radius: 18,
+            backgroundColor: const Color(0xFFBDBDBD),
+            backgroundImage: avatarUrl.isNotEmpty
+                ? NetworkImage(avatarUrl)
+                : null,
+          ),
+        ),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(name, style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(
+                name,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
               const SizedBox(height: 2),
               Text(
-                dept,
-                style: const TextStyle(color: Color(0xFF6B7280), fontSize: 12),
+                '$hq ${hq.isNotEmpty && dept.isNotEmpty ? " | " : ""} $dept',
+                style: const TextStyle(color: Color(0xFF5F5F5F), fontSize: 14),
               ),
               const SizedBox(height: 2),
               Text(
                 date,
-                style: const TextStyle(color: Color(0xFF8D93A1), fontSize: 12),
+                style: const TextStyle(color: Color(0xFF7BA591), fontSize: 14),
               ),
             ],
           ),
         ),
-        AppBadge(text: tag, filled: false),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 8),
+          child: UserBadge(text: tag, filled: false),
+        ),
       ],
     );
   }
@@ -277,24 +354,40 @@ class _AttachmentsSection extends StatelessWidget {
         children: investigationReport.isEmpty && digitalEvidence.isEmpty
             ? [const Text('첨부파일이 없습니다')]
             : [
-              const Text('수사 보고서', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF000000)),),
-              ...investigationReport.map((f) {
-                final name = (f is Map)
-                    ? (f['fileName']?.toString() ?? '')
-                    : f.toString();
-                final size = f['fileSize'] != null ? (f['fileSize'] / 1024).toStringAsFixed(1) : "";
-                return Column(children: [_FileRow(name, size)]);
-              }),
-              const Divider(height: 16, color: Color(0xFFC8C8C8),),
-              const Text('디지털 증거물', style: TextStyle(fontWeight: FontWeight.w600, color: Color(0xFF000000)),),
-              ...digitalEvidence.map((f) {
-                final name = (f is Map)
-                    ? (f['fileName']?.toString() ?? '')
-                    : f.toString();
-                final size = f['fileSize'] != null ? (f['fileSize'] / 1024).toStringAsFixed(1) : "";
-                return Column(children: [_FileRow(name, size)]);
-              }),
-            ],
+                const Text(
+                  '수사 보고서',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF000000),
+                  ),
+                ),
+                ...investigationReport.map((f) {
+                  final name = (f is Map)
+                      ? (f['fileName']?.toString() ?? '')
+                      : f.toString();
+                  final size = f['fileSize'] != null
+                      ? (f['fileSize'] / 1024).toStringAsFixed(1)
+                      : "";
+                  return Column(children: [_FileRow(name, size)]);
+                }),
+                const Divider(height: 16, color: Color(0xFFC8C8C8)),
+                const Text(
+                  '디지털 증거물',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF000000),
+                  ),
+                ),
+                ...digitalEvidence.map((f) {
+                  final name = (f is Map)
+                      ? (f['fileName']?.toString() ?? '')
+                      : f.toString();
+                  final size = f['fileSize'] != null
+                      ? (f['fileSize'] / 1024).toStringAsFixed(1)
+                      : "";
+                  return Column(children: [_FileRow(name, size)]);
+                }),
+              ],
       ),
     );
   }
@@ -311,8 +404,13 @@ class _FileRow extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Text(name, style: TextStyle(color: Color(0xFF737080)),),
-            size.trim().isNotEmpty ? Text(' (${size}KB)', style: TextStyle(color: Color(0xFFAAAAAA)),) : Container(),
+            Text(name, style: TextStyle(color: Color(0xFF737080))),
+            size.trim().isNotEmpty
+                ? Text(
+                    ' (${size}KB)',
+                    style: TextStyle(color: Color(0xFFAAAAAA)),
+                  )
+                : Container(),
           ],
         ),
       ],
