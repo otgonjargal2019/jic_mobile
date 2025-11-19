@@ -522,11 +522,49 @@ class _RecordList extends StatelessWidget {
                     rec.attachedFiles,
                   );
                   return InkWell(
-                    onTap: () {
-                      Navigator.of(context).pushNamed(
-                        app_router.AppRoute.recordDetail,
-                        arguments: app_router.RecordDetailArgs(rec.recordId),
-                      );
+                    onTap: () async {
+                      String reviewStatus = _reviewStatusLabel(rec.reviewStatus);
+                      debugPrint('Tapped record ${reviewStatus}');
+                      if (reviewStatus == 'APPROVED') {
+                        showPermissionCheckingLoader(context);
+
+                        bool access = await Provider.of<InvestigationRecordProvider>(context, listen: false)
+                            .checkPermission(rec.recordId);
+
+                        if (access) {
+                          Navigator.pop(context);
+
+                          Navigator.of(context).pushNamed(
+                            app_router.AppRoute.recordDetail,
+                            arguments: app_router.RecordDetailArgs(rec.recordId),
+                          );
+                        } else {
+                          Navigator.pop(context);
+
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text('접근 거부'),
+                                content: const Text('이 수사 기록에 접근할 권한이 없습니다.'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                    child: const Text('확인'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                        }
+                      } else {
+                        Navigator.of(context).pushNamed(
+                          app_router.AppRoute.recordDetail,
+                          arguments: app_router.RecordDetailArgs(rec.recordId),
+                        );
+                      }
                     },
                     borderRadius: BorderRadius.circular(12),
                     child: Container(
@@ -701,4 +739,39 @@ class _RecordList extends StatelessWidget {
       ],
     );
   }
+}
+
+void showPermissionCheckingLoader(BuildContext context) {
+  showDialog(
+    context: context,
+    barrierDismissible: false, // user cannot close by tapping outside
+    barrierColor: Colors.black.withOpacity(0.6), // background tint
+    builder: (context) {
+      return Center(
+        child: Container(
+          width: 260,
+          padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+          decoration: BoxDecoration(
+            color: Colors.black.withOpacity(0.7),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 10),
+              const CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                "권한 검증을 위해 X.509 인증서\n정보 추출 및 분석을 진행하고 있습니다.",
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.white, fontSize: 14),
+              ),
+            ],
+          ),
+        ),
+      );
+    },
+  );
 }

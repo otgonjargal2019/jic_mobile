@@ -126,6 +126,24 @@ class InvestigationRecordProvider extends ChangeNotifier {
     }
   }
 
+  Future<bool> checkPermission(String recordId) async {
+    _recordLoading = true;
+    _recordError = null;
+    notifyListeners();
+
+    try {
+      final allowed = await _repository.checkAccess(recordId);
+      _recordError = null;
+      return allowed;
+    } catch (e) {
+      _recordError = e.toString();
+      return false;
+    } finally {
+      _recordLoading = false;
+      notifyListeners();
+    }
+  }
+
   void clearCurrentRecord() {
     _currentRecord = null;
     _recordError = null;

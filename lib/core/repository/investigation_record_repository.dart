@@ -107,4 +107,33 @@ class InvestigationRecordRepository {
 
     throw ApiException('Unexpected response format for investigation record');
   }
+
+  Future<bool> checkAccess(String recordId) async {
+    final response = await _apiClient.get(
+      '/investigation-records/check-access/$recordId',
+      receiveTimeout: const Duration(seconds: 30),
+    );
+
+    final data = response.data;
+    if (data == null) throw ApiException('Empty response from server');
+
+    if (data is bool) return data;
+
+    if (data is Map || data is Map<String, dynamic>) {
+      final map = data is Map<String, dynamic>
+          ? data
+          : Map<String, dynamic>.from(data as Map);
+
+      if (map.containsKey('allowed')) return map['allowed'] == true;
+      if (map.containsKey('access')) return map['access'] == true;
+      if (map.containsKey('hasAccess')) return map['hasAccess'] == true;
+
+      if (map.containsKey('status')) {
+        final s = map['status']?.toString().toLowerCase();
+        if (s == 'ok' || s == 'allowed') return true;
+      }
+    }
+
+    throw ApiException('Unexpected response format for check-access');
+  }
 }
