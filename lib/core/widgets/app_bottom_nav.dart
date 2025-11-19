@@ -149,7 +149,7 @@ class _NavIconWithBadge extends StatelessWidget {
           top: -4,
           child: AppBadge(
             text: display,
-            background: const Color(0xFF22C55E),
+            background: const Color(0xFF85D685),
             textStyle: const TextStyle(
               color: Colors.white,
               fontSize: 11,
