@@ -38,29 +38,43 @@ class _CaseDetailPageState extends State<CaseDetailPage> {
 
     return Scaffold(
       backgroundColor: background,
-      appBar: AppBar(
-        leading: GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: Align(
-            alignment: Alignment.bottomLeft,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Icon(Icons.arrow_back_ios, size: 22),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(99),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: background,
+            border: Border(
+              bottom: BorderSide(color: Color(0xFFDCDCDC), width: 1),
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x1A000000),
+                blurRadius: 1,
+                offset: Offset(0, 1),
+              ),
+            ],
+          ),
+          alignment: Alignment.center,
+          height: 99,
+          child: AppBar(
+            leading: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Icon(Icons.arrow_back_ios, size: 22),
+                ),
+              ),
+            ),
+            elevation: 0,
+            backgroundColor: background,
+            surfaceTintColor: Colors.transparent,
+            toolbarHeight: 99,
           ),
         ),
-        elevation: 0,
-        backgroundColor: background,
-        surfaceTintColor: Colors.transparent,
-        shape: const Border(
-          bottom: BorderSide(
-            color: Color(0xFFDCDCDC),
-            width: 1, // 1px solid line
-          ),
-        ),
-        toolbarHeight: 99,
       ),
       body: ListView(
         padding: const EdgeInsets.all(0.0),
