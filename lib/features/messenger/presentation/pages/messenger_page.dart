@@ -121,30 +121,20 @@ class _MessengerPageState extends State<MessengerPage> {
 
   @override
   Widget build(BuildContext context) {
+    const background = Color(0xFFF7F7F5);
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7F5),
-      appBar: AppBar(
-        title: const Text('채팅'),
-        centerTitle: false,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        backgroundColor: Color(0xFFF7F7F5),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(2),
-          child: SizedBox(
-            width: double.infinity,
-            height: 2,
-            child: ColoredBox(color: Color(0xFFDCDCDC)),
-          ),
-        ),
+      backgroundColor: background,
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(99),
+        child: _MessengerAppBar(),
       ),
       bottomNavigationBar: AppBottomNav(currentIndex: 2),
-      body: Column(
-        children: [
-          const SizedBox(height: 8),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: TextField(
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            // const SizedBox(height: 8),
+            TextField(
               controller: _searchController,
               onChanged: _onQueryChanged,
               decoration: InputDecoration(
@@ -179,86 +169,117 @@ class _MessengerPageState extends State<MessengerPage> {
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 8),
-          Expanded(
-            child: Consumer<ChatProvider>(
-              builder: (context, chat, _) {
-                final peers = chat.peers;
-                final lowercaseQuery = _query.toLowerCase();
-                final filtered = _query.isEmpty
-                    ? peers
-                    : peers
-                          .where(
-                            (p) => p.displayName.toLowerCase().contains(
-                              lowercaseQuery,
-                            ),
-                          )
-                          .toList();
-
-                final hasQuery = _query.isNotEmpty;
-                List<ChatUser> displayList;
-                if (hasQuery) {
-                  final Map<String, ChatUser> merged = {
-                    for (final peer in filtered) peer.userId: peer,
-                  };
-                  for (final result in _searchResults) {
-                    merged.putIfAbsent(result.userId, () => result);
-                  }
-                  displayList = merged.values.toList();
-                } else {
-                  displayList = filtered;
-                }
-
-                if (!hasQuery && chat.loadingPeers && displayList.isEmpty) {
-                  return const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  );
-                }
-
-                if (hasQuery && _searching && displayList.isEmpty) {
-                  return const Center(
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  );
-                }
-
-                return RefreshIndicator(
-                  onRefresh: () => _query.isEmpty
-                      ? chat.loadPeers()
-                      : _performSearch(_query),
-                  child: displayList.isEmpty
-                      ? ListView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          children: const [
-                            SizedBox(height: 160),
-                            Center(
-                              child: Text(
-                                '대화 내역이 없습니다.',
-                                style: TextStyle(color: Color(0xFF6B7280)),
+            const SizedBox(height: 8),
+            Expanded(
+              child: Consumer<ChatProvider>(
+                builder: (context, chat, _) {
+                  final peers = chat.peers;
+                  final lowercaseQuery = _query.toLowerCase();
+                  final filtered = _query.isEmpty
+                      ? peers
+                      : peers
+                            .where(
+                              (p) => p.displayName.toLowerCase().contains(
+                                lowercaseQuery,
                               ),
-                            ),
-                          ],
-                        )
-                      : ListView.builder(
-                          itemCount: displayList.length,
-                          itemBuilder: (context, index) {
-                            final peer = displayList[index];
-                            return _ChatListTile(
-                              peer: peer,
-                              onTap: () {
-                                Navigator.of(context).pushNamed(
-                                  app_router.AppRoute.chat,
-                                  arguments: app_router.ChatArgs(peer.userId),
-                                );
-                              },
-                            );
-                          },
-                        ),
-                );
-              },
+                            )
+                            .toList();
+
+                  final hasQuery = _query.isNotEmpty;
+                  List<ChatUser> displayList;
+                  if (hasQuery) {
+                    final Map<String, ChatUser> merged = {
+                      for (final peer in filtered) peer.userId: peer,
+                    };
+                    for (final result in _searchResults) {
+                      merged.putIfAbsent(result.userId, () => result);
+                    }
+                    displayList = merged.values.toList();
+                  } else {
+                    displayList = filtered;
+                  }
+
+                  if (!hasQuery && chat.loadingPeers && displayList.isEmpty) {
+                    return const Center(
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    );
+                  }
+
+                  if (hasQuery && _searching && displayList.isEmpty) {
+                    return const Center(
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    );
+                  }
+
+                  return RefreshIndicator(
+                    onRefresh: () => _query.isEmpty
+                        ? chat.loadPeers()
+                        : _performSearch(_query),
+                    child: displayList.isEmpty
+                        ? ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            children: const [
+                              SizedBox(height: 160),
+                              Center(
+                                child: Text(
+                                  '대화 내역이 없습니다.',
+                                  style: TextStyle(color: Color(0xFF6B7280)),
+                                ),
+                              ),
+                            ],
+                          )
+                        : ListView.builder(
+                            itemCount: displayList.length,
+                            itemBuilder: (context, index) {
+                              final peer = displayList[index];
+                              return _ChatListTile(
+                                peer: peer,
+                                onTap: () {
+                                  Navigator.of(context).pushNamed(
+                                    app_router.AppRoute.chat,
+                                    arguments: app_router.ChatArgs(peer.userId),
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                  );
+                },
+              ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MessengerAppBar extends StatelessWidget {
+  const _MessengerAppBar();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 99,
+      decoration: const BoxDecoration(
+        color: Color(0xFFF7F7F5),
+        border: Border(bottom: BorderSide(color: Color(0xFFDCDCDC), width: 1)),
+        boxShadow: [
+          BoxShadow(
+            color: Color(0x1A000000),
+            blurRadius: 4,
+            offset: Offset(0, 2),
           ),
         ],
+      ),
+      alignment: Alignment.center,
+      child: const Text(
+        '채팅',
+        style: TextStyle(
+          fontSize: 24,
+          fontWeight: FontWeight.w500,
+          color: Color(0xFF000000),
+        ),
       ),
     );
   }
@@ -278,7 +299,7 @@ class _ChatListTile extends StatelessWidget {
       onTap: onTap,
       child: Container(
         color: Colors.transparent,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.fromLTRB(0, 12, 8, 12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
