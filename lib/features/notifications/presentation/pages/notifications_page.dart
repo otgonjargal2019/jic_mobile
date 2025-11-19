@@ -117,18 +117,34 @@ class _NotificationsPageState extends State<NotificationsPage> {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F5),
-      appBar: AppBar(
-        title: const Text('알림'),
-        centerTitle: false,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        backgroundColor: const Color(0xFFF7F7F5),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(2),
-          child: SizedBox(
-            width: double.infinity,
-            height: 2,
-            child: ColoredBox(color: Color(0xFFDCDCDC)),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(99),
+        child: Container(
+          height: 99,
+          decoration: const BoxDecoration(
+            color: Color(0xFFF7F7F5),
+            border: Border(
+              bottom: BorderSide(color: Color(0xFFDCDCDC), width: 1),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x1A000000),
+                blurRadius: 4,
+                offset: Offset(0, 2),
+              ),
+            ],
+          ),
+          alignment: Alignment.center,
+          child: const SafeArea(
+            bottom: false,
+            child: Text(
+              '알림',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w500,
+                color: Color(0xFF000000),
+              ),
+            ),
           ),
         ),
       ),
