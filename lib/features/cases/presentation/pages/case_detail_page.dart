@@ -742,6 +742,46 @@ class _RecordList extends StatelessWidget {
   }
 }
 
+class RotatingImage extends StatefulWidget {
+  final double size;
+  const RotatingImage({super.key, this.size = 40});
+
+  @override
+  State<RotatingImage> createState() => _RotatingImageState();
+}
+
+class _RotatingImageState extends State<RotatingImage>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 1),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RotationTransition(
+      turns: _controller,
+      child: Image.asset(
+        'assets/icons/loading.png',
+        width: widget.size,
+        height: widget.size,
+      ),
+    );
+  }
+}
+
 void showPermissionCheckingLoader(BuildContext context) {
   showDialog(
     context: context,
@@ -759,9 +799,10 @@ void showPermissionCheckingLoader(BuildContext context) {
             mainAxisSize: MainAxisSize.min,
             children: [
               const SizedBox(height: 10),
-              const CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
+              // const CircularProgressIndicator(
+              //   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              // ),
+              RotatingImage(),
               const SizedBox(height: 20),
               const Text(
                 "권한 검증을 위해 X.509 인증서\n정보 추출 및 분석을 진행하고 있습니다.",
