@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:jic_mob/core/models/case/case.dart';
+import 'package:jic_mob/core/navigation/app_router.dart' as app_router;
+import 'package:jic_mob/core/provider/investigation_record_provider.dart';
 import 'package:jic_mob/features/cases/presentation/widgets/case_card.dart';
+import 'package:provider/provider.dart';
 
 import 'dashboard_card_decoration.dart';
 import 'dashboard_common_cards.dart';
@@ -22,6 +25,8 @@ class RecentCasesSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final invRecProvider = context.watch<InvestigationRecordProvider>();
+
     if (isLoading && items.isEmpty) {
       return const DashboardLoadingCard(minHeight: 120);
     }
@@ -44,7 +49,16 @@ class RecentCasesSection extends StatelessWidget {
           .map(
             (e) => Padding(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              child: CaseCard(item: e),
+              child: CaseCard(
+                item: e,
+                onTap: () {
+                  invRecProvider.clearRecords();
+                  Navigator.of(context).pushNamed(
+                    app_router.AppRoute.caseDetail,
+                    arguments: app_router.CaseDetailArgs(e.id),
+                  );
+                },
+              ),
             ),
           )
           .toList(),
