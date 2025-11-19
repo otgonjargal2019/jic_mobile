@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:jic_mob/core/localization/app_localizations.dart';
-import 'package:jic_mob/core/widgets/app_badge.dart';
 import 'package:provider/provider.dart';
 import 'package:jic_mob/core/provider/investigation_record_provider.dart';
 import 'package:jic_mob/core/models/investigation_record/investigation_record.dart';
+import 'package:flutter/cupertino.dart';
 
 class RecordDetailPage extends StatefulWidget {
   final String id;
@@ -190,7 +190,7 @@ class _AuthorsSection extends StatelessWidget {
 
     return _CardSection(
       title: '작성자',
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+      padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
       expandable: true,
       child: Column(
         children: [
@@ -279,7 +279,7 @@ class _AuthorRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 80, // enough for a top + bottom line
+      height: 80,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -290,19 +290,27 @@ class _AuthorRow extends StatelessWidget {
               children: [
                 Positioned(
                   top: 0,
-                  bottom: 0, // half of height, stopping before avatar
-                  left: 20, // center
+                  bottom: 0,
+                  left: 20,
                   child: Container(width: 1, color: const Color(0xFFC8C8C8)),
                 ),
 
                 Positioned(
                   top: 20,
-                  child: CircleAvatar(
+                  child: avatarUrl.isNotEmpty ? CircleAvatar(
                     radius: 18,
                     backgroundColor: const Color(0xFFBDBDBD),
                     backgroundImage: avatarUrl.isNotEmpty
                         ? NetworkImage(avatarUrl)
                         : null,
+                  ) : CircleAvatar(
+                    radius: 18,
+                    backgroundColor: const Color(0xFFBDBDBD),
+                    child: const Icon(
+                      Icons.person,
+                      color: const Color(0xFFDCDCDC),
+                      size: 36,
+                    ),
                   ),
                 ),
               ],
@@ -343,7 +351,6 @@ class _AuthorRow extends StatelessWidget {
             ),
           ),
 
-          // Tag badge
           Container(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: UserBadge(text: tag, filled: false),
@@ -435,17 +442,25 @@ class _FileRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text(name, style: TextStyle(color: Color(0xFF737080))),
-            size.trim().isNotEmpty
-                ? Text(
-                    ' (${size}KB)',
-                    style: TextStyle(color: Color(0xFFAAAAAA)),
-                  )
-                : Container(),
-          ],
+        InkWell(
+          onTap: () => showIOSAlert(context),
+          splashColor: Colors.transparent,
+          radius: 0,
+          hoverColor: Colors.transparent,
+          highlightColor: Colors.transparent,
+          focusColor: Colors.transparent,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(name, style: TextStyle(color: Color(0xFF737080))),
+              size.trim().isNotEmpty
+                  ? Text(
+                      ' (${size}KB)',
+                      style: TextStyle(color: Color(0xFFAAAAAA)),
+                    )
+                  : Container(),
+            ],
+          ),
         ),
       ],
     );
@@ -570,7 +585,7 @@ class _CardSection extends StatefulWidget {
     required this.title,
     required this.child,
     this.expandable = false,
-    this.padding = const EdgeInsets.all(20),
+    this.padding = const EdgeInsets.fromLTRB(20, 14, 20, 14),
   });
 
   @override
@@ -642,4 +657,25 @@ class _CardSectionState extends State<_CardSection> {
       ),
     );
   }
+}
+
+void showIOSAlert(BuildContext context) {
+  showCupertinoDialog(
+    context: context,
+    builder: (context) {
+      return CupertinoAlertDialog(
+        content: const Text(
+          "해당 내용은 PC에서 확인해주세요.",
+          style: TextStyle(fontSize: 16),
+        ),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: const Text("확인"),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ],
+      );
+    },
+  );
 }
