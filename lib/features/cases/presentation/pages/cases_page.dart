@@ -42,17 +42,30 @@ class _CasesPageState extends State<CasesPage> {
 
     return Scaffold(
       backgroundColor: background,
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: background,
-        surfaceTintColor: Colors.transparent,
-        shape: const Border(
-          bottom: BorderSide(
-            color: Color(0xFFDCDCDC),
-            width: 1, // 1px solid line
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(99),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: background,
+            border: Border(
+              bottom: BorderSide(color: Color(0xFFDCDCDC), width: 1),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x1A000000),
+                blurRadius: 1,
+                offset: Offset(0, 1),
+              ),
+            ],
+          ),
+          alignment: Alignment.center,
+          height: 99,
+          child: AppBar(
+            backgroundColor: background,
+            surfaceTintColor: Colors.transparent,
+            toolbarHeight: 99,
           ),
         ),
-        toolbarHeight: 99,
       ),
       body: SafeArea(
         child: Padding(

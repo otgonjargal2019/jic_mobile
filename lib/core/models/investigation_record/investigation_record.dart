@@ -3,6 +3,7 @@ enum ReviewStatus { WRITING, PENDING, APPROVED, REJECTED }
 class InvestigationRecord {
   final String recordId;
   final String caseId;
+  final Map<String, dynamic>? caseInstance;
   final String? recordName;
   final String? content;
   final int securityLevel;
@@ -21,6 +22,7 @@ class InvestigationRecord {
   InvestigationRecord({
     required this.recordId,
     required this.caseId,
+    this.caseInstance,
     this.recordName,
     this.content,
     this.securityLevel = 0,
@@ -41,6 +43,7 @@ class InvestigationRecord {
     return InvestigationRecord(
       recordId: json['recordId']?.toString() ?? '',
       caseId: json['caseId']?.toString() ?? '',
+      caseInstance: json['caseInstance'] is Map ? Map<String, dynamic>.from(json['caseInstance']) : null,
       recordName: json['recordName']?.toString(),
       content: json['content']?.toString(),
       securityLevel: (json['securityLevel'] is int)
