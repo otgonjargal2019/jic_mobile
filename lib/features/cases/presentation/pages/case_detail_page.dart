@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:jic_mob/core/localization/app_localizations.dart';
 import 'package:jic_mob/core/widgets/segmented_tabs.dart';
@@ -524,7 +525,6 @@ class _RecordList extends StatelessWidget {
                   return InkWell(
                     onTap: () async {
                       String reviewStatus = _reviewStatusLabel(rec.reviewStatus);
-                      debugPrint('Tapped record ${reviewStatus}');
                       if (reviewStatus == 'APPROVED') {
                         showPermissionCheckingLoader(context);
 
@@ -541,18 +541,19 @@ class _RecordList extends StatelessWidget {
                         } else {
                           Navigator.pop(context);
 
-                          showDialog(
+                          showCupertinoDialog(
                             context: context,
                             builder: (context) {
-                              return AlertDialog(
-                                title: const Text('접근 거부'),
-                                content: const Text('이 수사 기록에 접근할 권한이 없습니다.'),
+                              return CupertinoAlertDialog(
+                                content: const Text(
+                                  "이 수사 기록에 접근할 권한이 없습니다.",
+                                  style: TextStyle(fontSize: 16),
+                                ),
                                 actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    child: const Text('확인'),
+                                  CupertinoDialogAction(
+                                    isDefaultAction: true,
+                                    child: const Text("확인"),
+                                    onPressed: () => Navigator.pop(context),
                                   ),
                                 ],
                               );
@@ -744,15 +745,14 @@ class _RecordList extends StatelessWidget {
 void showPermissionCheckingLoader(BuildContext context) {
   showDialog(
     context: context,
-    barrierDismissible: false, // user cannot close by tapping outside
-    barrierColor: Colors.black.withOpacity(0.6), // background tint
+    barrierDismissible: false,
+    barrierColor: Colors.black.withOpacity(0.8),
     builder: (context) {
       return Center(
         child: Container(
           width: 260,
           padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
           decoration: BoxDecoration(
-            color: Colors.black.withOpacity(0.7),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Column(
