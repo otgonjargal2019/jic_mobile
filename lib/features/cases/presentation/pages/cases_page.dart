@@ -20,8 +20,15 @@ class _CasesPageState extends State<CasesPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => context.read<CaseProvider>().loadCases(
-        status: _tabIndex == 1 ? 'OPEN' : _tabIndex == 2 ? 'CLOSED' : null));
+    Future.microtask(
+      () => context.read<CaseProvider>().loadCases(
+        status: _tabIndex == 1
+            ? 'OPEN'
+            : _tabIndex == 2
+            ? 'CLOSED'
+            : null,
+      ),
+    );
   }
 
   @override
@@ -69,7 +76,11 @@ class _CasesPageState extends State<CasesPage> {
                   onChanged: (i) => setState(() {
                     _tabIndex = i;
                     // request provider to reload using selected status
-                    final status = _tabIndex == 1 ? 'OPEN' : _tabIndex == 2 ? 'CLOSED' : null;
+                    final status = _tabIndex == 1
+                        ? 'OPEN'
+                        : _tabIndex == 2
+                        ? 'CLOSED'
+                        : null;
                     context.read<CaseProvider>().loadCases(status: status);
                   }),
                   backgroundColor: Colors.transparent,
@@ -82,7 +93,11 @@ class _CasesPageState extends State<CasesPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                      const Icon(
+                        Icons.error_outline,
+                        size: 48,
+                        color: Colors.red,
+                      ),
                       const SizedBox(height: 16),
                       Text(
                         error,
@@ -92,19 +107,31 @@ class _CasesPageState extends State<CasesPage> {
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () => context.read<CaseProvider>().loadCases(
-                            status: _tabIndex == 1 ? 'OPEN' : _tabIndex == 2 ? 'CLOSED' : null),
+                          status: _tabIndex == 1
+                              ? 'OPEN'
+                              : _tabIndex == 2
+                              ? 'CLOSED'
+                              : null,
+                        ),
                         child: const Text('다시 시도'),
                       ),
                     ],
                   ),
                 )
               else if (isLoading && cases.isEmpty)
-                const Expanded(child: Center(child: CircularProgressIndicator()))
+                const Expanded(
+                  child: Center(child: CircularProgressIndicator()),
+                )
               else
                 Expanded(
-          child: RefreshIndicator(
-            onRefresh: () => context.read<CaseProvider>().loadCases(
-              status: _tabIndex == 1 ? 'OPEN' : _tabIndex == 2 ? 'CLOSED' : null),
+                  child: RefreshIndicator(
+                    onRefresh: () => context.read<CaseProvider>().loadCases(
+                      status: _tabIndex == 1
+                          ? 'OPEN'
+                          : _tabIndex == 2
+                          ? 'CLOSED'
+                          : null,
+                    ),
                     child: NotificationListener<ScrollNotification>(
                       onNotification: (notification) {
                         if (notification.metrics.pixels >=
@@ -127,15 +154,18 @@ class _CasesPageState extends State<CasesPage> {
                           }
 
                           final item = cases[index];
-                          return CaseCard(
-                            item: item,
-                            onTap: () {
-                              invRecProvider.clearRecords();
-                              Navigator.of(context).pushNamed(
-                                app_router.AppRoute.caseDetail,
-                                arguments: app_router.CaseDetailArgs(item.id),
-                              );
-                            },
+                          return Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+                            child: CaseCard(
+                              item: item,
+                              onTap: () {
+                                invRecProvider.clearRecords();
+                                Navigator.of(context).pushNamed(
+                                  app_router.AppRoute.caseDetail,
+                                  arguments: app_router.CaseDetailArgs(item.id),
+                                );
+                              },
+                            ),
                           );
                         },
                       ),

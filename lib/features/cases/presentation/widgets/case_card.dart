@@ -12,7 +12,6 @@ class CaseCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations loc = AppLocalizations.of(context)!;
     final card = Container(
-      margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,

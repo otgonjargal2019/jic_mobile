@@ -39,7 +39,15 @@ class RecentCasesSection extends StatelessWidget {
     }
 
     return Column(
-      children: items.take(3).map((e) => CaseCard(item: e)).toList(),
+      children: items
+          .take(3)
+          .map(
+            (e) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: CaseCard(item: e),
+            ),
+          )
+          .toList(),
     );
   }
 }
