@@ -25,6 +25,7 @@ class _PostsPageState extends State<PostsPage> {
 
   @override
   Widget build(BuildContext context) {
+    const background = Color(0xFFF7F7F5);
     final postsProvider = context.watch<PostsProvider>();
     final notices = postsProvider.notices;
     final investigations = postsProvider.investigations;
@@ -33,19 +34,30 @@ class _PostsPageState extends State<PostsPage> {
     final loading = postsProvider.loading;
 
     return Scaffold(
-      backgroundColor: Color(0xFFF7F7F5),
-      appBar: AppBar(
-        elevation: 0,
-        backgroundColor: Color(0xFFF7F7F5),
-        centerTitle: false,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(2),
-          child: SizedBox(
-            width: double.infinity,
-            height: 2,
-            child: ColoredBox(color: Color(0xFFDCDCDC)),
+      backgroundColor: background,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(99),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: background,
+            border: Border(
+              bottom: BorderSide(color: Color(0xFFDCDCDC), width: 1),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x1A000000),
+                blurRadius: 1,
+                offset: Offset(0, 1),
+              ),
+            ],
           ),
-          //Divider(height: 1, thickness: 1),
+          alignment: Alignment.center,
+          height: 99,
+          child: AppBar(
+            backgroundColor: background,
+            surfaceTintColor: Colors.transparent,
+            toolbarHeight: 99,
+          ),
         ),
       ),
       bottomNavigationBar: const AppBottomNav(currentIndex: 3),

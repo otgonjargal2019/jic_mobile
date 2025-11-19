@@ -12,6 +12,7 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const background = Color(0xFFF7F7F5);
     final user = context.watch<UserProvider>().profile;
     final name = user?.name ?? '---';
     final extra = user?.extra;
@@ -53,22 +54,43 @@ class ProfilePage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Color(0xFFF7F7F5),
-      appBar: AppBar(
-        backgroundColor: Color(0xFFF7F7F5),
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios_new_rounded,
-            color: Color(0xFF111111),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(99),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: background,
+            border: Border(
+              bottom: BorderSide(color: Color(0xFFDCDCDC), width: 1),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x1A000000),
+                blurRadius: 1,
+                offset: Offset(0, 1),
+              ),
+            ],
           ),
-          onPressed: () => Navigator.of(context).pop(),
+          alignment: Alignment.center,
+          height: 99,
+          child: AppBar(
+            leading: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Icon(Icons.arrow_back_ios, size: 22),
+                ),
+              ),
+            ),
+            elevation: 0,
+            backgroundColor: background,
+            surfaceTintColor: Colors.transparent,
+            toolbarHeight: 99,
+          ),
         ),
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 1, color: Color(0xFFE3E5EA)),
-        ),
-        centerTitle: false,
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(0, 12, 0, 24),
@@ -183,14 +205,17 @@ class ProfilePage extends StatelessWidget {
             alignment: Alignment.center,
             child: TextButton(
               onPressed: () => _showLogoutSheet(context),
-              style: TextButton.styleFrom(
-                padding: EdgeInsets.zero,
-                foregroundColor: const Color(0xFF363249),
-                textStyle: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              style:
+                  TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    foregroundColor: const Color(0xFF363249),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ).copyWith(
+                    overlayColor: WidgetStateProperty.all(Colors.transparent),
+                  ),
               child: const Text('로그아웃'),
             ),
           ),
@@ -281,8 +306,13 @@ Future<void> _showLogoutSheet(BuildContext context) async {
         padding: EdgeInsets.zero,
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(18),
+            color: Color(0xFFD9D9D9),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(20),
+              topRight: Radius.circular(20),
+              bottomLeft: Radius.zero,
+              bottomRight: Radius.zero,
+            ),
           ),
           padding: const EdgeInsets.fromLTRB(24, 24, 24, 45),
           child: Column(

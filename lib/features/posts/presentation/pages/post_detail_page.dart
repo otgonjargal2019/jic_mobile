@@ -68,17 +68,58 @@ class _PostDetailPageState extends State<PostDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    const background = Color(0xFFF7F7F5);
     final boardType = _parseBoardType(widget.boardType);
     final title = boardType == BoardType.notice ? '공지사항' : '조사정보';
 
     return Scaffold(
-      backgroundColor: Color(0xFFF7F7F5),
-      appBar: AppBar(
-        title: Text(title),
-        centerTitle: true,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        backgroundColor: Colors.white,
+      backgroundColor: background,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(99),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: background,
+            border: Border(
+              bottom: BorderSide(color: Color(0xFFDCDCDC), width: 1),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x1A000000),
+                blurRadius: 1,
+                offset: Offset(0, 1),
+              ),
+            ],
+          ),
+          alignment: Alignment.center,
+          height: 99,
+          child: AppBar(
+            title: Text(
+              title,
+              style: const TextStyle(
+                color: Color(0xFF000000),
+                fontWeight: FontWeight.w500,
+                fontSize: 18,
+              ),
+            ),
+            centerTitle: true,
+            leading: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Icon(Icons.arrow_back_ios, size: 22),
+                ),
+              ),
+            ),
+            elevation: 0,
+            backgroundColor: background,
+            surfaceTintColor: Colors.transparent,
+            toolbarHeight: 99,
+          ),
+        ),
       ),
       body: _buildBody(),
     );
@@ -136,7 +177,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
             _meta('조회수', post.viewCount.toString()),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 22),
         // HTML content
         if ((post.content ?? '').isNotEmpty)
           Html(
@@ -145,17 +186,24 @@ class _PostDetailPageState extends State<PostDetailPage> {
             // This will color normal paragraph/text elements with the requested gray.
             style: {
               'body': Style(
+                margin: Margins.zero,
+                padding: HtmlPaddings.zero,
                 color: const Color(0xFF757575),
                 fontSize: FontSize(13),
                 lineHeight: LineHeight(1.5),
+                textAlign: TextAlign.left,
               ),
               // Optional: ensure common tags follow same color
-              'p': Style(color: const Color(0xFF9AA0A6)),
+              'p': Style(
+                margin: Margins.zero,
+                padding: HtmlPaddings.zero,
+                color: const Color(0xFF9AA0A6),
+              ),
               'li': Style(color: const Color(0xFF9AA0A6)),
               'a': Style(color: const Color(0xFF2563EB)), // keep links blue
             },
           ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         if (post.attachments.isNotEmpty) ...[
           for (final attachment in post.attachments)
             Padding(
@@ -195,7 +243,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
             decoration: BoxDecoration(
-              color: const Color(0xFFF3F4F6),
+              color: const Color(0xFFECECEC),
               border: const Border(
                 bottom: BorderSide(color: Color(0xFFE5E7EB)),
               ),
@@ -205,9 +253,9 @@ class _PostDetailPageState extends State<PostDetailPage> {
                 const Icon(
                   Icons.attach_file,
                   size: 16,
-                  color: Color(0xFF111827),
+                  color: Color(0xFF000000),
                 ),
-                Text('첨부파일', style: TextStyle(color: Color(0xFF111827))),
+                Text('첨부파일', style: TextStyle(color: Color(0xFF000000))),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
