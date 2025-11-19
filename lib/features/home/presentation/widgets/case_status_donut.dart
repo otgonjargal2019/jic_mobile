@@ -9,6 +9,8 @@ class CaseStatusDonut extends StatelessWidget {
   final Color onHoldColor;
   final Color closedColor;
 
+  static const double _strokeWidth = 15;
+
   const CaseStatusDonut({
     super.key,
     required this.summary,
@@ -36,7 +38,7 @@ class CaseStatusDonut extends StatelessWidget {
           child: CustomPaint(
             painter: _DonutPainter(
               segments: segments,
-              strokeWidth: 14,
+              strokeWidth: _strokeWidth,
               backgroundColor: const Color(0xFFEAECEE),
             ),
           ),
