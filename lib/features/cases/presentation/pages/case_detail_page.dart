@@ -790,7 +790,7 @@ void showPermissionCheckingLoader(BuildContext context) {
     builder: (context) {
       return Center(
         child: Container(
-          width: 260,
+          width: 290,
           padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
