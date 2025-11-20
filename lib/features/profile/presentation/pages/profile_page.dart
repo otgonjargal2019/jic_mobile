@@ -80,7 +80,7 @@ class ProfilePage extends StatelessWidget {
               child: Align(
                 alignment: Alignment.bottomLeft,
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
                   child: Icon(Icons.arrow_back_ios, size: 22),
                 ),
               ),
@@ -97,7 +97,7 @@ class ProfilePage extends StatelessWidget {
         children: [
           const SizedBox(height: 8),
           Padding(
-            padding: EdgeInsets.only(left: 24),
+            padding: EdgeInsets.only(left: 20),
             child: const Text(
               '마이페이지',
               style: TextStyle(
