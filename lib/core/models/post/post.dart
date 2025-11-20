@@ -38,14 +38,15 @@ class Post {
         .toList();
 
     return Post(
-      postId: json['postId'] as String,
+      postId: json['postId']?.toString() ?? '',
       boardType: BoardType.values.firstWhere(
         (e) =>
-            e.name.toUpperCase() == (json['boardType'] as String).toUpperCase(),
+            e.name.toUpperCase() ==
+            (json['boardType']?.toString() ?? '').toUpperCase(),
         orElse: () => BoardType.notice,
       ),
-      title: json['title'] as String,
-      content: json['content'] as String?,
+      title: json['title']?.toString() ?? '',
+      content: json['content']?.toString(),
       createdBy: json['creator']?['nameKr'] ?? json['creator']?['nameEn'],
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),

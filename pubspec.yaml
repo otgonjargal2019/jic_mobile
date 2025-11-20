@@ -46,6 +46,7 @@ dependencies:
   intl: ^0.20.2
   socket_io_client: ^3.0.0
   flutter_svg: ^2.0.10+1
+  flutter_html_table: ^3.0.0
 
 dev_dependencies:
   flutter_test:
