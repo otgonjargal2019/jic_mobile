@@ -35,7 +35,7 @@ class ApiClient {
             baseUrl ??
             const String.fromEnvironment(
               'API_BASE_URL',
-              defaultValue: 'http://localhost:8080',
+              defaultValue: 'http://121.67.187.138:8081',
             ),
         headers: const {
           'Content-Type': 'application/json',

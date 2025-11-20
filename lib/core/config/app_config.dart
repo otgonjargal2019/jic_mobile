@@ -3,6 +3,6 @@ class AppConfig {
 
   static const socketBaseUrl = String.fromEnvironment(
     'SOCKET_BASE_URL',
-    defaultValue: 'http://localhost:3001',
+    defaultValue: 'http://121.67.187.138:3001',
   );
 }
