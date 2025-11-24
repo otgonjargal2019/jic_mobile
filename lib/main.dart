@@ -66,12 +66,16 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final baseTheme = ThemeData(
+      colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
+      fontFamily: 'NotoSansKR',
+      fontFamilyFallback: const ['Inter'],
+    );
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       onGenerateTitle: (ctx) => AppLocalizations.of(ctx)?.appTitle ?? 'JIC',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.teal),
-      ),
+      theme: baseTheme.copyWith(colorScheme: baseTheme.colorScheme),
       locale: const Locale('ko'),
       onGenerateRoute: app_router.onGenerateRoute,
       localizationsDelegates: const [
