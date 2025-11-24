@@ -13,7 +13,7 @@ class SegmentedTabs extends StatelessWidget {
     required this.index,
     required this.labels,
     required this.onChanged,
-    this.backgroundColor = const Color(0xFFF0F2F5),
+    this.backgroundColor = Colors.transparent,
     this.selectedColor = const Color(0xFF39BE8C),
     this.textColor = const Color(0xB3363249),
   });
@@ -55,7 +55,7 @@ class SegmentedTabs extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: selected ? selectedColor : Colors.white,
+          color: selected ? selectedColor : Colors.transparent,
           borderRadius: BorderRadius.circular(999),
           border: Border(
             top: BorderSide(
