@@ -19,7 +19,6 @@ class _PostsPageState extends State<PostsPage> {
   @override
   void initState() {
     super.initState();
-    // Load posts when the page is first created
     Future.microtask(() => context.read<PostsProvider>().loadPosts());
   }
 

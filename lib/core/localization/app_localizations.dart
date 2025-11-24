@@ -1,7 +1,5 @@
 import 'package:flutter/widgets.dart';
 
-/// Minimal, self-contained localization for English and Korean.
-/// Replace with Flutter's gen_l10n when you prefer generated ARB workflow.
 class AppLocalizations {
   final Locale locale;
   AppLocalizations(this.locale);

@@ -85,7 +85,6 @@ class _MessengerPageState extends State<MessengerPage> {
   Future<void> _performSearch(String query) async {
     final chat = context.read<ChatProvider>();
     if (!chat.connected) {
-      // Ensure connection exists before searching
       final profile = context.read<UserProvider>().profile;
       final userId = profile?.id;
       final token = context.read<UserProvider>().accessToken;

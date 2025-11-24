@@ -198,5 +198,3 @@ class _CasesPageState extends State<CasesPage> {
     );
   }
 }
-
-// removed local segmented tabs in favor of shared SegmentedTabs widget

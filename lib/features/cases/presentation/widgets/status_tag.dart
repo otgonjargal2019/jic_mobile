@@ -14,11 +14,10 @@ class StatusTag extends StatelessWidget {
     Color? borderColor;
     Color bgColor = Colors.white;
 
-    // Text болон color-г тогтоох
     switch (status) {
       case "OPEN":
         text =
-            "Open"; // Танд localization хэрэгтэй бол Intl package ашиглаж болно
+            "Open";
         ellipseColor = Colors.green;
         if (border) borderColor = Colors.green;
         textColor = Colors.black;

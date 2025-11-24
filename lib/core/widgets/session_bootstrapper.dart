@@ -8,9 +8,6 @@ import 'package:jic_mob/core/state/notification_provider.dart';
 import 'package:jic_mob/core/state/user_provider.dart';
 import 'package:jic_mob/core/network/realtime_gateway.dart';
 
-/// Keeps real-time socket clients (chat, notifications) in sync with the
-/// authenticated user session. Once a user logs in, the sockets connect and
-/// preload unread data even before the dedicated tabs are opened.
 class SessionBootstrapper extends StatefulWidget {
   final Widget child;
   const SessionBootstrapper({super.key, required this.child});

@@ -164,7 +164,7 @@ class _PostDetailPageState extends State<PostDetailPage> {
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF111827), // black title per design
+              color: Color(0xFF111827),
             ),
           ),
         ),

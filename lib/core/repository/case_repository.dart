@@ -63,7 +63,6 @@ class CaseRepository {
       if (map.containsKey('rows')) {
         final rows = map['rows'] as List? ?? [];
 
-        // Determine total elements from possible fields
         int totalElements = 0;
         if (map.containsKey('total')) {
           totalElements = _toInt(map['total']);

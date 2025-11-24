@@ -24,7 +24,6 @@ class PostsProvider extends ChangeNotifier {
   bool _hasMoreInvestigations = true;
   int _investigationsPage = 0;
 
-  /// Load both lists (refresh)
   Future<void> loadPosts() async {
     await Future.wait([
       loadMoreNotices(refresh: true),
@@ -32,7 +31,6 @@ class PostsProvider extends ChangeNotifier {
     ]);
   }
 
-  /// Load next page of notices. Set [refresh] to true to reload from page 0.
   Future<void> loadMoreNotices({bool refresh = false, int size = 10}) async {
     if (!refresh && !_hasMoreNotices) return;
     if (_loading && !refresh) return;
@@ -71,7 +69,6 @@ class PostsProvider extends ChangeNotifier {
     }
   }
 
-  /// Load next page of investigations. Set [refresh] to true to reload from page 0.
   Future<void> loadMoreInvestigations({
     bool refresh = false,
     int size = 10,
@@ -120,7 +117,6 @@ class PostsProvider extends ChangeNotifier {
     }
   }
 
-  /// Fetch a single post detail (with neighbors)
   Future<PostDetailResponse> fetchPostDetail({
     required BoardType boardType,
     required String id,
@@ -129,7 +125,6 @@ class PostsProvider extends ChangeNotifier {
       final res = await _repository.getPost(type: boardType, id: id);
       return res;
     } catch (e) {
-      // bubble up
       rethrow;
     }
   }

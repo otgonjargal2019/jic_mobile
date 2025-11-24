@@ -23,7 +23,6 @@ import 'core/network/realtime_gateway.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Create API client (handles cookies etc.)
   final apiClient = await ApiClient.create();
 
   runApp(
@@ -62,7 +61,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     final baseTheme = ThemeData(

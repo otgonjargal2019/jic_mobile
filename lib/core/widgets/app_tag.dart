@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Simple rectangular tag with small radius.
 class AppTag extends StatelessWidget {
   final String text;
   final Color background;

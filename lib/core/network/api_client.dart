@@ -103,15 +103,8 @@ class ApiClient {
     }
   }
 
-  // Authenticated request: returns current user's profile and related lists.
-  // Backend endpoint per server: /api/user/me
   Future<Response<dynamic>> getMe() => _dio.get('/api/user/me');
 
-  /// Logs out the current session.
-  ///
-  /// - On non-web: clears the persisted cookie jar so future requests are unauthenticated.
-  /// - On web: cannot clear HttpOnly cookies client-side; without a backend logout endpoint,
-  ///   the browser will retain the cookie until it expires or the site is cleared.
   Future<void> logout() async {
     // Clear cookies on non-web platforms
     if (_jar != null) {

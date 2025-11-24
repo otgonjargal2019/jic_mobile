@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Small rounded badge for compact metadata.
 class AppBadge extends StatelessWidget {
   final String text;
   final bool filled;

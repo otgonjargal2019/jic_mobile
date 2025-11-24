@@ -186,7 +186,6 @@ class ProfilePage extends StatelessWidget {
             ),
           ),
 
-          // full-width thick separator below the card
           Container(
             width: double.infinity,
             height: 12,
@@ -230,7 +229,6 @@ class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
 
-  /// Whether to draw the bottom border for this row. Defaults to true.
   final bool showBottomBorder;
   final double bottomPadding;
 

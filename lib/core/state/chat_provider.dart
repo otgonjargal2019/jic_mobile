@@ -57,11 +57,9 @@ class ChatProvider extends ChangeNotifier {
   String? get myId => _myId;
   String? get currentPeerId => _currentPeerId;
 
-  /// Total unread message count across all peers
   int get totalUnreadCount =>
       _peers.fold(0, (sum, peer) => sum + peer.unreadCount);
 
-  /// Number of users with unread messages
   int get unreadUsersCount =>
       _peers.where((peer) => peer.unreadCount > 0).length;
 
@@ -156,7 +154,6 @@ class ChatProvider extends ChangeNotifier {
       token: token,
     );
 
-    // Register socket event listeners only once
     if (!_listenersRegistered) {
       _listenersRegistered = true;
 
@@ -225,20 +222,15 @@ class ChatProvider extends ChangeNotifier {
             )
             .toList();
 
-        // Update peers list intelligently:
-        // - Keep local unread counts if they're higher (from real-time messages)
-        // - Only replace if this is the first load or if server has newer data
         if (_peers.isEmpty) {
           _peers.addAll(serverList);
         } else {
-          // Merge: prefer local unread counts if higher than server
           for (final serverPeer in serverList) {
             final localIndex = _peers.indexWhere(
               (p) => p.userId == serverPeer.userId,
             );
             if (localIndex != -1) {
               final localPeer = _peers[localIndex];
-              // Keep the higher unread count (local or server)
               final unreadCount = localPeer.unreadCount > serverPeer.unreadCount
                   ? localPeer.unreadCount
                   : serverPeer.unreadCount;
@@ -252,12 +244,10 @@ class ChatProvider extends ChangeNotifier {
                 profileImageUrl: serverPeer.profileImageUrl,
               );
             } else {
-              // New peer not in local list, add it
               _peers.add(serverPeer);
             }
           }
 
-          // Remove peers that are no longer in server list
           final serverUserIds = serverList.map((peer) => peer.userId).toSet();
           _peers.removeWhere(
             (localPeer) => !serverUserIds.contains(localPeer.userId),
@@ -284,7 +274,6 @@ class ChatProvider extends ChangeNotifier {
     await loadHistory(peerId: peerId);
     _gateway.client.emit('markMessagesAsRead', {'peerId': peerId});
 
-    // Update local unread count for this peer to 0
     final peerIndex = _peers.indexWhere((p) => p.userId == peerId);
     if (peerIndex != -1) {
       final peer = _peers[peerIndex];
@@ -378,13 +367,11 @@ class ChatProvider extends ChangeNotifier {
               .reversed
               .toList();
 
-          // Prepend new messages to existing ones while removing duplicates
           final existingMessages = _messages[peerId] ?? [];
           final combined = [...newMessages, ...existingMessages];
           final seenIds = <String>{};
           final deduped = <ChatMessage>[];
           for (final message in combined) {
-            // Combine messageId with timestamp just in case backend reuses ids
             final key =
                 '${message.messageId}_${message.createdAt.toIso8601String()}';
             if (seenIds.add(key)) {
@@ -395,7 +382,6 @@ class ChatProvider extends ChangeNotifier {
 
           completer.complete(newMessages.length);
         } catch (_) {
-          // Keep existing messages on error
           completer.complete(0);
         } finally {
           _loadingHistory = false;

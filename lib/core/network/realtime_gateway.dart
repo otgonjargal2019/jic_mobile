@@ -23,7 +23,6 @@ class RealtimeGateway extends ChangeNotifier {
       throw ArgumentError('module name must not be empty');
     }
 
-    // Wait for any in-flight connect attempt.
     while (_activeConnect != null) {
       try {
         await _activeConnect;

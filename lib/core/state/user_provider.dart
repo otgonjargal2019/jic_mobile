@@ -42,8 +42,6 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Fetches the current user's profile from the backend `/api/user/me` endpoint
-  /// and stores a simplified view into this provider.
   Future<void> fetchMe() async {
     _loading = true;
     _error = null;
@@ -77,7 +75,6 @@ class UserProvider extends ChangeNotifier {
             ),
           );
         } else {
-          // Unexpected shape; clear profile but no hard error.
           clear();
         }
       } else {

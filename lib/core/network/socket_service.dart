@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:socket_io_client/socket_io_client.dart' as io;
 
-/// Lightweight wrapper around a Socket.IO client connection.
-/// The server authenticates connections via an `auth.token` JWT payload.
 class SocketService {
   io.Socket? _socket;
   Completer<void>? _connectionCompleter;

@@ -130,7 +130,6 @@ class NotificationProvider extends ChangeNotifier {
     );
     debugPrint('NotificationProvider: connection ready for $userId');
 
-    // Listen for new notifications
     if (!_listenersBound) {
       _listenersBound = true;
       _gateway.client.on('notification:new', _handleNotificationNew);
@@ -231,7 +230,6 @@ class NotificationProvider extends ChangeNotifier {
     return null;
   }
 
-  /// Load the first page of notifications
   Future<void> loadInitialPage({int limit = 20}) async {
     if (!connected) return;
     if (_loadingPage) return;
@@ -253,7 +251,6 @@ class NotificationProvider extends ChangeNotifier {
         final localUnread = _countUnreadLocally();
         _updateUnreadCount(localUnread);
 
-        // If we got fewer than requested, no more pages
         _hasMore = list.length >= limit;
       } catch (e) {
         debugPrint('NotificationProvider: error loading notifications: $e');
@@ -266,7 +263,6 @@ class NotificationProvider extends ChangeNotifier {
     });
   }
 
-  /// Load more notifications for infinite scroll (returns count loaded)
   Future<int> loadMoreNotifications({
     required DateTime before,
     int limit = 20,
@@ -291,7 +287,6 @@ class NotificationProvider extends ChangeNotifier {
 
           _notifications.addAll(newNotifications);
 
-          // If we got fewer than limit, we've reached the end
           _hasMore = newNotifications.length >= limit;
           _updateUnreadCount(_countUnreadLocally());
 
@@ -311,7 +306,6 @@ class NotificationProvider extends ChangeNotifier {
     return completer.future;
   }
 
-  /// Mark a single notification as read
   Future<void> markAsRead(String notificationId) async {
     if (!connected) return;
 
@@ -333,7 +327,6 @@ class NotificationProvider extends ChangeNotifier {
     });
   }
 
-  /// Mark all notifications as read
   Future<void> markAllAsRead() async {
     if (!connected) return;
 
@@ -347,7 +340,6 @@ class NotificationProvider extends ChangeNotifier {
     });
   }
 
-  /// Delete all notifications
   Future<void> deleteAll() async {
     if (!connected) return;
 

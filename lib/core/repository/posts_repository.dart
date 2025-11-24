@@ -8,21 +8,11 @@ class PostsRepository {
 
   PostsRepository(this._apiClient);
 
-  // Future<List<Post>> getPosts({BoardType? type}) =>
-  //     _apiClient.getPosts(type: type);
-
-  //Future<Post> getPost(String id) => _apiClient.getPost(id);
-
-  /// [type] - NOTICE эсвэл RESEARCH (BoardType)
-  /// [page] - 0-based page index
-  /// [size] - page size (default: 10)
-
   Future<PagedResponse<Post>> getPosts({
     BoardType? type,
     int page = 0,
     int size = 10,
   }) async {
-    // Increase receive timeout for posts endpoint (server may take longer)
     final response = await _apiClient.get(
       '/api/posts',
       queryParameters: {
@@ -37,15 +27,11 @@ class PostsRepository {
       throw ApiException('Empty response from server');
     }
 
-    // Your backend wraps the paged list in an ApiResponse with fields like:
-    // { success, message, data: [...], meta: { currentPage, pageSize, totalItems, totalPages, hasNext, hasPrevious } }
-    // Normalize that structure into the shape expected by PagedResponse.fromJson
     if (data is Map || data is Map<String, dynamic>) {
       final map = data is Map<String, dynamic>
           ? data
           : Map<String, dynamic>.from(data as Map);
 
-      // If it's wrapped in ApiResponse, unwrap
       if (map.containsKey('data') && map.containsKey('meta')) {
         final innerData = map['data'];
         final meta = map['meta'];
@@ -67,7 +53,6 @@ class PostsRepository {
         );
       }
 
-      // If the API returns the page directly (content/number/last/etc) use that
       if (map.containsKey('content')) {
         return PagedResponse<Post>.fromJson(
           Map<String, dynamic>.from(map),
@@ -95,7 +80,6 @@ class PostsRepository {
       final map = data is Map<String, dynamic>
           ? data
           : Map<String, dynamic>.from(data as Map);
-      // wrapped ApiResponse with data/meta
       if (map.containsKey('data')) {
         final inner = map['data'];
         if (inner is Map<String, dynamic>) {
@@ -103,7 +87,6 @@ class PostsRepository {
         }
       }
 
-      // direct map
       if (map.containsKey('current')) {
         return PostDetailResponse.fromJson(Map<String, dynamic>.from(map));
       }

@@ -67,7 +67,6 @@ class CaseProvider extends ChangeNotifier {
     }
   }
 
-    /// Fetch a single case by UUID
     Future<void> loadCaseByUUID(String uuid) async {
       _loading = true;
       _error = null;
