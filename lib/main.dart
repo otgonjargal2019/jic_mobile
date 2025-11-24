@@ -4,7 +4,6 @@ import 'package:jic_mob/core/provider/dashboard_provider.dart';
 import 'package:jic_mob/core/repository/case_repository.dart';
 import 'package:jic_mob/core/repository/dashboard_repository.dart';
 import 'features/auth/presentation/pages/login_page.dart';
-import 'features/home/presentation/pages/home_page.dart';
 import 'features/profile/presentation/pages/profile_page.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'core/localization/app_localizations.dart';
@@ -88,7 +87,6 @@ class MyApp extends StatelessWidget {
       home: const LoginPage(),
       routes: {
         LoginPage.route: (_) => const LoginPage(),
-        '/home': (_) => const HomePage(),
         ProfilePage.route: (_) => const ProfilePage(),
       },
     );

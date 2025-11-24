@@ -16,7 +16,7 @@ class AppBottomNav extends StatelessWidget {
     final navigator = Navigator.of(context, rootNavigator: true);
     switch (index) {
       case 0:
-        navigator.pushReplacementNamed('/home');
+        navigator.pushReplacementNamed(app_router.AppRoute.home);
         break;
       case 1:
         navigator.pushReplacementNamed(app_router.AppRoute.cases);
