@@ -156,7 +156,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 8),
+              //const SizedBox(height: 8),
               Expanded(
                 child: notifProv.loadingPage && items.isEmpty
                     ? const Center(child: CircularProgressIndicator())
@@ -171,7 +171,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         onRefresh: _onRefresh,
                         child: ListView.separated(
                           controller: _scrollController,
-                          padding: const EdgeInsets.fromLTRB(12, 8, 12, 16),
+                          padding: const EdgeInsets.all(20),
                           itemCount: items.length + (_isLoadingMore ? 1 : 0),
                           separatorBuilder: (_, __) =>
                               const SizedBox(height: 14),
