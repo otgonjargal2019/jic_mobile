@@ -124,6 +124,8 @@ class _CasesPageState extends State<CasesPage> {
                           status: _tabIndex == 1
                               ? 'OPEN'
                               : _tabIndex == 2
+                              ? 'ON_HOLD'
+                              : _tabIndex == 3
                               ? 'CLOSED'
                               : null,
                         ),
@@ -143,6 +145,8 @@ class _CasesPageState extends State<CasesPage> {
                       status: _tabIndex == 1
                           ? 'OPEN'
                           : _tabIndex == 2
+                          ? 'ON_HOLD'
+                          : _tabIndex == 3
                           ? 'CLOSED'
                           : null,
                     ),
