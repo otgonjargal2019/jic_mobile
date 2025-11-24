@@ -603,13 +603,19 @@ class _RecordList extends StatelessWidget {
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            rec.recordName ?? '(무제)',
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.w700,
+                                          ConstrainedBox(
+                                            constraints: BoxConstraints(
+                                              maxWidth: MediaQuery.of(context).size.width * 0.5,
                                             ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
+                                            child: Text(
+                                              rec.recordName ?? '(무제)',
+                                              style: const TextStyle(
+                                                // color: Colors.green,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
