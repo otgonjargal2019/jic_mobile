@@ -15,8 +15,17 @@ class PostNeighbor {
     return PostNeighbor(
       postId: json['postId']?.toString() ?? '',
       title: json['title']?.toString() ?? '',
-      createdAt: DateTime.parse(json['createdAt'] as String),
+      createdAt: _safeDate(json['createdAt']),
     );
+  }
+}
+
+DateTime _safeDate(dynamic value) {
+  try {
+    if (value == null) return DateTime(1970);
+    return DateTime.parse(value.toString());
+  } catch (_) {
+    return DateTime(1970);
   }
 }
 

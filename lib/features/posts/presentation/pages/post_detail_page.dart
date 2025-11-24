@@ -6,6 +6,8 @@ import 'package:jic_mob/core/models/post/post.dart';
 import 'package:jic_mob/core/models/post/post_detail.dart';
 import 'package:jic_mob/core/provider/posts_provider.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_html_table/flutter_html_table.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PostDetailPage extends StatefulWidget {
   final String id;
@@ -180,29 +182,8 @@ class _PostDetailPageState extends State<PostDetailPage> {
         const SizedBox(height: 22),
         // HTML content
         if ((post.content ?? '').isNotEmpty)
-          Html(
-            data: post.content ?? '',
-            // Apply a default text style for rendered HTML so it matches app design.
-            // This will color normal paragraph/text elements with the requested gray.
-            style: {
-              'body': Style(
-                margin: Margins.zero,
-                padding: HtmlPaddings.zero,
-                color: const Color(0xFF757575),
-                fontSize: FontSize(13),
-                lineHeight: LineHeight(1.5),
-                textAlign: TextAlign.left,
-              ),
-              // Optional: ensure common tags follow same color
-              'p': Style(
-                margin: Margins.zero,
-                padding: HtmlPaddings.zero,
-                color: const Color(0xFF9AA0A6),
-              ),
-              'li': Style(color: const Color(0xFF9AA0A6)),
-              'a': Style(color: const Color(0xFF2563EB)), // keep links blue
-            },
-          ),
+          PostDetailHtml(htmlContent: post.content ?? ''),
+
         const SizedBox(height: 12),
         if (post.attachments.isNotEmpty) ...[
           for (final attachment in post.attachments)
@@ -393,6 +374,70 @@ class _PrevNextItem extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class PostDetailHtml extends StatelessWidget {
+  final String htmlContent;
+  const PostDetailHtml({required this.htmlContent, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Html(
+        data: htmlContent,
+        extensions: [TableHtmlExtension()],
+        onLinkTap: (url, attributes, element) async {
+          if (url == null) return;
+          if (await canLaunchUrl(Uri.parse(url))) {
+            await launchUrl(
+              Uri.parse(url),
+              mode: LaunchMode.externalApplication,
+            );
+          }
+        },
+        style: {
+          'body': Style(
+            margin: Margins.zero,
+            padding: HtmlPaddings.zero,
+            fontSize: FontSize(14),
+            lineHeight: LineHeight(1.6),
+            color: const Color(0xFF333333),
+          ),
+          'p': Style(
+            margin: Margins.only(bottom: 12),
+            padding: HtmlPaddings.zero,
+            fontSize: FontSize(14),
+            lineHeight: LineHeight(1.6),
+            color: const Color(0xFF333333),
+          ),
+          'table': Style(
+            margin: Margins.only(bottom: 16),
+            display: Display.block,
+          ),
+          'tr': Style(),
+          'th': Style(
+            padding: HtmlPaddings.all(8),
+            textAlign: TextAlign.center,
+            fontWeight: FontWeight.bold,
+            color: const Color(0xFF333333),
+            fontSize: FontSize(14),
+          ),
+          'td': Style(
+            padding: HtmlPaddings.all(8),
+            textAlign: TextAlign.center,
+            color: const Color(0xFF333333),
+            fontSize: FontSize(14),
+          ),
+          'a': Style(
+            color: const Color(0xFF2563EB),
+            textDecoration: TextDecoration.underline,
+          ),
+        },
+        shrinkWrap: true,
       ),
     );
   }

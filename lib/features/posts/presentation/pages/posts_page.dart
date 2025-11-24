@@ -123,7 +123,15 @@ class _PostsPageState extends State<PostsPage> {
                   child: ListView.separated(
                     padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
                     itemCount: list.length + (loading ? 1 : 0),
-                    separatorBuilder: (_, __) => const SizedBox(height: 8),
+                    separatorBuilder: (context, index) {
+                      if (index == list.length) return const SizedBox.shrink();
+                      return const Divider(
+                        height: 1,
+                        thickness: 1,
+                        endIndent: 0,
+                        indent: 0,
+                      );
+                    },
                     itemBuilder: (context, index) {
                       if (index == list.length) {
                         return const Padding(
@@ -193,8 +201,7 @@ class _PostTile extends StatelessWidget {
               dateTimeLabel,
               style: const TextStyle(fontSize: 12, color: Color(0xFF656161)),
             ),
-            const SizedBox(height: 10),
-            const Divider(height: 1, thickness: 1),
+            const SizedBox(height: 6),
           ],
         ),
       ),
