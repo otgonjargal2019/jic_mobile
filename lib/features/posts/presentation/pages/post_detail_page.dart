@@ -7,6 +7,7 @@ import 'package:jic_mob/core/models/post/post_detail.dart';
 import 'package:jic_mob/core/provider/posts_provider.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html_table/flutter_html_table.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PostDetailPage extends StatefulWidget {
   final String id;
@@ -389,6 +390,15 @@ class PostDetailHtml extends StatelessWidget {
       child: Html(
         data: htmlContent,
         extensions: [TableHtmlExtension()],
+        onLinkTap: (url, attributes, element) async {
+          if (url == null) return;
+          if (await canLaunchUrl(Uri.parse(url))) {
+            await launchUrl(
+              Uri.parse(url),
+              mode: LaunchMode.externalApplication,
+            );
+          }
+        },
         style: {
           'body': Style(
             margin: Margins.zero,
