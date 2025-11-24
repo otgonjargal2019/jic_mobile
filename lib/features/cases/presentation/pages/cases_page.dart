@@ -85,12 +85,14 @@ class _CasesPageState extends State<CasesPage> {
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                 child: SegmentedTabs(
                   index: _tabIndex,
-                  labels: const ['전체', '진행중인 사건', '종료 사건'],
+                  labels: const ['전체', '진행중인 사건', '미해결 사건', '종료 사건'],
                   onChanged: (i) => setState(() {
                     _tabIndex = i;
                     final status = _tabIndex == 1
                         ? 'OPEN'
                         : _tabIndex == 2
+                        ? 'ON_HOLD'
+                        : _tabIndex == 3
                         ? 'CLOSED'
                         : null;
                     context.read<CaseProvider>().loadCases(status: status);
