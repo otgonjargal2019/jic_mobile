@@ -4,16 +4,14 @@ import 'package:jic_mob/core/models/pagination.dart';
 import 'package:jic_mob/core/models/post/post_detail.dart';
 
 class PostsRepository {
-  final ApiClient _apiClient;
-
-  PostsRepository(this._apiClient);
 
   Future<PagedResponse<Post>> getPosts({
     BoardType? type,
     int page = 0,
     int size = 10,
   }) async {
-    final response = await _apiClient.get(
+    final api = await ApiClient.create();
+    final response = await api.get(
       '/api/posts',
       queryParameters: {
         if (type != null) 'boardType': type.name.toUpperCase(),
@@ -68,7 +66,8 @@ class PostsRepository {
     required BoardType type,
     required String id,
   }) async {
-    final response = await _apiClient.get(
+    final api = await ApiClient.create();
+    final response = await api.get(
       '/api/posts/${type.name.toUpperCase()}/$id',
       receiveTimeout: const Duration(seconds: 30),
     );

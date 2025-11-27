@@ -163,8 +163,12 @@ class _AuthorsSection extends StatelessWidget {
         : '';
     if (creator is Map) {
       final c = creator as Map;
-      creatorName = (c['nameEn'] ?? c['nameKr'] ?? c['loginId'] ?? '')
-          .toString();
+      String nameEn = c['nameEn']?.toString() ?? '';
+      String nameKr = c['nameKr']?.toString() ?? '';
+      nameEn = nameEn.trim();
+      nameKr = nameKr.trim();
+
+      creatorName = (nameEn.isNotEmpty ? nameEn : (nameKr.isNotEmpty ? nameKr : '')).toString();
       creatorAvatar = c['profileImageUrl']?.toString() ?? '';
       creatorHq = c['headquarterName']?.toString() ?? '';
       creatorDept = c['departmentName']?.toString() ?? '';
@@ -181,8 +185,11 @@ class _AuthorsSection extends StatelessWidget {
         : '';
     if (reviewer is Map) {
       final r = reviewer as Map;
-      reviewerName = (r['nameEn'] ?? r['nameKr'] ?? r['loginId'] ?? '')
-          .toString();
+      String nameEn = r['nameEn']?.toString() ?? '';
+      String nameKr = r['nameKr']?.toString() ?? '';
+      nameEn = nameEn.trim();
+      nameKr = nameKr.trim();
+      reviewerName = (nameEn.isNotEmpty ? nameEn : (nameKr.isNotEmpty ? nameKr : '')).toString();
       reviewerAvatar = r['profileImageUrl']?.toString() ?? '';
       reviewerHq = r['headquarterName']?.toString() ?? '';
       reviewerDept = r['departmentName']?.toString() ?? '';

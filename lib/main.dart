@@ -11,7 +11,6 @@ import 'core/navigation/app_router.dart' as app_router;
 import 'package:provider/provider.dart';
 import 'core/state/user_provider.dart';
 import 'core/state/chat_provider.dart';
-import 'core/network/api_client.dart';
 import 'core/repository/posts_repository.dart';
 import 'core/provider/posts_provider.dart';
 import 'core/repository/investigation_record_repository.dart';
@@ -23,18 +22,16 @@ import 'core/network/realtime_gateway.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final apiClient = await ApiClient.create();
-
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => UserProvider()),
         ChangeNotifierProvider(create: (_) => RealtimeGateway()),
         ChangeNotifierProvider(
-          create: (_) => DashboardProvider(DashboardRepository(apiClient)),
+          create: (_) => DashboardProvider(DashboardRepository()),
         ),
         ChangeNotifierProvider(
-          create: (_) => PostsProvider(PostsRepository(apiClient)),
+          create: (_) => PostsProvider(PostsRepository()),
         ),
         ChangeNotifierProvider(
           create: (ctx) => ChatProvider(ctx.read<RealtimeGateway>()),
@@ -44,12 +41,12 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (context) => CaseProvider(
-            CaseRepository(apiClient, context.read<UserProvider>()),
+            CaseRepository(context.read<UserProvider>()),
           ),
         ),
         ChangeNotifierProvider(
           create: (_) => InvestigationRecordProvider(
-            InvestigationRecordRepository(apiClient),
+            InvestigationRecordRepository(),
           ),
         ),
       ],

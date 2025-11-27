@@ -15,9 +15,6 @@ int _toInt(dynamic v) {
 }
 
 class InvestigationRecordRepository {
-  final ApiClient _apiClient;
-
-  InvestigationRecordRepository(this._apiClient);
 
   Future<PagedResponse<InvestigationRecord>> getInvestigationRecords({
     String sortBy = 'createdAt',
@@ -34,7 +31,8 @@ class InvestigationRecordRepository {
     };
     if (caseId != null) queryParams['caseId'] = caseId;
 
-    final response = await _apiClient.get(
+    final api = await ApiClient.create();
+    final response = await api.get(
       '/investigation-records/list',
       queryParameters: queryParams,
       receiveTimeout: const Duration(seconds: 60),
@@ -89,7 +87,8 @@ class InvestigationRecordRepository {
   }
 
   Future<InvestigationRecord> getInvestigationRecordById(String recordId) async {
-    final response = await _apiClient.get(
+    final api = await ApiClient.create();
+    final response = await api.get(
       '/investigation-records/$recordId',
       receiveTimeout: const Duration(seconds: 60),
     );
@@ -109,7 +108,8 @@ class InvestigationRecordRepository {
   }
 
   Future<bool> checkAccess(String recordId) async {
-    final response = await _apiClient.get(
+    final api = await ApiClient.create();
+    final response = await api.get(
       '/investigation-records/check-access/$recordId',
       receiveTimeout: const Duration(seconds: 30),
     );

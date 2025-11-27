@@ -16,10 +16,9 @@ int _toInt(dynamic v) {
 }
 
 class CaseRepository {
-  final ApiClient _apiClient;
   final UserProvider? _userProvider;
 
-  CaseRepository(this._apiClient, [this._userProvider]);
+  CaseRepository([this._userProvider]);
 
   Future<PagedResponse<Case>> getCases({
     String sortBy = 'number',
@@ -45,7 +44,8 @@ class CaseRepository {
       path += '/my-assigned';
     }
 
-    final response = await _apiClient.get(
+    final api = await ApiClient.create();
+    final response = await api.get(
       path,
       queryParameters: queryParams,
       receiveTimeout: const Duration(seconds: 60),
@@ -102,7 +102,8 @@ class CaseRepository {
   }
 
   Future<Case> getCaseByUUID(String uuid) async {
-    final response = await _apiClient.get(
+    final api = await ApiClient.create();
+    final response = await api.get(
       '/api/cases/$uuid',
       receiveTimeout: const Duration(seconds: 60),
     );
